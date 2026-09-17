@@ -1,0 +1,435 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>友链 | WELCOME</title><meta name="author" content="Hissgle"><meta name="copyright" content="Hissgle"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="欢迎交换友链。想加友链的话，在下方评论区留言告诉我你的站点信息即可。 我的站点信息： 1234name: Hissgle 的博客link: https:&#x2F;&#x2F;hissgle.github.ioavatar: https:&#x2F;&#x2F;hissgle.github.io&#x2F;img&#x2F;HR7RV0bWoAAJqxf.jpgdescr: 平平无常的二次元爱好者">
+<meta property="og:type" content="website">
+<meta property="og:title" content="友链">
+<meta property="og:url" content="https://hissgle.github.io/link/index.html">
+<meta property="og:site_name" content="WELCOME">
+<meta property="og:description" content="欢迎交换友链。想加友链的话，在下方评论区留言告诉我你的站点信息即可。 我的站点信息： 1234name: Hissgle 的博客link: https:&#x2F;&#x2F;hissgle.github.ioavatar: https:&#x2F;&#x2F;hissgle.github.io&#x2F;img&#x2F;HR7RV0bWoAAJqxf.jpgdescr: 平平无常的二次元爱好者">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hissgle.github.io/img/HR7RV0bWoAAJqxf.jpg">
+<meta property="article:published_time" content="2026-09-17T04:00:00.000Z">
+<meta property="article:modified_time" content="2026-09-17T13:49:06.444Z">
+<meta property="article:author" content="Hissgle">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hissgle.github.io/img/HR7RV0bWoAAJqxf.jpg"><script type="application/ld+json"></script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://hissgle.github.io/link/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="https://events.vercount.one"/><link rel="stylesheet" href="/css/index.css?v=5.7.1.260810"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        try {
+          const data = { value }
+
+          if (ttl != null) {
+            data.expiry = Date.now() + ttl * 86400000
+          }
+
+          localStorage.setItem(key, JSON.stringify(data))
+        } catch (e) {
+          console.error(e)
+        }
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return
+
+        try {
+          const data = JSON.parse(itemStr)
+
+          if (data.expiry && Date.now() > data.expiry) {
+            localStorage.removeItem(key)
+            return
+          }
+
+          return data.value
+        } catch {
+          localStorage.removeItem(key)
+        }
+      }
+    }
+
+    const scriptCache = new Map()
+    const cssCache = new Map()
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => {
+        if (scriptCache.has(url)) {
+          return scriptCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+
+          script.src = url
+          script.async = true
+
+          for (const key in attr) {
+            script.setAttribute(key, attr[key])
+          }
+
+          script.onload = resolve
+          script.onerror = reject
+
+          document.head.appendChild(script)
+        })
+
+        scriptCache.set(url, promise)
+
+        return promise
+      },
+      getCSS: (url, id) => {
+        if (cssCache.has(url)) {
+          return cssCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const link = document.createElement('link')
+
+          link.rel = 'stylesheet'
+          link.href = url
+
+          if (id) {
+            link.id = id
+          }
+
+          link.onload = resolve
+          link.onerror = reject
+
+          document.head.appendChild(link)
+        })
+
+        cssCache.set(url, promise)
+
+        return promise
+      },
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]')
+      const activateDarkMode = () => {
+        document.documentElement.dataset.theme = 'dark'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.dataset.theme = 'light'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '友链',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'page'
+}</script><meta name="generator" content="Hexo 8.1.2"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><div class="bg-animation" id="web_bg" style="background: linear-gradient(180deg, #eef3fb 0%, #f7f9fc 40%, #f2f6fa 100%);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/HR7RV0bWoAAJqxf.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">1</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div></div></div></div><div class="page type-link" id="body-wrap"><header class="not-home-page fixed" id="page-header" style="background-image: url(/img/titlebackground.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">WELCOME</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="page-site-info"><h1 id="site-title">友链</h1></div></header><main class="layout" id="content-inner"><div id="page"><div class="container" id="article-container"><div class="flink"><h2 id="友情链接"><a href="#友情链接" class="headerlink" title="友情链接"></a>友情链接</h2><div class="flink-desc">交换友链请在评论区留言</div> <div class="flink-list">
+  <div class="flink-list-item">
+    <a href="https://hexo.io/" title="Hexo" target="_blank">
+      <div class="flink-item-icon">
+        <img class="no-lightbox" src="https://cdn.jsdelivr.net/gh/hexojs/site@master/src/logo.svg" onerror='this.onerror=null;this.src="/img/friend_404.gif"' alt="Hexo" />
+      </div>
+      <div class="flink-item-name">Hexo</div>
+      <div class="flink-item-desc" title="本站使用的静态博客框架">本站使用的静态博客框架</div>
+    </a>
+  </div>
+  <div class="flink-list-item">
+    <a href="https://butterfly.js.org/" title="Butterfly" target="_blank">
+      <div class="flink-item-icon">
+        <img class="no-lightbox" src="https://cdn.jsdelivr.net/gh/jerryc127/hexo-theme-butterfly@master/_config.yml" onerror='this.onerror=null;this.src="/img/friend_404.gif"' alt="Butterfly" />
+      </div>
+      <div class="flink-item-name">Butterfly</div>
+      <div class="flink-item-desc" title="本站使用的主题">本站使用的主题</div>
+    </a>
+  </div>
+  <div class="flink-list-item">
+    <a href="https://waline.js.org/" title="Waline" target="_blank">
+      <div class="flink-item-icon">
+        <img class="no-lightbox" src="https://cdn.jsdelivr.net/gh/walinejs/waline@main/assets/logo.png" onerror='this.onerror=null;this.src="/img/friend_404.gif"' alt="Waline" />
+      </div>
+      <div class="flink-item-name">Waline</div>
+      <div class="flink-item-desc" title="本站使用的评论系统">本站使用的评论系统</div>
+    </a>
+  </div></div><p>欢迎交换友链。想加友链的话，在下方评论区留言告诉我你的站点信息即可。</p>
+<p>我的站点信息：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">name:</span> <span class="string">Hissgle</span> <span class="string">的博客</span></span><br><span class="line"><span class="attr">link:</span> <span class="string">https://hissgle.github.io</span></span><br><span class="line"><span class="attr">avatar:</span> <span class="string">https://hissgle.github.io/img/HR7RV0bWoAAJqxf.jpg</span></span><br><span class="line"><span class="attr">descr:</span> <span class="string">平平无常的二次元爱好者</span></span><br></pre></td></tr></table></figure>
+</div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/HR7RV0bWoAAJqxf.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Hissgle</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">1</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Hissgle"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">平平无常的二次元爱好者</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/09/17/My-First-Article/" title="My First Article"><div style="background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)"></div></a><div class="content"><a class="title" href="/2026/09/17/My-First-Article/" title="My First Article">My First Article</a><time datetime="2026-09-17T04:47:40.000Z" title="发表于 2026-09-17 12:47:40">2026-09-17</time></div></div></div></div><div class="card-widget" id="card-newest-comments"><div class="item-headline"><i class="fas fa-comment-dots"></i><span>最新评论</span></div><div class="aside-list"><span>加载中...</span></div></div><div class="card-widget card-archives">
+    <div class="item-headline"><i class="fas fa-archive"></i><span>归档</span></div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2026/09/">
+            <span class="card-archive-list-date">
+              九月 2026
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">1</div></div><div class="webinfo-item"><div class="item-name">运行时间 :</div><div class="item-count" id="runtimeshow" data-publishDate="2026-09-17T04:00:00.000Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-09-17T16:02:30.796Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Hissgle</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.1.260810</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.1.260810"></script><script src="/js/main.js?v=5.7.1.260810"></script><script src="/js/tw_cn.js?v=5.7.1.260810"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = null
+
+  const destroyWaline = ele => ele.destroy()
+
+  const initWaline = (Fn, el = document, path = window.location.pathname) => {
+    const waline = Fn({
+      el: el.querySelector('#waline-wrap'),
+      serverURL: 'https://myblog-sandy-theta.vercel.app',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      comment: false,
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    let lightboxObserver = null
+    if (GLOBAL_CONFIG.lightbox !== 'null') {
+      const wrap = el.querySelector('#waline-wrap')
+      if (wrap) {
+        lightboxObserver = new MutationObserver(mutations => {
+          const imgs = []
+          mutations.forEach(mutation => {
+            mutation.addedNodes.forEach(node => {
+              if (node.nodeType !== 1) return
+              const nodeImgs = node.matches && node.matches('img') ? [node] : node.querySelectorAll('img')
+              nodeImgs.forEach(img => imgs.push(img))
+            })
+          })
+          const lightboxImgs = imgs.filter(img => img.closest('.wl-content') && !img.classList.contains('wl-emoji'))
+          if (lightboxImgs.length) btf.loadLightbox(lightboxImgs)
+        })
+        lightboxObserver.observe(wrap, { childList: true, subtree: true })
+      }
+    }
+
+    if (isShuoshuo) {
+      window.shuoshuoComment.destroyWaline = () => {
+        lightboxObserver && lightboxObserver.disconnect()
+        destroyWaline(waline)
+        if (el.children.length) {
+          el.innerHTML = ''
+          el.classList.add('no-comment')
+        }
+      }
+    }
+  }
+
+  const loadWaline = (el, path) => {
+    if (initFn) initWaline(initFn, el, path)
+    else {
+      btf.getCSS('https://cdn.jsdelivr.net/npm/@waline/client@3.15.2/dist/waline.min.css')
+        .then(() => import('https://cdn.jsdelivr.net/npm/@waline/client@3.15.2/dist/waline.min.js'))
+        .then(({ init }) => {
+          initFn = init || Waline.init
+          initWaline(initFn, el, path)
+          window.walineFn = initFn
+        })
+    }
+  }
+
+  if (isShuoshuo) {
+    'Waline' === 'Waline'
+      ? window.shuoshuoComment = { loadComment: loadWaline }
+      : window.loadOtherComment = loadWaline
+    return
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script>window.newestComments = {
+  ready: fn => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fn, { once: true })
+    } else {
+      fn()
+    }
+  },
+
+  escapeHtml: str => {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+  },
+
+  changeContent: content => {
+    if (!content) return ''
+
+    content = content.replace(/<img[^>]*>/gis, '[图片]') // replace image link
+    content = content.replace(/<pre><code>[\s\S]*?<\/pre>/gi, '[代码]') // replace code block
+    content = content.replace(/<a[^>]+?>[\s\S]*?<\/a>/gi, '[链接]') // replace url
+    content = content.replace(/<code[^>]*?>[\s\S]*?<\/code>/gi, '[代码]') // replace code
+    content = content.replace(/<[^>]+>/g, '') // remove html tag
+
+    if (content.length > 150) {
+      content = Array.from(content).slice(0, 150).join('') + '...'
+    }
+
+    return content
+  },
+
+  generateHtml: (array, ele) => {
+    const { escapeHtml } = window.newestComments
+    let result = ''
+
+    if (array.length) {
+      result = array.map(item => {
+        let html = '<div class="aside-list-item">'
+
+        if (true && item.avatar) {
+          const imgAttr = 'src'
+          const lazyloadNative = ''
+          html += `<a href="${escapeHtml(item.url)}" class="thumbnail"><img ${imgAttr}="${escapeHtml(item.avatar)}" alt="${escapeHtml(item.nick)}" ${lazyloadNative}></a>`
+        }
+
+        html += `<div class="content">
+        <a class="comment" href="${escapeHtml(item.url)}" title="${escapeHtml(item.content)}">${escapeHtml(item.content)}</a>
+        <div class="name"><span>${escapeHtml(item.nick)} / </span><time datetime="${escapeHtml(item.date)}">${btf.diffDate(item.date, true)}</time></div>
+        </div></div>`
+
+        return html
+      }).join('')
+    } else {
+      result += '暂无评论'
+    }
+
+    ele.innerHTML = result
+    window.lazyLoadInstance && window.lazyLoadInstance.update()
+    window.pjax && window.pjax.refresh(ele)
+  },
+
+  fetchAndRender: (keyName, ele, getComment) => {
+    Promise.resolve(getComment(ele)).then(array => {
+      btf.saveToLocal.set(keyName, JSON.stringify(array), 10/(60*24))
+      newestComments.generateHtml(array, ele)
+    }).catch(e => {
+      console.error(e)
+      const data = btf.saveToLocal.get(keyName)
+      if (data) {
+        newestComments.generateHtml(JSON.parse(data), ele)
+      } else {
+        ele.textContent = '无法获取评论，请确认相关配置是否正确'
+      }
+    })
+  },
+
+  newestCommentInit: (name, getComment) => {
+    const $dom = document.querySelector('#card-newest-comments .aside-list')
+    if ($dom) {
+      const data = btf.saveToLocal.get(name)
+      if (data) {
+        newestComments.generateHtml(JSON.parse(data), $dom)
+      } else {
+        newestComments.fetchAndRender(name, $dom, getComment)
+      }
+    }
+  },
+
+  run: (name, getComment) => {
+    newestComments.newestCommentInit(name, getComment)
+    btf.addGlobalFn('pjaxComplete', () => newestComments.newestCommentInit(name, getComment), name)
+  }
+}</script><script>window.newestComments.ready(() => {
+  const keyName = 'waline-newest-comments'
+  const { changeContent, run } = window.newestComments
+
+  const getComment = async () => {
+    const res = await fetch('https://myblog-sandy-theta.vercel.app/api/comment?type=recent&count=6')
+    const result = await res.json()
+    return result.data.map(e => {
+      return {
+        'content': changeContent(e.comment),
+        'avatar': e.avatar,
+        'nick': e.nick,
+        'url': (e.url || '') + '#' + e.objectId,
+        'date': e.time || e.insertedAt
+      }
+    })
+  }
+
+  run(keyName, getComment)
+})</script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="https://events.vercount.one/js"></script></div></body></html>
