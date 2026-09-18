@@ -1,0 +1,32 @@
+# ===========================================================================
+# 友链数据（对应「友链」页面 source/link/index.md，type: link）
+#
+# 字段说明：
+#   class_name  分组标题（可省略，省略则不显示分组）
+#   class_desc  分组描述（可省略）
+#   link_list   该分组下的链接列表，每项包含：
+#     name    站名
+#     link    网址
+#     avatar  头像图片地址
+#     descr   一句话简介
+#
+# 加友链：在 link_list 里追加一项即可。
+# 想打乱顺序：在 link 页面 front-matter 里加一行 random: true
+# ===========================================================================
+
+- class_name: 友情链接
+  class_desc: 交换友链请在评论区留言
+  link_list:
+    # ↓↓↓ 下面是示例条目，请替换成真实友链，或在不需要时删除本节 ↓↓↓
+    - name: Hexo
+      link: https://hexo.io/
+      avatar: https://cdn.jsdelivr.net/gh/hexojs/site@master/src/logo.svg
+      descr: 本站使用的静态博客框架
+    - name: Butterfly
+      link: https://butterfly.js.org/
+      avatar: https://cdn.jsdelivr.net/gh/jerryc127/hexo-theme-butterfly@master/_config.yml
+      descr: 本站使用的主题
+    - name: Waline
+      link: https://waline.js.org/
+      avatar: https://cdn.jsdelivr.net/gh/walinejs/waline@main/assets/logo.png
+      descr: 本站使用的评论系统
