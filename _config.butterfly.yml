@@ -104,6 +104,29 @@ click_heart:
   mobile: false
 
 # --------------------------------------------------------------------------
+# 樱花飘落 + 鼠标划过扬起花瓣
+# --------------------------------------------------------------------------
+# 脚本在 source/js/sakura.js，用下面的 inject.bottom 注入到**所有页面**。
+# 两个效果：花瓣持续缓缓飘落；鼠标划过处短暂扬起一簇花瓣再散开淡出。
+#
+# 调参数就改下面这行的 data-* 值，不用动 js 文件：
+#   data-mobile   "true" 让手机上也有（默认 false，手机性能和耗电考虑）
+#   data-density  飘落密度，越大越多（默认 0.00007，约等于 1920x1080 下 70 片）
+#   data-trail    "false" 关掉鼠标划过效果
+#   data-color    基础花瓣色，会自动生成深浅变化
+#   data-zindex   绘制层级，保持较小值以免挡住内容
+#
+# 用 data-* 而不是内联 <script>：内联脚本里的 { } 在 YAML 中会产生解析歧义。
+#
+# 想临时看效果/关掉：浏览器控制台执行 window.sakura.destroy()
+inject:
+  # 保留主题原有的页眉注入（custom.css）
+  head:
+    - <link rel="stylesheet" href="/css/custom.css">
+  bottom:
+    - <script id="sakura-js" src="/js/sakura.js" data-mobile="false" data-density="0.00007" data-trail="true" data-zindex="1" data-color="#ffc0d0"></script>
+
+# --------------------------------------------------------------------------
 # 顶部导航菜单
 # --------------------------------------------------------------------------
 # 语法：显示名称: /路径/ || 图标class
