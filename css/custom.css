@@ -1,0 +1,9 @@
+/*更换页脚背景颜色 */
+#footer {
+    background: #f5f5f5 !important; 
+}
+
+/* 页脚透明 */
+#footer {
+    background: transparent !important;
+}
