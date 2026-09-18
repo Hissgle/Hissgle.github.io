@@ -1,7 +1,7 @@
 # 网易云音乐播放器（黑胶唱片）排查与实现记录
 
-配置文件：`_config.butterfly.yml` 的 `inject` 段。
-验证脚本：`docs/player-cdp.js`（真实浏览器 + 真实点击）。
+配置文件：`_config.butterfly.yml` 的 `inject` 段 + `pjax` 段 + `CDN.option.pjax`。
+验证脚本：`docs/player-cdp.js`（唱片交互）、`docs/pjax-check.js`（切换页面不中断）。
 
 ## 当前效果
 左下角一枚黑胶唱片，界面全部用 CSS 画（**没有歌曲封面**）：
@@ -10,6 +10,7 @@
 - 点一下 → 暂停，**并停在当时转到的角度**，不跳回起点
 - 再点一下 → 从原角度继续转
 - 圆盘上有纹路、斜向高光、圆心标签和轴孔，右侧一根唱臂在播放时压下来
+- **切换页面（点导航栏）时音乐不中断**，继续从原进度播放
 
 配置在 `data-vinyl` 里：
 
@@ -29,7 +30,45 @@
 
 ---
 
-## 结论速览：这一路踩过的 5 个坑
+## 切换页面保持播放（Pjax）
+不开 pjax 时点导航栏是**整页刷新**，播放器被销毁，音乐必然中断。开了之后只替换
+`#body-wrap` / `.js-pjax` 里的内容，而播放器在它们**之外**，所以 `<audio>` 一直活着。
+
+```yaml
+pjax:
+  enable: true
+  exclude:
+
+CDN:
+  option:
+    pjax: https://registry.npmmirror.com/pjax/0.2.8/files/pjax.min.js
+```
+
+两个关键点：
+
+1. **`CDN.option.pjax` 这一行是必须的。** 主题默认拼出来的地址是
+   `https://cdn.jsdelivr.net/npm/pjax@0.2.8/dist/pjax.min.js`，**实测 404** ——
+   pjax 这个包根本没有 `dist/` 目录，浏览器版就放在包根目录（`pjax.min.js`）。
+   不覆盖它的话 pjax 根本加载不到，控制台只报 `Pjax is not defined`，
+   表现为"点了导航栏还是整页刷新、音乐照样断"。
+2. **播放器的初始化脚本不能加 `data-pjax` 属性。** 主题的 `pjax:complete` 只会重跑带
+   `data-pjax` 的 `<script>`；不带就只跑一次，不会叠出第二个播放器。
+   （脚本里另有一行 `existing && existing.src` 的兜底，防止将来被重跑时出问题。）
+
+### 这个方案的边界
+- 站内链接（导航栏、文章卡片、归档等）→ pjax 接管，音乐不断 ✓
+- **外站链接**、`target="_blank"`、强制整页刷新的操作 → 仍然会中断（浏览器行为，无法避免）
+- 刷新页面、直接输网址进入 → 从头开始（这是新一次加载，不是"切换"）
+- 访问不存在的页面（404）时，因为主题 `error_404.enable: false`，
+  pjax 会走 `window.location.href` 整页跳转 → 音乐中断。在意的话可以开
+  `error_404.enable: true` 让它走 pjax（注意主题默认的 `background: /img/error-page.png`
+  在你仓库里并不存在，别开成破图）。
+
+验证：`node docs/pjax-check.js --launch`（10 项，含"进度继续增长而非从头开始"）。
+
+---
+
+## 结论速览：这一路踩过的 6 个坑
 | 现象 | 真正原因 | 处理 |
 |---|---|---|
 | 播放器完全不显示 | `type: "playlist"` 却填了**单曲 ID**，接口返回 HTTP 500 | 类型和 ID 要匹配 |
@@ -37,6 +76,8 @@
 | 界面是空的 / `stage is not defined` | **脚本里的 `//` 行注释把后面整行代码注释掉了** | 只用 `/* */` |
 | 改了配置没反应 | **`hexo server` 不热加载 `_config.butterfly.yml`** | 必须重启 server |
 | 唱片在转但没声音 | 该曲直链 404（版权限制） | 换一首实测可播的 |
+| 一切正常但切换页面音乐断 | 没开 pjax（整页刷新销毁播放器） | 开 pjax + 覆盖 pjax 的 CDN 地址 |
+| 开了 pjax 还是断 | 主题拼的 pjax 地址（`.../dist/pjax.min.js`）是 404，库压根没加载 | 用 `CDN.option.pjax` 指向可用地址 |
 
 ---
 

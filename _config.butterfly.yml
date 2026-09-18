@@ -252,6 +252,12 @@ inject:
     - '<script>(function () {
         var root = document.getElementById("vinyl-player");
         if (!root || !window.fetch) { return; }
+        /* 兜底：万一这段脚本被重跑（比如以后给它加了 data-pjax），
+           已经初始化过就直接退出，避免叠出第二个播放器和第二个 audio。
+           注意本脚本现在**不带** data-pjax，pjax 切换时不会重跑，
+           播放器又在被替换的容器之外，所以音乐才能不断。 */
+        var existing = root.querySelector("audio");
+        if (existing && existing.src) { return; }
         var cfg;
         try { cfg = JSON.parse(root.getAttribute("data-vinyl")); } catch (e) { return; }
         var size = cfg.size || 132;
@@ -391,6 +397,25 @@ preloader:
 CDN:
   option:
     busuanzi: https://events.vercount.one/js
+    # pjax 库也换到 npmmirror。
+    # ⚠️ 默认走 jsdelivr，但主题拼出来的地址是
+    #      https://cdn.jsdelivr.net/npm/pjax@0.2.8/dist/pjax.min.js
+    #    实测 404 —— pjax 这个包根本没有 dist/ 目录，压缩包就放在根目录。
+    #    所以这里必须手填一个能用的地址，否则 pjax 加载不到，
+    #    「切换页面不中断播放」就完全不会生效（而且控制台只报 Pjax is not defined）。
+    pjax: https://registry.npmmirror.com/pjax/0.2.8/files/pjax.min.js
+
+# --------------------------------------------------------------------------
+# 页面切换方式（Pjax）
+# --------------------------------------------------------------------------
+# 不开这个的话，点导航栏就是整页刷新 -> 播放器被销毁 -> 音乐中断。
+# 开了之后只替换 #body-wrap / .js-pjax 里的内容，播放器在它们**之外**，所以能一直放。
+#
+# exclude 里排除的链接会走整页刷新（默认情况不需要排除播放器本身，
+# 因为它在被替换的容器之外；这里留空即可）。
+pjax:
+  enable: true
+  exclude:
 
 # --------------------------------------------------------------------------
 # 评论系统
