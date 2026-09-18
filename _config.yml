@@ -108,3 +108,7 @@ deploy:
   type: git
   repo: https://github.com/Hissgle/Hissgle.github.io.git
   branch: gh-pages
+
+aplayer:
+  meting: true
+  asset_inject: false

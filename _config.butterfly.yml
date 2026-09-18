@@ -127,11 +127,216 @@ click_heart:
 #   window.sakura.pushedCount()  // 当前正被推开的花瓣数
 #   window.sakura.destroy()      // 立即移除效果（刷新即恢复）
 inject:
-  # 保留主题原有的页眉注入（custom.css）
+  # 主题原有的页眉注入：只保留 custom.css。
+  # APlayer 的样式表已经不需要了 —— 唱片播放器的界面全部在 inject.bottom 里自绘。
   head:
     - <link rel="stylesheet" href="/css/custom.css">
   bottom:
     - <script id="sakura-js" src="/js/sakura.js" data-mobile="false" data-density="0.00007" data-trail="true" data-push="9" data-pushradius="110" data-zindex="1" data-color="#ffc0d0"></script>
+    # ----------------------------------------------------------------------
+    # 网易云音乐 —— 黑胶唱片播放器（左下角固定）
+    # ----------------------------------------------------------------------
+    # 界面完全用 CSS 画出来（黑胶盘 + 纹路 + 高光 + 唱臂），不用任何图片，
+    # 所以也就没有歌曲封面。也没有 APlayer 那套默认 UI。
+    #
+    # 交互：
+    #   播放中 → 唱片匀速缓缓转动
+    #   点一下 → 暂停，并且**停在转到的那个角度**（不是跳回起点）
+    #   再点一下 → 从原角度继续转
+    #
+    # ⚠️ 这里**故意不用 MetingJS**，原因：
+    #   MetingJS 2.0.1 是把播放器注册成自定义元素（customElements.define("meting-js", ...)），
+    #   而这种自定义元素必须由插件自己去「升级」那个 div。实测在 Edge/Chromium 里，
+    #   页面里那个 <div class="aplayer" data-...> 只停留在普通 HTMLDivElement，
+    #   从来不会被接管，所以播放器一个像素都渲染不出来（控制台也不报错，最难查）。
+    #   给 div 加 is="meting-js" 也一样不生效。
+    #
+    # 也不需要 APlayer 本体：这里的界面是自绘的，APlayer 那套 UI 一个都用不上，
+    # 只要一个原生 <audio> 放歌就够了。
+    #
+    # 下面的 data-vinyl 就是播放器配置（JSON，单引号包住，里面用双引号）：
+    #   type            "song"     = 单曲（当前用的就是这个）
+    #                   "playlist" = 歌单
+    #   id              ⚠️ type="song" 时填**歌曲 ID**；type="playlist" 时填**歌单 ID**。
+    #                   填错类型接口会返回 HTTP 500，拿不到数据 -> 播放器不渲染。
+    #   api             数据接口，保持默认即可
+    #   loop            "one" = 单曲循环（推荐，就是"一直循环这一首"）
+    #                   "all" = 列表循环    "none" = 播完停
+    #   size            唱片直径，单位 px（默认 132）
+    #   spin            转一圈的秒数，越大转得越慢（默认 20）
+    #   label           圆心标签底色，纯装饰（默认淡粉）
+    #
+    # 怎么换成你想听的歌：
+    #   1. 网易云网页版打开歌曲，地址栏 https://music.163.com/#/song?id=XXXXXXXXXX
+    #   2. 把那串数字填到下面 "id"，type 保持 "song"
+    #   3. 改完**必须重启 hexo server**（它不热加载本文件），然后跑
+    #      node docs/player-check.js 确认能播
+    #
+    # ⚠️ 不是每首歌都能播：这个公共接口里大量歌曲的直链会返回 404（版权限制），
+    #    表现是"唱片转着、但没声音"。当前这首是实测可播的。
+    # ----------------------------------------------------------------------
+    - '<div id="vinyl-player" data-vinyl=''{"type":"song","id":"1303464858","server":"netease","api":"https://api.i-meto.com/meting/api?server=:server&type=:type&id=:id&r=:r","loop":"one","size":132,"spin":20,"label":"#f3c6d4"}''></div>'
+    # 样式也走 inject，方便和结构放一起改。inject 里的内容是原样拼进 HTML 的，所以要自带 <style>。
+    - '<style>
+      #vinyl-player { position: fixed; left: 24px; bottom: 24px; z-index: 2147483000; user-select: none; -webkit-tap-highlight-color: transparent; }
+      #vinyl-player, #vinyl-player * { box-sizing: border-box; }
+      #vinyl-player .vinyl-stage { position: relative; display: inline-block; width: var(--vinyl-size); height: var(--vinyl-size); cursor: pointer; }
+
+      /* 黑胶盘本体：底色 + 一圈圈纹路（repeating-radial-gradient）+ 高光 */
+      #vinyl-player .vinyl-disc {
+        position: absolute; inset: 0; border-radius: 50%;
+        background:
+          repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,.055) 0 1px, rgba(0,0,0,0) 1px 4px),
+          radial-gradient(circle at 50% 50%, #2a2a30 0 10%, #0d0d10 45%, #16161a 70%, #0a0a0c 100%);
+        box-shadow: 0 6px 18px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.06);
+        animation: vinyl-spin var(--vinyl-spin) linear infinite;
+        animation-play-state: paused;
+        will-change: transform;
+      }
+      /* 斜向高光，静止时也能看出是"唱片"而不是黑圆圈 */
+      #vinyl-player .vinyl-disc::after {
+        content: ""; position: absolute; inset: 0; border-radius: 50%;
+        background: linear-gradient(135deg, rgba(255,255,255,.13) 0%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%, rgba(255,255,255,.07) 100%);
+        pointer-events: none;
+      }
+      /* 播放时才开始转；暂停时 animation-play-state: paused，停在当前角度不回到起点 */
+      #vinyl-player.is-playing .vinyl-disc { animation-play-state: running; }
+
+      /* 圆心标签（纯装饰，不是封面） */
+      #vinyl-player .vinyl-label {
+        position: absolute; top: 50%; left: 50%; width: 36%; height: 36%;
+        margin: -18% 0 0 -18%; border-radius: 50%; background: var(--vinyl-label, #f3c6d4);
+        box-shadow: inset 0 0 0 1px rgba(0,0,0,.12);
+        display: flex; align-items: center; justify-content: center;
+        font: 600 10px/1 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+        color: rgba(0,0,0,.5); letter-spacing: .5px;
+      }
+      /* 中心轴孔 */
+      #vinyl-player .vinyl-hole {
+        position: absolute; top: 50%; left: 50%; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px;
+        border-radius: 50%; background: #f7f9fc; box-shadow: 0 0 0 1px rgba(0,0,0,.35) inset;
+      }
+      /* 唱臂：播放时从边缘压到唱片上 */
+      #vinyl-player .vinyl-arm {
+        position: absolute; right: -6%; top: 8%; width: 10%; height: 46%;
+        background: linear-gradient(90deg, #cfd4dc, #8b929d 60%, #6d737d);
+        border-radius: 3px; transform-origin: 50% 4%;
+        transform: rotate(-18deg); transition: transform .5s ease; box-shadow: 0 1px 3px rgba(0,0,0,.35);
+      }
+      #vinyl-player .vinyl-arm::before {
+        content: ""; position: absolute; top: -6px; left: 50%; width: 16px; height: 16px; margin-left: -8px;
+        border-radius: 50%; background: #aeb4bd; box-shadow: 0 1px 2px rgba(0,0,0,.3);
+      }
+      #vinyl-player.is-playing .vinyl-arm { transform: rotate(14deg); }
+
+      #vinyl-player .vinyl-hint {
+        display: block; margin-top: 8px; text-align: center;
+        font: 500 11px/1.4 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+        color: #8a94a6; transition: color .2s;
+      }
+      #vinyl-player .vinyl-hint b { display: block; font-weight: 600; color: #5d6675; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      @media (max-width: 640px) { #vinyl-player { left: 14px; bottom: 14px; transform: scale(.85); transform-origin: left bottom; } }
+      @media (prefers-reduced-motion: reduce) { #vinyl-player .vinyl-disc { animation-duration: 60s; } }
+      @keyframes vinyl-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    </style>'
+    # ⚠️ inject 里的内容是按原样拼进 HTML 的，**不会**自动加 <script> 标签，
+    #    所以下面这段必须自己带上开闭标签，否则会变成页面上的一坨纯文本。
+    #
+    # ⚠️ 结构用 createElement/appendChild 拼，不要依赖一大段 innerHTML 字符串。
+    #
+    # ⚠️⚠️ 这段脚本里**绝对不能出现 // 行注释**！
+    #    Hexo 处理 inject 时会把整段的换行折叠成空格（整个脚本变成一行），
+    #    于是 // 后面的所有代码（包括下一行的 var 声明）全都被注释掉，
+    #    报错是 "ReferenceError: stage is not defined" 这种莫名其妙的形式。
+    #    要写注释请用 /* */，或者干脆不写。
+    - '<script>(function () {
+        var root = document.getElementById("vinyl-player");
+        if (!root || !window.fetch) { return; }
+        var cfg;
+        try { cfg = JSON.parse(root.getAttribute("data-vinyl")); } catch (e) { return; }
+        var size = cfg.size || 132;
+        root.style.setProperty("--vinyl-size", size + "px");
+        root.style.setProperty("--vinyl-spin", (cfg.spin || 20) + "s");
+        if (cfg.label) { root.style.setProperty("--vinyl-label", cfg.label); }
+
+        function el(tag, cls, text) {
+          var n = document.createElement(tag);
+          if (cls) { n.className = cls; }
+          if (text) { n.textContent = text; }
+          return n;
+        }
+
+        /* 结构：黑胶盘 + 中心标签 + 轴孔 + 唱臂 + 文字 */
+        var stage = el("div", "vinyl-stage");
+        stage.setAttribute("role", "button");
+        stage.setAttribute("tabindex", "0");
+        stage.setAttribute("aria-label", "播放或暂停音乐");
+        stage.appendChild(el("div", "vinyl-disc"));
+        stage.appendChild(el("div", "vinyl-label", "VINYL"));
+        stage.appendChild(el("div", "vinyl-hole"));
+        stage.appendChild(el("div", "vinyl-arm"));
+
+        var titleEl = el("b");
+        var stateEl = el("span", "vinyl-state");
+        var hintEl = el("span", "vinyl-hint");
+        hintEl.appendChild(titleEl);
+        hintEl.appendChild(stateEl);
+
+        root.appendChild(stage);
+        root.appendChild(hintEl);
+
+        var audio = document.createElement("audio");
+        audio.preload = "metadata";
+        audio.loop = cfg.loop !== "none";
+        audio.setAttribute("playsinline", "");
+        root.appendChild(audio);
+
+        function setPlaying(on) {
+          if (on) { root.classList.add("is-playing");  }
+          else { root.classList.remove("is-playing");  }
+        }
+
+        function toggle() {
+          if (!audio.src) { return; }
+          if (audio.paused) {
+            var p = audio.play();
+            if (p && p.catch) { p.catch(function () {}); }
+          } else {
+            audio.pause();
+          }
+        }
+
+        stage.addEventListener("click", toggle);
+        stage.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") { e.preventDefault(); toggle(); }
+        });
+
+        audio.addEventListener("play", function () { setPlaying(true); });
+        audio.addEventListener("pause", function () { setPlaying(false); });
+        audio.addEventListener("ended", function () { setPlaying(false); });
+        audio.addEventListener("error", function () { stateEl.textContent = "音频加载失败"; });
+
+        setPlaying(true);
+        
+
+        var api = (cfg.api || "https://api.i-meto.com/meting/api?server=:server&type=:type&id=:id&r=:r")
+          .replace(":server", cfg.server).replace(":type", cfg.type)
+          .replace(":id", cfg.id).replace(":r", String(Math.random()));
+        fetch(api)
+          .then(function (r) { return r.json(); })
+          .then(function (list) {
+            var t = (list || [])[0];
+            if (!t) { stateEl.textContent = "没有拿到歌曲"; return; }
+            audio.src = t.url;
+            titleEl.textContent = t.title + (t.author ? " - " + t.author : "");
+            titleEl.title = titleEl.textContent;
+            setPlaying(false);
+          })
+          .catch(function (e) {
+            stateEl.textContent = "数据获取失败";
+            console.error("[vinyl] 歌曲数据获取失败：" + e + " | " + api);
+          });
+      })();</script>'
 
 # --------------------------------------------------------------------------
 # 顶部导航菜单
