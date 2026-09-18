@@ -44,32 +44,38 @@ jobs:
           # 需要把产物推到 gh-pages，保留完整历史避免推送被拒
           fetch-depth: 0
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          # 与本机 pnpm 11.7.0 保持一致，避免 lockfile（v9 格式）解析差异。
-          # ⚠️ pnpm 11 运行时要求 Node >= 22.13，所以下面的 node-version 必须是 22+。
-          #    曾用 Node 20 配 pnpm 11，报错：
-          #    "This version of pnpm requires at least Node.js v22.13"
-          version: 11
-
+      # ⚠️ 顺序很关键：必须先 setup-node 再 setup-pnpm。
+      # 之前写成 pnpm 在前，导致 pnpm 在 runner 自带的旧 Node 下运行，报：
+      #   warn: The current version of Node.js is v20.20.2
+      #   Error [ERR_UNKNOWN_BUILTIN_MODULE]: No such built-in module: node:sqlite
+      # （pnpm 11 依赖 node:sqlite，而该内置模块在 Node 20 上不存在）
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          # 约束来自两处，取较高的：
-          #   Hexo 8 的 engines.node  = >=20.19.0
-          #   pnpm 11 运行时要求      = >=22.13
-          # 用 semver 范围表达要求，setup-node 会解析为满足条件的最新版，
-          # 既明确又不会因写死某个版本号而解析失败。
-          node-version: '>=22.13'
-          cache: pnpm
+          # 与本机一致（本机 Node 24.11.1 + pnpm 11.7.0，已验证可构建）。
+          # 下限要求：Hexo 8 >= 20.19.0；pnpm 11 >= 22.13。
+          node-version: 24
 
-      # 先打印版本，任何"版本不匹配"问题在这里就能一眼看出，
-      # 不用等后面报难懂的引擎错误
-      - name: Show tool versions
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          # 与本机 pnpm 11.7.0 一致，避免 lockfile（v9 格式）解析差异。
+          # 注意：此步会安装 pnpm，但运行时使用的是上面 setup-node 提供的 Node。
+          version: 11
+
+      # 版本守卫：版本不对就直接失败并给出明确原因，
+      # 而不是等到后面报 ERR_UNKNOWN_BUILTIN_MODULE 这种难懂的错误
+      - name: Verify tool versions
         run: |
           echo "node: $(node -v)"
           echo "pnpm: $(pnpm -v)"
+          NODE_MAJOR=$(node -p "process.versions.node.split('.')[0]")
+          if [ "$NODE_MAJOR" -lt 22 ]; then
+            echo "::error::Node $NODE_MAJOR 太旧。pnpm 11 需要 >= 22.13（依赖 node:sqlite 内置模块）。"
+            echo "::error::请确认 setup-node 步骤排在 pnpm/action-setup 之前。"
+            exit 1
+          fi
+          echo "版本检查通过"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

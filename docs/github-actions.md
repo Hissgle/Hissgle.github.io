@@ -70,32 +70,57 @@ git push
 | --- | --- | --- |
 | **产物推回 main** | `publish_branch: main` | `publish_branch: gh-pages` |
 | **CI 构建必然失败** | 无处理 | 根 `package.json` 加 `moment-timezone` |
-| **Node 版本过低** | `node-version: 20` 配 pnpm 11 | `node-version: '>=22.13'` |
+| **Node 版本过低** | `node-version: 20` 配 pnpm 11 | `node-version: 24` |
+| **步骤顺序错误** | 先 setup-pnpm 再 setup-node | **先 setup-node 再 setup-pnpm** |
 | **lockfile 未同步** | `pnpm install` | `pnpm install --frozen-lockfile` |
 | pnpm 版本不一致 | `version: 9`（本机是 11） | `version: 11` |
 | 无权限声明 | 无 `permissions` | `contents: write` |
-| 步骤顺序有误 | 先 setup-node 后装 pnpm | 先 pnpm 后 node |
 
-### Node 与 pnpm 的版本约束（第一次跑就踩了这个）
+### Node 与 pnpm：版本 + 步骤顺序（这里连踩两次坑）
 
-两个下限必须同时满足，取**较高**的那个：
+**约束**：两个下限取较高的那个。
 
 | 来源 | 要求 |
 | --- | --- |
 | Hexo 8 的 `engines.node` | `>= 20.19.0` |
-| pnpm 11 的运行时要求 | `>= 22.13` |
+| pnpm 11 运行时 | `>= 22.13`，并且需要 `node:sqlite` 内置模块（Node 22.5+ 才有） |
 
-所以 `node-version: '>=22.13'`。曾经写成 `node-version: 20` + `pnpm 11`，报错：
+**但光把版本号改对是没用的**，还必须调整步骤顺序。两次报错分别是：
 
 ```
-Error: warn: This version of pnpm requires at least Node.js v22.13
+① 改了 node 之后仍报：
+   warn: This version of pnpm requires at least Node.js v22.13
+   warn: The current version of Node.js is v20.20.2      ← 注意这里还是 20
+
+② 换成 Node 22 后暴露出的底层错误：
+   Error [ERR_UNKNOWN_BUILTIN_MODULE]: No such built-in module: node:sqlite
 ```
 
-> 如果不想升 Node，也可以把 pnpm 降到 10（pnpm 10 支持 Node 18+），
-> 但那样与本地 pnpm 11.7.0 不一致，lockfile 解析可能有细微差异，所以选择升 Node。
+第 ① 条最关键：**明明写了 Node 22，日志里却还是 20.20.2**。原因是
+`pnpm/action-setup` 排在了 `actions/setup-node` **之前** —— 那一步执行时
+`setup-node` 还没跑，pnpm 于是运行在 runner 自带的旧 Node（20）上。
 
-workflow 里加了一步 `Show tool versions` 打印 `node -v` / `pnpm -v`，
-以后再遇到版本类问题，看这一步的输出即可，不用去猜。
+**正确顺序**：
+
+```yaml
+- name: Setup Node.js          # 必须在前
+  uses: actions/setup-node@v4
+  with:
+    node-version: 24
+- name: Setup pnpm             # 必须在后
+  uses: pnpm/action-setup@v4
+  with:
+    version: 11
+```
+
+Node 用 **24**，与本地一致（本机 Node 24.11.1 + pnpm 11.7.0，已验证可构建）。
+
+另外**去掉了 `cache: pnpm`**。setup-node 的 pnpm 缓存需要在那一步就能找到 pnpm；
+既然我们刻意把 pnpm 排在后面，这个缓存就不适用了（pnpm 自身仍有内容寻址存储）。
+少一个会失败的环节，比多一份缓存更重要。
+
+workflow 里加了 `Verify tool versions` 步骤：Node 版本不足会**直接失败并说明原因**，
+不会再让你对着 `ERR_UNKNOWN_BUILTIN_MODULE` 猜。
 
 ### 最关键的一条：`moment-timezone`
 
@@ -140,7 +165,8 @@ getPageType is not a function
 | `pages build and deployment` 里报<br>`github-pages 232 \| Error: The butterfly theme could not be found.` | **GitHub 用内置 Jekyll 构建器跑本仓库**。这是最容易被误导的报错——它和你的 Hexo workflow 无关。去 Settings → Pages → Source 改成「GitHub Actions」 |
 | Action 里 `Cannot find module 'moment-timezone'` | 根 `package.json` 的该依赖被删了 |
 | Action 报 `ERR_PNPM_OUTDATED_LOCKFILE` | 改了 `package.json` 但没同步 lockfile；本机跑 `pnpm install` 后提交 `pnpm-lock.yaml` |
-| Action 报 `This version of pnpm requires at least Node.js v22.13` | pnpm 与 node 版本不匹配，见上文版本约束表 |
+| Action 报 `This version of pnpm requires at least Node.js v22.13`<br>且日志里 `The current version of Node.js is v20.x` | **步骤顺序错了**：`pnpm/action-setup` 排在 `actions/setup-node` 之前，pnpm 跑在 runner 自带的旧 Node 上。把 setup-node 提到前面 |
+| Action 报 `ERR_UNKNOWN_BUILTIN_MODULE: No such built-in module: node:sqlite` | 同一个根因（Node 太旧），pnpm 11 依赖 `node:sqlite`；仍按上一条处理 |
 | Action 成功但站点 404 / 内容没更新 | Pages 的 Source 还不是「GitHub Actions」，或该次 Action 实际失败了 |
 | `hexo deploy` 推送被拒 | 本机提交历史与远端冲突；用 Action 部署即可绕开 |
 
