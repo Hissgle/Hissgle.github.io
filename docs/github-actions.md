@@ -18,13 +18,26 @@ GitHub Pages 从 gh-pages 分支发布
 
 ## ⚠️ 你必须手动做两件事
 
-### 1. 把 Pages 的发布源切到「GitHub Actions」（**必须**）
+### 1. 把 Pages 的发布源设为「Deploy from a branch」+ `gh-pages`
 
 仓库 → **Settings** → 左侧 **Pages** → **Build and deployment** → **Source**
 
-从 **「Deploy from a branch」** 改成 **「GitHub Actions」**。
+选择 **「Deploy from a branch」**，Branch 设为 **`gh-pages`**，目录 **`/ (root)`**，然后 Save。
 
-**不改会怎样**：GitHub 会继续用内置的 **Jekyll 构建器**处理这个仓库，报错：
+**这是必须的**：本 workflow 用 `peaceiris/actions-gh-pages` 把产物**推到 `gh-pages` 分支**，
+只有当 Pages 的 Source 指向那个分支时，这些产物才会真正发布。
+
+> ⚠️ 不要把 Source 设成「GitHub Actions」。
+> 那样只有 `actions/deploy-pages` 能发布，推到 `gh-pages` 的产物**完全不会被使用**——
+> workflow 会显示成功，但站点依然是旧的或 404。
+> 「GitHub Actions」模式需要另一套 workflow（`upload-pages-artifact` + `deploy-pages`）。
+
+> 顺序：**先让 workflow 成功跑一次**（这样 `gh-pages` 分支才会被创建），**再去改这个设置**。
+
+#### 为什么之前会看到 Jekyll 的报错
+
+如果 Source 停留在「Deploy from a branch」但分支指向 `main`，GitHub 会用内置的
+**Jekyll 构建器**处理这个仓库（日志名 `pages build and deployment`），报：
 
 ```
 Logging at level: debug Configuration file: /github/workspace/./_config.yml
@@ -33,8 +46,11 @@ github-pages 232 | Error: The butterfly theme could not be found.
 ```
 
 原因：Jekyll 读到了 Hexo 的 `_config.yml`（里面有 `theme: butterfly`），
-但仓库里既没有 Jekyll 的 `_layouts/`，Jekyll 也认不出 butterfly 这个主题。
+但仓库里既没有 Jekyll 的 `_layouts/`，它也认不出 butterfly 这个主题。
 **这个报错与你的 Hexo workflow 无关**，只是 GitHub 用错了构建器。
+
+改成指向 `gh-pages` 之后，Jekyll 构建的就不再是 Hexo 源码仓库，
+而是 Action 生成的纯静态产物——那时它不会有任何抱怨。
 
 > 注意：这个报错**不会**让 Hexo workflow 停止运行。
 > 两者是并行的：Hexo workflow 在 Actions 里正常跑，
@@ -162,12 +178,13 @@ getPageType is not a function
 
 | 症状 | 原因 |
 | --- | --- |
-| `pages build and deployment` 里报<br>`github-pages 232 \| Error: The butterfly theme could not be found.` | **GitHub 用内置 Jekyll 构建器跑本仓库**。这是最容易被误导的报错——它和你的 Hexo workflow 无关。去 Settings → Pages → Source 改成「GitHub Actions」 |
+| `pages build and deployment` 里报<br>`github-pages 232 \| Error: The butterfly theme could not be found.` | **GitHub 用内置 Jekyll 构建器跑本仓库**。这是最容易被误导的报错——它和你的 Hexo workflow 无关。把 Pages → Source 设为「Deploy from a branch」并指向 `gh-pages`（见上文第 1 步） |
+| Action 全绿但站点是旧的/404 | Pages 的 Source 没指向 `gh-pages`；或指向了「GitHub Actions」（那样 peaceiris 推送的产物不会被使用） |
 | Action 里 `Cannot find module 'moment-timezone'` | 根 `package.json` 的该依赖被删了 |
 | Action 报 `ERR_PNPM_OUTDATED_LOCKFILE` | 改了 `package.json` 但没同步 lockfile；本机跑 `pnpm install` 后提交 `pnpm-lock.yaml` |
 | Action 报 `This version of pnpm requires at least Node.js v22.13`<br>且日志里 `The current version of Node.js is v20.x` | **步骤顺序错了**：`pnpm/action-setup` 排在 `actions/setup-node` 之前，pnpm 跑在 runner 自带的旧 Node 上。把 setup-node 提到前面 |
-| Action 报 `ERR_UNKNOWN_BUILTIN_MODULE: No such built-in module: node:sqlite` | 同一个根因（Node 太旧），pnpm 11 依赖 `node:sqlite`；仍按上一条处理 |
-| Action 成功但站点 404 / 内容没更新 | Pages 的 Source 还不是「GitHub Actions」，或该次 Action 实际失败了 |
+| `ERR_UNKNOWN_BUILTIN_MODULE: No such built-in module: node:sqlite` | 同一个根因（Node 太旧），pnpm 11 依赖 `node:sqlite`；按上一条处理 |
+| Action 成功但站点 404 / 内容没更新 | Pages 的 Source 没指向 `gh-pages`（指向「GitHub Actions」时 peaceiris 的产物不会被使用） |
 | `hexo deploy` 推送被拒 | 本机提交历史与远端冲突；用 Action 部署即可绕开 |
 
 ### 为什么会同时出现两种构建
@@ -176,6 +193,10 @@ getPageType is not a function
 Jekyll 构建器（日志名为 `pages build and deployment`）。此时：
 
 - 你的 Hexo workflow（`Deploy Hexo Blog`）在 Actions 里照常运行 —— 看它是否成功
-- Jekyll 构建就是那个报「找不到 butterfly 主题」的 —— 改成「GitHub Actions」后它不再运行
+- Jekyll 构建就是那个报「找不到 butterfly 主题」的 —— 那是它在试图构建 Hexo 源码仓库
 
-两步要分别确认，别把 Jekyll 的失败当成 Hexo workflow 的失败。
+**两者是并行的，别把 Jekyll 的失败当成 Hexo workflow 的失败。**
+把 Source 指向 `gh-pages` 分支后，Jekyll 构建的对象变成 Action 生成的纯静态产物，
+它就不会再报错了（一个静态产物目录不存在 Jekyll 主题问题）。
+
+两步要分别确认。
