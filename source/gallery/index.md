@@ -7,6 +7,6 @@ cover: /img/titlebackground.jpg
 ---
 
 <div class="gallery-group-main">
-{% galleryGroup '破碎的日常' '被说了再见的风' '/gallery/anime' '/img/gallery1.jpg' %}
+{% galleryGroup '破碎的日常' '被说了再见的风' '/gallery-anime' '/img/gallery1.jpg' %}
 
 </div>

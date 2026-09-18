@@ -1,8 +1,6 @@
 ---
 title: 破碎的日常
 date: 2026-09-18 14:19:17
-top_img: /img/titlebackground.jpg
-cover: /img/titlebackground.jpg
 ---
 
 {% gallery true,220,5 %}
