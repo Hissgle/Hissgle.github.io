@@ -100,7 +100,11 @@ theme: butterfly
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
+## ⚠️ 本仓库已改用 GitHub Actions 自动部署（见 .github/workflows/deploy.yml），
+##    构建产物发布到 gh-pages 分支，main 分支只放源码。
+##    所以这里的 branch 也是 gh-pages，避免本机 hexo deploy 覆盖 main。
+##    两种方式二选一即可：推荐统一用 GitHub Actions，本机不再执行 hexo deploy。
 deploy:
   type: git
   repo: https://github.com/Hissgle/Hissgle.github.io.git
-  branch: main
+  branch: gh-pages

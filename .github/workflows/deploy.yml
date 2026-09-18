@@ -1,36 +1,81 @@
+# ===========================================================================
+# 自动构建并部署博客到 GitHub Pages
+#
+# 触发：push 到 main，或在 Actions 页面手动触发
+# 产物：构建出的静态站点推到 gh-pages 分支（源码仍留在 main）
+#
+# ⚠️ 首次启用前必须做一件事：
+#     仓库 → Settings → Pages → Build and deployment → Source
+#     改成「Deploy from a branch」，Branch 选 `gh-pages` / `(root)`
+#     否则 gh-pages 里的产物不会被发布，站点会 404。
+#
+# ⚠️ 启用后不要再用本机 `hexo deploy`：
+#     _config.yml 的 deploy 指向 main 分支，会和本 workflow 打架。
+#     要么统一用本 workflow，要么把 _config.yml 里 deploy.branch 改成 gh-pages。
+# ===========================================================================
+
 name: Deploy Hexo Blog
 
 on:
   push:
     branches:
       - main
+  # 允许在 Actions 页面点按钮手动跑一次
+  workflow_dispatch:
+
+# 同一时间只跑一个部署；新 push 到来时排队等待，不中断正在进行的部署
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: false
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # 需要写 gh-pages 分支
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # 需要把产物推到 gh-pages，保留完整历史避免推送被拒
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          # 与本机 pnpm 11.7.0 保持一致，避免 lockfile（v9 格式）解析差异
+          version: 11
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
+          node-version: 20 # Hexo 8 要求 >= 18
+          cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
+
+      # 说明：主题目录 themes/butterfly 是本地签出的，其 scripts/helpers/page.js
+      # 需要 moment-timezone 与 hexo-util。主题自己的 node_modules 被主题
+      # .gitignore 排除，CI 上不存在；依赖改由根 package.json 提供，
+      # Node 会从 themes/butterfly/ 逐级向上找到根 node_modules。
+      # 若此处报 Cannot find module 'moment-timezone'，说明根 package.json
+      # 里那条依赖被删掉了。
 
       - name: Build
-        run: pnpm hexo generate
+        run: pnpm run site
 
-      - name: Deploy
+      - name: Show build result
+        run: |
+          echo "生成文件数：$(find public -type f | wc -l)"
+          ls -la public | head -20
+
+      - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
-          publish_branch: main
+          publish_branch: gh-pages
+          # 保留 gh-pages 历史，便于回滚；不强制单提交孤儿分支
+          force_orphan: false
+          # 若以后绑自定义域名，把 CNAME 文件放到 source/ 下即可

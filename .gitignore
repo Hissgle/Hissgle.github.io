@@ -6,3 +6,5 @@ node_modules/
 public/
 .deploy*/
 _multiconfig.yml
+# pnpm 本地包缓存（可达数十 MB，切勿提交）
+.pnpm-store/
