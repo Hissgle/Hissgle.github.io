@@ -1,2 +1,5 @@
 allowBuilds:
+  core-js: false
+  hexo-helper-live2d: false
   hexo-util: false
+  live2d-widget: false
