@@ -4,14 +4,18 @@
 # 触发：push 到 main，或在 Actions 页面手动触发
 # 产物：构建出的静态站点推到 gh-pages 分支（源码仍留在 main）
 #
-# ⚠️ 首次启用前必须做一件事：
-#     仓库 → Settings → Pages → Build and deployment → Source
-#     改成「Deploy from a branch」，Branch 选 `gh-pages` / `(root)`
-#     否则 gh-pages 里的产物不会被发布，站点会 404。
+# ⚠️ 必须先把 Pages 的发布源切到 GitHub Actions，
+#    否则 GitHub 会继续用内置的 Jekyll 构建器处理本仓库，报：
+#      github-pages 232 | Error: The butterfly theme could not be found.
+#    因为 Jekyll 读到了 Hexo 的 _config.yml（theme: butterfly），
+#    但仓库里没有 Jekyll 的 _layouts/，也认不出 butterfly 这个主题。
+#
+#    操作：仓库 → Settings → Pages → Build and deployment → Source
+#          从「Deploy from a branch」改为「GitHub Actions」
 #
 # ⚠️ 启用后不要再用本机 `hexo deploy`：
-#     _config.yml 的 deploy 指向 main 分支，会和本 workflow 打架。
-#     要么统一用本 workflow，要么把 _config.yml 里 deploy.branch 改成 gh-pages。
+#     _config.yml 的 deploy.branch 已是 gh-pages，与本 workflow 目标一致，
+#     但两者同时用会互相覆盖，建议统一由本 workflow 部署。
 # ===========================================================================
 
 name: Deploy Hexo Blog
