@@ -3,14 +3,14 @@
  *
  * 两个独立效果：
  *   1) 花瓣持续从页面顶端缓缓飘落（全站所有页面）
- *   2) 鼠标划过处短暂扬起一小簇花瓣，随后散开淡出
+ *   2) 鼠标划过处，已有的花瓣被推开、散开，随后慢慢恢复飘落
  *
  * 配置：通过 script 标签的 data-* 属性传入
  * （见 _config.butterfly.yml 的 inject.bottom）
  *
  *   data-mobile="false"      是否在窄屏/手机上启用
  *   data-density="0.00007"   飘落密度（每平方像素生成概率）
- *   data-trail="true"        是否启用鼠标划过效果
+ *   data-trail="true"        是否启用「鼠标划过把花瓣推开」
  *   data-zindex="1"          绘制层级
  *   data-color="#ffc0d0"     基础花瓣色
  *
@@ -21,7 +21,7 @@
  * 调试用 API（浏览器控制台）：
  *   window.sakura.destroy()     移除效果（恢复原状）
  *   window.sakura.petalCount()  当前飘落花瓣数
- *   window.sakura.trailCount()  当前划过的花瓣数
+ *   window.sakura.pushedCount() 当前正被鼠标推开的花瓣数
  */
 (function () {
   'use strict'
@@ -186,6 +186,12 @@
       size: size,
       // 下落速度与大小相关，小花瓣更轻更慢
       vy: rand(0.5, 1.15) * (size / 12),
+      // 被鼠标划开时累积的额外速度，会随时间阻尼衰减
+      px: 0,
+      py: 0,
+      // 被推开的程度 0~1，用于放大摆动和旋转，之后自动回落到 0
+      push: 0,
+      pushSpin: 0,
       // 左右摆动的振幅与相位，形成缓缓飘的观感
       swayAmp: rand(18, 46),
       swayPhase: rand(0, TWO_PI),
@@ -201,7 +207,7 @@
   }
 
   function spawnFor (dt) {
-    var target = Math.min(90, Math.round(w * h * DENSITY))
+    var target = Math.min(120, Math.round(w * h * DENSITY))
     var want = Math.min(3, Math.max(0, target - petals.length))
     for (var i = 0; i < want; i++) {
       if (Math.random() < 0.75 * (dt / FRAME_MS) + 0.25) petals.push(newPetal(true))
@@ -220,58 +226,65 @@
     ctx.restore()
   }
 
-  // ---- 鼠标划过的花瓣 ------------------------------------------------------
-  var trail = []
-  var lastMove = { x: 0, y: 0, t: 0 }
-  var TRAIL_LIFE = 900 // 毫秒
+  // ---- 鼠标划过：把花瓣划开 -------------------------------------------------
+  // 注意：这里不生成任何新花瓣。鼠标只是把**半径内已有的花瓣推开**，
+  // 被推开的花瓣会散开、旋转，然后随时间阻尼衰减，慢慢恢复原本的飘落轨迹。
+  var mouse = { x: 0, y: 0, active: false }
 
-  function spawnTrail (x, y, dirX, dirY) {
-    var n = randInt(1, 3)
-    for (var i = 0; i < n; i++) {
-      // 向鼠标前进方向的斜后方散开，像是被扫开的
-      var spread = rand(-0.9, 0.9)
-      var back = -rand(0.4, 1.1)
-      var vx = (dirX * back + dirY * spread) * rand(0.6, 1.9)
-      var vy = (dirY * back - dirX * spread) * rand(0.6, 1.9) - rand(0.1, 0.7)
-      trail.push({
-        x: x + rand(-7, 7),
-        y: y + rand(-7, 7),
-        vx: vx,
-        vy: vy,
-        size: rand(5, 11),
-        rot: rand(0, TWO_PI),
-        vr: rand(-0.05, 0.05),
-        color: PALETTE[randInt(0, PALETTE.length - 1)],
-        life: 0,
-        lifeMax: rand(TRAIL_LIFE * 0.6, TRAIL_LIFE)
-      })
-    }
-    // 上限保护，快速划动时不会堆积
-    if (trail.length > 160) trail.splice(0, trail.length - 160)
-  }
+  // 影响半径（像素）与推开力度，可用 data-pushradius / data-push 调整
+  var RADIUS = parseFloat(pick('pushRadius', 'pushradius', '110'))
+  if (!(RADIUS > 0)) RADIUS = 110
+  var PUSH = parseFloat(pick('push', 'push', '9'))
+  if (!(PUSH > 0)) PUSH = 9
+  var RADIUS2 = RADIUS * RADIUS
+
+  // 当前正被推开的花瓣数（调试用）
+  var pushedCount = 0
 
   function onMove (e) {
-    var x = e.clientX
-    var y = e.clientY
-    var now = Date.now()
-    var dx = x - lastMove.x
-    var dy = y - lastMove.y
-    var dist = Math.sqrt(dx * dx + dy * dy)
-    var speed = dist / Math.max(1, now - lastMove.t)
-    lastMove.x = x
-    lastMove.y = y
-    lastMove.t = now
+    mouse.x = e.clientX
+    mouse.y = e.clientY
+    mouse.active = true
+  }
+  function onLeave () { mouse.active = false }
+  function onEnter (e) {
+    mouse.x = e.clientX
+    mouse.y = e.clientY
+    mouse.active = true
+  }
 
-    if (dist < 3) return // 微小抖动不生成，避免原地堆积
-    var len = Math.max(0.001, Math.sqrt(dx * dx + dy * dy))
-    spawnTrail(x, y, dx / len, dy / len)
+  // 对鼠标半径内的花瓣施加排斥力
+  function repulse (p, k) {
+    var dx = p.x - mouse.x
+    var dy = p.y - mouse.y
+    // 用花的尺寸微调半径，让大花瓣的手感接近小花瓣
+    var rr = RADIUS + p.size * 0.6
+    if (dx > rr || dx < -rr || dy > rr || dy < -rr) return false
 
-    // 划得越快，补几朵，让轨迹连续
-    if (speed > 0.5 && dist > 18) {
-      for (var i = 1; i < 3; i++) {
-        spawnTrail(x - dx * i / 3, y - dy * i / 3, dx / len, dy / len)
-      }
+    var d2 = dx * dx + dy * dy
+    if (d2 > rr * rr) return false
+
+    var d = Math.sqrt(d2) || 0.001
+    var nx = dx / d
+    var ny = dy / d
+
+    // 距离越近推力越大；两者重叠时用一个下限避免力趋向无穷
+    var t = 1 - d / rr
+    var force = PUSH * t * t * k
+
+    // 让花瓣逃离光标，而不是穿过光标
+    if (d < p.size) {
+      var overlap = p.size - d
+      p.x += nx * overlap
+      p.y += ny * overlap
     }
+
+    p.px += nx * force
+    p.py += ny * force - force * 0.18 // 略微上飘，像被风带起
+    // 被扫开时转得更快，看起来是"被拨动"而不是平移
+    p.pushSpin = (p.pushSpin || 0) + (Math.random() < 0.5 ? -1 : 1) * force * 0.05
+    p.push = Math.min(1, (p.push || 0) + t * 0.55)
+    return true
   }
 
   // ---- 主循环 --------------------------------------------------------------
@@ -286,42 +299,49 @@
 
     ctx.clearRect(0, 0, w, h)
 
-    // 1) 飘落花瓣
+    // 1) 飘落花瓣（鼠标影响半径内的会被推开）
     spawnFor(dt)
     var k = dt / FRAME_MS
+    pushedCount = 0
     for (var i = petals.length - 1; i >= 0; i--) {
       var p = petals[i]
+
+      // 鼠标划开：只推开已有花瓣，不产生新花瓣
+      if (TRAIL && mouse.active) {
+        if (repulse(p, k)) pushedCount++
+      }
+
+      // 被推开后累积的速度，随时间阻尼衰减（越小越"黏"，恢复越快）
+      if (p.px || p.py) {
+        p.px *= Math.pow(0.90, k)
+        p.py *= Math.pow(0.90, k)
+        if (Math.abs(p.px) < 0.01) p.px = 0
+        if (Math.abs(p.py) < 0.01) p.py = 0
+      }
+
+      // 推开程度回落；未受扰动时 sway 系数为 0，行为与原来完全一致
+      if (p.push) {
+        p.push *= Math.pow(0.94, k)
+        if (p.push < 0.01) p.push = 0
+      }
+      if (p.pushSpin) {
+        p.rot += p.pushSpin * k
+        p.pushSpin *= Math.pow(0.90, k)
+        if (Math.abs(p.pushSpin) < 0.0005) p.pushSpin = 0
+      }
+
       p.swayPhase += p.swaySpeed * k
       p.flip += p.flipSpeed * k
       p.rot += p.vr * k
-      p.y += p.vy * k
-      p.x += Math.sin(p.swayPhase) * 0.5 * k
+      // 正常下落 + 划开速度；被扫开时摆动幅度放大，看起来'散了'
+      p.y += (p.vy + p.py) * k
+      p.x += (Math.sin(p.swayPhase) * 0.5 * (1 + p.push * 7) + p.px) * k
 
-      if (p.y - p.size > h || p.x < -120 || p.x > w + 120) {
+      if (p.y - p.size > h || p.x < -160 || p.x > w + 160) {
         petals.splice(i, 1)
         continue
       }
       drawPetalItem(p)
-    }
-
-    // 2) 划过的花瓣
-    for (var j = trail.length - 1; j >= 0; j--) {
-      var q = trail[j]
-      q.life += dt
-      if (q.life >= q.lifeMax) { trail.splice(j, 1); continue }
-      var prog = q.life / q.lifeMax
-
-      q.vy += 0.012 * k // 缓慢下坠
-      q.vx *= Math.pow(0.985, k) // 空气阻力
-      q.x += q.vx * k
-      q.y += q.vy * k
-      q.rot += q.vr * k
-
-      ctx.save()
-      ctx.translate(q.x, q.y)
-      ctx.rotate(q.rot)
-      drawPetal(ctx, q.size, q.color, (1 - prog) * 0.9)
-      ctx.restore()
     }
 
     raf = window.requestAnimationFrame(tick)
@@ -333,6 +353,9 @@
 
   if (TRAIL) {
     window.addEventListener('mousemove', onMove, { passive: true })
+    // 鼠标离开窗口后停止影响，避免停住不动时一直推同一批花瓣
+    window.addEventListener('mouseleave', onLeave)
+    window.addEventListener('mouseenter', onEnter)
   }
 
   onResize = function () { resize() }
@@ -356,17 +379,23 @@
   // ---- 对外接口 ------------------------------------------------------------
   window.sakura = {
     petalCount: function () { return petals.length },
-    trailCount: function () { return trail.length },
+    // 当前正被鼠标推开的花瓣数（0 表示鼠标没在划动或没碰到花瓣）
+    pushedCount: function () { return pushedCount },
     palette: PALETTE.slice(),
     destroy: function () {
       running = false
       window.cancelAnimationFrame(raf)
-      if (TRAIL) window.removeEventListener('mousemove', onMove)
+      if (TRAIL) {
+        // 三个鼠标监听都要解绑，漏掉会造成监听器泄漏
+        window.removeEventListener('mousemove', onMove)
+        window.removeEventListener('mouseleave', onLeave)
+        window.removeEventListener('mouseenter', onEnter)
+      }
       window.removeEventListener('resize', onResize)
       document.removeEventListener('visibilitychange', onVisibility)
       if (canvas.parentNode) canvas.parentNode.removeChild(canvas)
       petals.length = 0
-      trail.length = 0
+      pushedCount = 0
       window.__sakuraLoaded = false
       delete window.sakura
     }
