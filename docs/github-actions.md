@@ -57,10 +57,32 @@ git push
 | --- | --- | --- |
 | **产物推回 main** | `publish_branch: main` | `publish_branch: gh-pages` |
 | **CI 构建必然失败** | 无处理 | 根 `package.json` 加 `moment-timezone` |
+| **Node 版本过低** | `node-version: 20` 配 pnpm 11 | `node-version: '>=22.13'` |
 | **lockfile 未同步** | `pnpm install` | `pnpm install --frozen-lockfile` |
 | pnpm 版本不一致 | `version: 9`（本机是 11） | `version: 11` |
 | 无权限声明 | 无 `permissions` | `contents: write` |
 | 步骤顺序有误 | 先 setup-node 后装 pnpm | 先 pnpm 后 node |
+
+### Node 与 pnpm 的版本约束（第一次跑就踩了这个）
+
+两个下限必须同时满足，取**较高**的那个：
+
+| 来源 | 要求 |
+| --- | --- |
+| Hexo 8 的 `engines.node` | `>= 20.19.0` |
+| pnpm 11 的运行时要求 | `>= 22.13` |
+
+所以 `node-version: '>=22.13'`。曾经写成 `node-version: 20` + `pnpm 11`，报错：
+
+```
+Error: warn: This version of pnpm requires at least Node.js v22.13
+```
+
+> 如果不想升 Node，也可以把 pnpm 降到 10（pnpm 10 支持 Node 18+），
+> 但那样与本地 pnpm 11.7.0 不一致，lockfile 解析可能有细微差异，所以选择升 Node。
+
+workflow 里加了一步 `Show tool versions` 打印 `node -v` / `pnpm -v`，
+以后再遇到版本类问题，看这一步的输出即可，不用去猜。
 
 ### 最关键的一条：`moment-timezone`
 

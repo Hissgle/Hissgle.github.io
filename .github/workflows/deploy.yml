@@ -43,14 +43,29 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          # 与本机 pnpm 11.7.0 保持一致，避免 lockfile（v9 格式）解析差异
+          # 与本机 pnpm 11.7.0 保持一致，避免 lockfile（v9 格式）解析差异。
+          # ⚠️ pnpm 11 运行时要求 Node >= 22.13，所以下面的 node-version 必须是 22+。
+          #    曾用 Node 20 配 pnpm 11，报错：
+          #    "This version of pnpm requires at least Node.js v22.13"
           version: 11
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20 # Hexo 8 要求 >= 18
+          # 约束来自两处，取较高的：
+          #   Hexo 8 的 engines.node  = >=20.19.0
+          #   pnpm 11 运行时要求      = >=22.13
+          # 用 semver 范围表达要求，setup-node 会解析为满足条件的最新版，
+          # 既明确又不会因写死某个版本号而解析失败。
+          node-version: '>=22.13'
           cache: pnpm
+
+      # 先打印版本，任何"版本不匹配"问题在这里就能一眼看出，
+      # 不用等后面报难懂的引擎错误
+      - name: Show tool versions
+        run: |
+          echo "node: $(node -v)"
+          echo "pnpm: $(pnpm -v)"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
