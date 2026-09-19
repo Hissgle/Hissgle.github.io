@@ -7,3 +7,23 @@
 #footer {
     background: transparent !important;
 }
+
+#page-header:not(.not-top-img) {
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   让页头与正文用同一层背景，消除两者之间的色差
+   原因：#page-header 是透明的（透出 /js/universe.js 的星空画布），
+         但 body 和 #page 是不透明白色 rgb(255,255,255)，
+         所以页头下面的正文区盖住了星空 → 上下颜色不一致。
+   把它们都改成透明，整页就共用同一个星空背景。
+   （#web_bg 是主题的背景图/渐变层，一并去掉，避免它插在星空之间）
+   -------------------------------------------------------------------------- */
+body,
+#web_bg,
+#page {
+    background-color: transparent !important;
+    background-image: none !important;
+}

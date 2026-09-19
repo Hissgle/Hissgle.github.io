@@ -70,10 +70,10 @@ default_top_img:
 index_img: /img/titlebackground.jpg
 
 # The banner image of archive page
-archive_img:
+archive_img: /img/titlebackground.jpg
 
 # Note: tag page, not tags page
-tag_img:
+tag_img: /img/titlebackground.jpg
 
 # The banner image of tag page, you can set the banner image for each tag
 # Format:

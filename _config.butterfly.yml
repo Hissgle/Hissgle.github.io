@@ -132,6 +132,9 @@ inject:
   head:
     - <link rel="stylesheet" href="/css/custom.css">
   bottom:
+    
+    - '<canvas id="universe"></canvas>'
+    - '<script src="/js/universe.js"></script>'
     - <script id="sakura-js" src="/js/sakura.js" data-mobile="false" data-density="0.00007" data-trail="true" data-push="9" data-pushradius="110" data-zindex="1" data-color="#ffc0d0"></script>
     # ----------------------------------------------------------------------
     # 网易云音乐 —— 黑胶唱片播放器（左下角固定）
@@ -350,7 +353,6 @@ inject:
 # 语法：显示名称: /路径/ || 图标class
 # 可用图标见 https://fontawesome.com/v5/search（挑 fa-solid / fas 开头的）
 menu:
-  首页: / || fas fa-home
   关于: /about/ || fas fa-user
   友链: /link/ || fas fa-link
   归档: /archives/ || fas fa-archive

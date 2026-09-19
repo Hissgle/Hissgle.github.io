@@ -219,8 +219,95 @@ NotAllowedError: play() failed because the user didn't interact with the documen
 > 另外：**不要用 jsdom 给这套东西下结论**。它不做自定义元素升级、
 > 不连网络、也不遵守真实的事件语义，我一开始用它得出过错误结论。
 
-## 自动播放说明
-`autoplay` 现在没有开，需要访客点一下——这也是浏览器策略要求的
-（「有声音的自动播放」普遍被拦，开启后大多数访客看到的仍是暂停状态）。
-如果你想让它一进页面就转起来但不出声，可以把 `audio.muted = true` + `audio.autoplay = true`，
-代价是访客不知道它在放。
+## 自动播放：怎么开（含实测结论）
+现在 `autoplay` 没开，需要访客点一下。想改成进站自动播放的话，下面是实测过的结论和改法。
+
+### 先看结论，省得白试
+
+| 场景 | 有声自动播放 | 说明 |
+|---|---|---|
+| 访客**第一次**打开你的站 | ✗ 被拒 | `NotAllowedError: play() failed because the user didn't interact with the document first.` |
+| 访客已在本站**点过一次**（同一会话，含 pjax 切页之后） | ✓ 允许 | 交互过一次就放行了 |
+| `audio.muted = true` | ✓ 允许 | 静音自动播放基本都能过，Chrome/Edge/Safari 默认允许 |
+
+所以「第一次进站就有声自动播放」**技术上做不到**——这是浏览器安全策略，不是代码问题。
+可行做法：**自动播放 + 失败降级** —— 能出声就出声，不行就自动静音播，
+并在唱片下面提示访客点一下取消静音。
+
+> 验证方法见 `docs/autoplay-real-page.js`：把自动播放逻辑接到真实页面（真实歌曲、真实容器）上跑。
+> ⚠️ **不要用 headless 默认配置下结论**：headless 会把自动播放全部禁掉（连 muted 都禁），
+> 必须显式给浏览器自动播放权限，才等价于普通浏览器窗口。我一开始就被这点误导过。
+
+### 1) 音频元素那段：加静音兜底 + 自动播放开关
+
+```js
+var audio = document.createElement("audio");
+audio.preload = "auto";                    /* 原来 "metadata"；自动播放建议改 "auto" */
+audio.loop = cfg.loop !== "none";
+audio.setAttribute("playsinline", "");     /* 移动端必须，否则 iOS 会走全屏播放器 */
+if (cfg.autoplay) { audio.muted = true; }  /* 先静音，保证能播起来；拿到声音后再提示解除 */
+root.appendChild(audio);
+```
+
+### 2) 拿到歌曲地址后尝试播放（把原来的 `setPlaying(false);` 换成这段）
+
+```js
+audio.src = t.url;
+titleEl.textContent = t.title + (t.author ? " - " + t.author : "");
+titleEl.title = titleEl.textContent;
+if (!cfg.autoplay) {
+  setPlaying(false);
+} else {
+  /* 先按"有声"播；被浏览器拦了就自动降级成静音播，并提示访客点一下 */
+  audio.play().catch(function () {
+    audio.muted = true;
+    return audio.play().then(function () {
+      stateEl.textContent = "已静音自动播放 · 点击取消静音";
+    }).catch(function () {
+      stateEl.textContent = "点击播放";
+    });
+  }).then(function () {
+    if (!audio.paused && !audio.muted) { stateEl.textContent = "点击暂停"; }
+  });
+}
+```
+
+### 3) 让「点一下」能取消静音
+
+`toggle()` 里先把 `muted` 清掉：
+
+```js
+function toggle() {
+  if (!audio.src) { return; }
+  if (audio.paused) {
+    audio.muted = false;
+    var p = audio.play();
+    if (p && p.catch) { p.catch(function () {}); }
+  } else {
+    audio.pause();
+  }
+}
+```
+
+### 4) 配置里加开关
+`data-vinyl` 里加 `"autoplay":true`（不加或 `false` 就是现在的手动模式）：
+
+```json
+{ "type": "song", "id": "1303464858", "loop": "one", "autoplay": true }
+```
+
+### 5) ⚠️ 顺手修一处残留
+
+第 ~325 行现在是：
+
+```js
+setPlaying(true);
+```
+
+这行会让**唱片在页面刚打开、还没播放时就空转**——因为此时 `audio.play()` 还没被调用，
+而 `is-playing` 类已经被加上了。应该删掉它，或者换成 `stateEl.textContent = "加载中";`。
+
+唱片转不转是由 `audio` 的 `play` / `pause` 事件驱动的（`setPlaying(true/false)`），
+只要真的在播就会转，不需要手动控制。
+
+改完**重启 `hexo server`**（不热加载配置），再用 `node docs/player-cdp.js --launch` 复核。
