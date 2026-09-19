@@ -64,7 +64,7 @@ avatar:
 disable_top_img: false
 
 # If the banner of page not setting, it will show the default_top_img
-default_top_img:
+default_top_img: false
 
 # The banner image of index page
 index_img: /img/titlebackground.jpg
@@ -74,6 +74,8 @@ archive_img: /img/titlebackground.jpg
 
 # Note: tag page, not tags page
 tag_img: /img/titlebackground.jpg
+
+gallery_img: /img/titlebackground.jpg
 
 # The banner image of tag page, you can set the banner image for each tag
 # Format:

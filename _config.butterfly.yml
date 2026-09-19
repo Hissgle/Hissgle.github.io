@@ -407,6 +407,48 @@ CDN:
     #    「切换页面不中断播放」就完全不会生效（而且控制台只报 Pjax is not defined）。
     pjax: https://registry.npmmirror.com/pjax/0.2.8/files/pjax.min.js
 
+    # ----------------------------------------------------------------------
+    # 其余第三方脚本也统一从 jsdelivr 换到 npmmirror
+    # ----------------------------------------------------------------------
+    # 背景：主题默认的 CDN.third_party_provider 是 jsdelivr，而这些第三方脚本
+    #       **只有在生成静态页时才会拼出 CDN 地址**，本地 `hexo server` 预渲染时
+    #       同样会写进 HTML —— 也就是说本地预览和线上用的是同一批地址。
+    #       但实测本机对 cdn.jsdelivr.net 是 ECONNREFUSED（完全不可达），
+    #       于是线上页面里这几个资源 404/超时，外观和交互就跟本地不一样：
+    #         fontawesome   → 全站图标变成空白方块（首页文章数、导航、侧栏都受影响）
+    #         lazyload      → 懒加载失效，首页封面图停在占位 GIF 上不出来
+    #         click_heart   → 点击页面的爱心特效不出现
+    #         pace_js/css   → 顶部加载进度条不出现
+    #         instantpage   → 预加载失效（无感，可忽略）
+    #       注意：主题内部的 main.js / utils.js / tw_cn.js 走的是
+    #       internal_provider: local，不受影响，所以 HTML 里它们是 /js/xxx.js。
+    #
+    # 镜像地址格式与上面 pjax 一致：
+    #   https://registry.npmmirror.com/{包名}/{版本}/files/{包内真实路径}
+    # 下面这些地址均已实测返回 200。
+    fontawesome: https://registry.npmmirror.com/@fortawesome/fontawesome-free/7.3.1/files/css/all.min.css
+    lazyload: https://registry.npmmirror.com/vanilla-lazyload/19.1.3/files/dist/lazyload.iife.min.js
+    click_heart: https://registry.npmmirror.com/butterfly-extsrc/1.1.6/files/dist/click-heart.min.js
+    pace_js: https://registry.npmmirror.com/pace-js/1.2.4/files/pace.min.js
+    # pace 的主题样式在 npm 包里带 .min 后缀（themes/blue/pace-theme-minimal.min.css），
+    # 与 jsdelivr 上那个不带 .min 的路径不同，别照抄 jsdelivr 的写法。
+    pace_default_css: https://registry.npmmirror.com/pace-js/1.2.4/files/themes/blue/pace-theme-minimal.css
+    # instant.page 包里只有 instantpage.js，没有 .min 版本。
+    instantpage: https://registry.npmmirror.com/instant.page/5.2.0/files/instantpage.js
+    # InfiniteGrid：首页/相册的「加载更多」与网格布局依赖它。
+    egjs_infinitegrid: https://registry.npmmirror.com/@egjs/infinitegrid/4.13.0/files/dist/infinitegrid.min.js
+    # typed.js：首屏副标题的打字机效果。
+    # 当前 subtitle.effect 为 false，会走到「不打字」那条分支，所以页面上暂时用不到；
+    # 一旦把 effect 改成 true 启用打字机，就会用到这个地址。
+    typed: https://registry.npmmirror.com/typed.js/3.0.0/files/dist/typed.umd.js
+    # 文章分享按钮（每篇文章底部）
+    sharejs: https://registry.npmmirror.com/butterfly-extsrc/1.1.6/files/sharejs/dist/js/social-share.min.js
+    sharejs_css: https://registry.npmmirror.com/butterfly-extsrc/1.1.6/files/sharejs/dist/css/share.min.css
+    # Waline 评论框客户端。评论后端（serverURL 那个 vercel 域名）是另一回事，
+    # 它能不能访问取决于你的网络，与这里的静态资源 CDN 无关。
+    waline_js: https://registry.npmmirror.com/@waline/client/3.15.2/files/dist/waline.js
+    waline_css: https://registry.npmmirror.com/@waline/client/3.15.2/files/dist/waline.css
+
 # --------------------------------------------------------------------------
 # 页面切换方式（Pjax）
 # --------------------------------------------------------------------------

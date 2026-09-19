@@ -3,6 +3,7 @@ title: Sakura落樱动效
 date: 2026-09-19 22:41:48
 tags: JavaScript
 cover: /img/cover3.jpg
+top-img: /img/cover3.jpg
 ---
 
 **<span style="color: #FF5733;">本网站的落樱动效使用此动效</span>**

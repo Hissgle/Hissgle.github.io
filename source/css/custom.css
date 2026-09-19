@@ -8,10 +8,7 @@
     background: transparent !important;
 }
 
-#page-header:not(.not-top-img) {
-    background-color: transparent !important;
-    background-image: none !important;
-}
+
 
 /* --------------------------------------------------------------------------
    让页头与正文用同一层背景，消除两者之间的色差

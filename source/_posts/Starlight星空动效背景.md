@@ -3,6 +3,7 @@ title: Starlight星空动效背景
 date: 2026-09-19 22:26:16
 tags: JavaScript
 cover: img/cover2.jpg
+top-img: img/cover2.jpg
 ---
 
 # 该网站的背景采用此动效
