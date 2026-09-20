@@ -131,8 +131,11 @@ inject:
   # APlayer 的样式表已经不需要了 —— 唱片播放器的界面全部在 inject.bottom 里自绘。
   head:
     - <link rel="stylesheet" href="/css/custom.css">
+    #阅读进度条
+    - <style>#reading-progress{position:fixed;top:0;left:0;width:0%;height:3px;background-color:#ff5733;z-index:99999;transition:width .1s ease;}</style>
   bottom:
-    
+    #计算滚动进度条
+    - <script>(function(){var bar=document.getElementById('reading-progress')||document.createElement('div');bar.id='reading-progress';document.body.appendChild(bar);function update(){var post=document.getElementById('post');if(!post){bar.style.width='0%';bar.style.display='none';return}bar.style.display='block';var h=document.documentElement.scrollHeight-document.documentElement.clientHeight;var t=document.documentElement.scrollTop||document.body.scrollTop;if(h>0){bar.style.width=Math.min((t/h)*100,100)+'%'}else{bar.style.width='0%'}}update();window.addEventListener('scroll',update);document.addEventListener('pjax:complete',function(){bar=document.getElementById('reading-progress')||bar;update()})})();</script>
     - '<canvas id="universe"></canvas>'
     - '<script src="/js/universe.js"></script>'
     - <script id="sakura-js" src="/js/sakura.js" data-mobile="false" data-density="0.00007" data-trail="true" data-push="9" data-pushradius="110" data-zindex="1" data-color="#ffc0d0"></script>
@@ -513,3 +516,8 @@ waline:
   #   lang: zh-CN
   #   emoji:
   #     - https://unpkg.com/@waline/emojis@1.2.0/weibo
+
+reading_progress: 
+  enable: true 
+  color: "#ff5733"
+  height: 3px
