@@ -51,3 +51,33 @@ body,
     aspect-ratio: 2 / 3;   /* 统一成 2:3 竖图，两列高度整齐；想保留原图比例就删掉这一行 */
     object-fit: cover;     /* 按上面比例裁剪填满，不拉伸变形；想完整显示原图可改成 contain */
 }
+
+.rainbow-text {
+    /* 彩虹渐变色，从红到紫再回到红，保证无缝衔接 */
+    background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000);
+    background-size: 200% auto;
+    /* 关键：把背景裁剪成文字形状，并且让文字本身透明 */
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    /* 加粗让效果更好看 */
+    font-weight: bold;
+    /* 动画：名称 3秒 匀速 无限循环 */
+    animation: rainbow-flow 5s linear infinite;
+}
+/* --------------------------------------------------------------------------
+   rainbow-flow 关键帧
+   原来这里漏了定义 —— `animation: rainbow-flow ...` 引用了不存在的关键帧，
+   浏览器会静默忽略整条动画（控制台不报错），只剩一组静止的彩虹渐变。
+   background-position 从 0% 走到 200%，配合上面的 background-size: 200% auto
+   形成颜色流动效果。
+   -------------------------------------------------------------------------- */
+@keyframes rainbow-flow {
+    from {
+        background-position: 0% center;
+    }
+    to {
+        background-position: 200% center;
+    }
+}
