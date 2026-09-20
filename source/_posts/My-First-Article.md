@@ -1,7 +1,7 @@
 ---
 title: 欢迎来到我的个人Blog
 date: 2026-09-17 12:47:40
-tags:
+tags: 技术随笔
 cover: /img/cover1.jpg
 top_img: /img/cover1.jpg
 ---
