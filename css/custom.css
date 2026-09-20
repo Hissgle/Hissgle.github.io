@@ -24,3 +24,30 @@ body,
     background-color: transparent !important;
     background-image: none !important;
 }
+
+/* --------------------------------------------------------------------------
+   相册子页面（/gallery-anime、/gallery-anime1）—— 一行固定两张图
+   这两个页面的正文里用 <div class="gallery-grid"> 包住所有 <img>，
+   下面用 CSS Grid 把容器切成固定两列，所以放几张图都是一行两张。
+   （原来的 {% gallery %} 标签走的是主题的 InfiniteGrid 插件：它在浏览器里
+     用 JS 算好每张图的像素宽高和位置，再写成行内样式绝对定位。每行几张完全
+     由它按容器宽度和图片比例决定，纯 CSS 没法指定"每行两张"，所以这里换成了
+     简单的 CSS Grid 布局。）
+   -------------------------------------------------------------------------- */
+#article-container .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* 固定两列 = 一行两张 */
+    gap: 12px;                                        /* 图片间距，想宽/窄改这里 */
+    margin: 0 0 20px;
+}
+
+#article-container .gallery-grid img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    margin: 0;             /* 清掉主题给正文图片加的 margin: 0 auto 20px */
+    border-radius: 8px;
+    aspect-ratio: 2 / 3;   /* 统一成 2:3 竖图，两列高度整齐；想保留原图比例就删掉这一行 */
+    object-fit: cover;     /* 按上面比例裁剪填满，不拉伸变形；想完整显示原图可改成 contain */
+}
