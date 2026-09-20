@@ -1,12 +1,10 @@
 ---
 title: 破碎的日常
 date: 2026-09-18 14:19:17
-top_img: /img/titlebackground.jpg
-cover: /img/titlebackground.jpg
 ---
 
-{% gallery true,220,5 %}
-![](/img/gallery1.jpg)
-![](/img/anime2.jpg)
-![](/img/anime3.jpg)
-{% endgallery %}
+<div class="gallery-grid">
+<img src="/img/gallery1.jpg" alt="">
+<img src="/img/anime2.jpg" alt="">
+<img src="/img/anime3.jpg" alt="">
+</div>
