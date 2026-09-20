@@ -7,11 +7,11 @@ top_img: /img/titlebackground.jpg
 
 ## 关于本站
 
-这里是 Hissgle 的个人博客，用来记录一些技术笔记和日常碎碎念。
+<span class="rainbow-text">这里也许没有任何东西值得注意...</span>
 
 ## 关于我
 
-平平无常的二次元爱好者。
+**<span style="color: #FF5733;">一个不会写代码的废物</span>**
 
 ## 这个站是怎么搭的
 
@@ -24,5 +24,6 @@ top_img: /img/titlebackground.jpg
 ## 联系方式
 
 - GitHub：[Hissgle](https://github.com/Hissgle)
+- Bilibili： [Hissgle](https://space.bilibili.com/496402739?spm_id_from=333.1007.0.0)
 
-想交换友链的话，去「友链」页面看看我的信息格式，然后在这里留言告诉我。
+
