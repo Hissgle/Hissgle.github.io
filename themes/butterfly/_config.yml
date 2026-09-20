@@ -125,7 +125,7 @@ post_meta:
     date_type: created
     # Choose: date / relative
     date_format: date
-    categories: true
+    categories: false
     tags: false
     label: true
   post:
@@ -135,7 +135,7 @@ post_meta:
     date_type: both
     # Choose: date / relative
     date_format: date
-    categories: true
+    categories: false
     tags: true
     label: true
 
@@ -284,7 +284,7 @@ aside:
   display:
     archive: true
     tag: true
-    category: true
+    category: false
   card_author:
     enable: true
     description:
@@ -295,7 +295,7 @@ aside:
       link: https://github.com/Hissgle
   card_announcement:
     enable: true
-    content: 平平无常的二次元爱好者
+    content: 宁静的大海会带走一切，风的命运却仍未知。
   card_recent_post:
     enable: true
     # If set 0 will show all
@@ -311,7 +311,7 @@ aside:
     storage: 10
     avatar: true
   card_categories:
-    enable: true
+    enable: false
     # If set 0 will show all
     limit: 8
     # Choose: none / true / false
