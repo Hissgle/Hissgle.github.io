@@ -375,6 +375,184 @@ inject:
     # ── FastAPI 后端接入（当前已隔离，暂时停用）；恢复见 API-README.md ──
     # - '<script src="/js/api-stats.js"></script>'
 
+    # ======================================================================
+    # 滚动进入视口的渐显动效（卡片从下往上淡入）
+    # ======================================================================
+    # 效果：页面往下滚，某个卡片刚进入屏幕时，它从下方 34px 处一边上移一边淡入。
+    #       已经划过去的卡片不会再动 —— 用 IntersectionObserver 只触发一次。
+    #
+    # 作用范围：所有卡片，含侧边栏
+    #   .recent-post-item   首页 / 归档 / 分类 / 标签页的文章卡片
+    #   .card-widget        侧边栏的每一个卡片（作者、公告、最新文章、标签、网站资讯…）
+    #   #aside-content      整个侧边栏（窄屏时它排在正文下面，一起淡入更整齐）
+    #   #post / .post       文章页的正文卡片
+    #   .post-copyright / #pagination / #post-comment  版权、翻页、评论区
+    #
+    # ── 想调节奏 ──────────────────────────────────────────────────────────
+    #   时长/位移/缓动  改 <style> 里 .js-reveal 那几条（都在一块，很好找）
+    #   触发时机        改脚本里的 rootMargin（下面有说明）
+    #   逐张错开        改脚本里的 STAGGER（单位毫秒）
+    #   关掉整个动效    删掉下面这一段，或把 <style> 里 html.reveal-on 改成 html.reveal-off
+    #
+    # ── 实现要点（改之前先看这几条，都是踩过的坑）─────────────────────────
+    #   1) 绝不给卡片加 overflow:hidden 或用绝对定位包一层 ——
+    #      主题的 .cardHover 自带 overflow:hidden（为了裁圆角），
+    #      而 .recent-post-item / .card-widget 就是那个元素本身，
+    #      所以 CSS 变换必须直接加在卡片自己身上，不能再套壳。
+    #   2) html.reveal-on 这个开关类由脚本自己加。
+    #      脚本正常加载 -> 卡片先隐藏再等观察器放出来；
+    #      脚本挂了（被墙/CDN 出错/语法错误）-> 这个类根本没加上 -> 卡片照常显示。
+    #      这样写是为了避免"JS 一挂全站卡片永久白屏"。
+    #   3) 不用 theme.pjax 的 data-pjax：本脚本自己监听 pjax:complete 重新扫描，
+    #      换页后新出现的卡片也会动（换页本身还会重跑一次，用属性做幂等保护）。
+    #   4) prefers-reduced-motion: reduce 时整套动效完全不生效（无障碍 + 省电）。
+    #   5) 和 vinyl 播放器那段一样：脚本里**不能出现 // 行注释**
+    #      （inject 会把换行折叠成空格，后面整段代码都会被注释掉），只用 /* */。
+    # ======================================================================
+    - '<style>
+      html.reveal-on .js-reveal {
+        opacity: 0;
+        transform: translateY(var(--reveal-y, 34px));
+        transition: opacity var(--reveal-dur, .68s) cubic-bezier(.22, .61, .36, 1) var(--reveal-delay, 0s),
+                    transform var(--reveal-dur, .68s) cubic-bezier(.22, .61, .36, 1) var(--reveal-delay, 0s);
+        will-change: opacity, transform;
+      }
+      html.reveal-on .js-reveal.js-reveal-in {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html.reveal-on .js-reveal,
+        html.reveal-on .js-reveal.js-reveal-in {
+          opacity: 1 !important;
+          transform: none !important;
+          transition: none !important;
+        }
+      }
+      </style>'
+    - '<script>(function () {
+      var SEL = ".recent-post-item, .card-widget, #aside-content, #post, #pagination, #post-comment, .post-copyright, .post";
+      var STAGGER = 95;
+      var LEAD = 80;
+      var root = document.documentElement;
+      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) { return; }
+      /* 打开开关：从这一刻起卡片才隐藏。上面 return 掉了，就永远不隐藏。 */
+      root.classList.add("reveal-on");
+
+      function mark(el, delay) {
+        if (el.getAttribute("data-reveal-in") === "1") { return; }
+        el.setAttribute("data-reveal-in", "1");
+        if (delay) { el.style.setProperty("--reveal-delay", delay + "ms"); }
+      }
+
+      /* 动效跑完就把 will-change 撤掉，不然卡片长期占一层合成层，滚动反而更费性能。 */
+      function dropHint(el) {
+        if (el.getAttribute("data-reveal-done") === "1") { return; }
+        el.setAttribute("data-reveal-done", "1");
+        el.style.willChange = "auto";
+      }
+
+      var observer = null;
+
+      function init() {
+        /* ⚠️ 整个函数体都包在 try 里：new IntersectionObserver 在
+           不支持它的老浏览器里会直接抛错，如果只把后半段包起来，
+           这一抛就会跳过下面的 onFail，卡片就永久留在隐藏状态了。 */
+        try {
+          var windW = window.innerWidth || 0;
+          if (windW && windW < 768) { STAGGER = 70; }
+
+          var items = [].slice.call(document.querySelectorAll(SEL));
+          if (!items.length) { return; }
+
+          /* 首屏就在视口里的卡片：错开一点逐张浮出；
+             屏幕外往下滚出来的：立刻开始，不做延迟，跟着滚动走。 */
+          var vh = window.innerHeight || document.documentElement.clientHeight || 800;
+          var stagger = 0;
+          items.forEach(function (el) {
+            el.classList.add("js-reveal");
+            var box = el.getBoundingClientRect();
+            if (box.top < vh && box.bottom > 0) {
+              mark(el, LEAD + stagger);
+              stagger += STAGGER;
+            }
+          });
+
+          if (typeof window.IntersectionObserver !== "function") { throw new Error("IntersectionObserver unavailable"); }
+
+          if (observer) { observer.disconnect(); }
+          observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+              if (!entry.isIntersecting) { return; }
+              var el = entry.target;
+              mark(el, 0);
+              el.classList.add("js-reveal-in");
+              observer.unobserve(el);
+              el.addEventListener("transitionend", function (ev) {
+                if (ev.target === el) { dropHint(el); }
+              });
+            });
+          }, {
+            /* 下边留 60px：卡片刚露头一点点就触发，不是等它整张都进来才开始。
+               0.01 这个阈值很小，是为了让"比屏幕还高的卡片"也能触发
+               （那种卡片交集比例永远到不了 0.2，阈值一大就永远不显示）。 */
+            threshold: 0.01,
+            rootMargin: "0px 0px -60px 0px"
+          });
+
+          items.forEach(function (el) { observer.observe(el); });
+        } catch (err) {
+          onFail(err);
+        }
+      }
+
+      /* 任何一步出错都走这里：把开关关掉，让所有卡片回到正常显示。
+         宁可没有动效，也不能让内容留在隐藏状态。 */
+      function onFail(err) {
+        if (observer) { observer.disconnect(); observer = null; }
+        [].slice.call(document.querySelectorAll(SEL)).forEach(function (el) {
+          el.classList.remove("js-reveal");
+          el.classList.add("js-reveal-in");
+          el.style.willChange = "auto";
+        });
+        root.classList.remove("reveal-on");
+        if (window.console) { console.warn("[reveal] 滚动渐显动效初始化失败，已回退到普通显示：", err); }
+      }
+
+      function boot() {
+        try {
+          init();
+          /* 兜底看门狗：万一观察器一个回调都没等到（浏览器兼容问题、
+             脚本被别的插件改写之类），3 秒后无条件放行所有卡片。
+             宁可动效不完整，也不能让内容一直隐形。
+             已经正常显示过的卡片带 data-reveal-done，不会被它再动一次。 */
+          setTimeout(function () {
+            if (!root.classList.contains("reveal-on")) { return; }
+            var stuck = [].slice.call(document.querySelectorAll(".js-reveal"))
+              .filter(function (el) { return el.getAttribute("data-reveal-done") !== "1"; });
+            if (!stuck.length) { return; }
+            stuck.forEach(function (el) {
+              el.style.setProperty("--reveal-delay", "0ms");
+              el.classList.add("js-reveal-in");
+            });
+          }, 3000);
+        } catch (err) {
+          onFail(err);
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", boot);
+      } else {
+        boot();
+      }
+
+      /* pjax 换页后 DOM 被整块替换，重新扫描一遍。用属性做幂等，
+         所以即使 init 被多调几次也不会重复动效。 */
+      document.addEventListener("pjax:complete", boot);
+      document.addEventListener("pjax:success", boot);
+      })();</script>'
+
 # --------------------------------------------------------------------------
 # 顶部导航菜单
 # --------------------------------------------------------------------------
@@ -546,3 +724,31 @@ reading_progress:
   enable: true 
   color: "#ff5733"
   height: 3px
+
+# --------------------------------------------------------------------------
+# 默认显示模式（白天 / 黑夜）
+# --------------------------------------------------------------------------
+# 可选值：light（默认，白天）/ dark（黑夜）
+#
+# 这一行是「首次进入页面时用哪套配色」的唯一开关。它的作用有两个，
+# 都在服务器生成 HTML 时就写死了，所以不会有闪烁：
+#   1) <html data-theme="dark">  —— 页面一打开就是黑夜，不用等 JS
+#   2) 编译出 [data-theme='dark'] 那套 CSS 变量（深色卡片、深色文字等）
+#      ⚠️ 这一条同时受 darkmode.enable 影响，只要 display_mode == 'dark'
+#         或 darkmode.enable == true 就会编译。本主题配置里 darkmode.enable
+#         已经是 true（右下角那个日月按钮就是它），所以两套配色一直都在
+#         CSS 里，改这行**不需要重新编译 CSS**，只影响初始值。
+#
+# 右下角按钮的行为（主题原有逻辑，不用改）：
+#   点一下切到白天，再点切回黑夜，并且会把你的选择记到 localStorage 的
+#   'theme' 里；下次再进来优先用你上次选的，而不是这里的默认值。
+#   也就是说：这行只在「没手动切过」的情况下生效。
+#   想每次都强制黑夜（不管上次选了什么），见下面第 2 种做法。
+#
+#   1) 只改默认值（推荐）：保持这一行 display_mode: dark，手动切换照常记忆
+#   2) 永远强制黑夜：把右下角按钮关掉即可 —— 在配置里加
+#         darkmode:
+#           button: false
+#      按钮没了就没人能改 data-theme，也就永远是黑夜。
+#      另：autoChangeMode 保持 false，否则会按时间/系统设置覆盖这里的默认值。
+display_mode: dark
