@@ -147,6 +147,12 @@ inject:
   # APlayer 的样式表已经不需要了 —— 唱片播放器的界面全部在 inject.bottom 里自绘。
   head:
     - <link rel="stylesheet" href="/css/custom.css">
+    # ── FastAPI 后端接入（当前已隔离，暂时停用）────────────────────────
+    # 恢复方法：在项目根目录执行  powershell -ExecutionPolicy Bypass -File api\enable-fastapi.ps1
+    # 停用原因：隧道地址会变、需要本机常开；等确定托管方案后再启用。
+    # - <script>window.BLOG_API_BASE='https://space-differential-currencies-tucson.trycloudflare.com';</script>
+    # - <style>.post-api-stats{display:flex;gap:16px;align-items:center;margin:12px 0;font-size:14px;color:#888}.post-api-stats b{color:#ff5733}.pas-like{cursor:pointer;border:1px solid #ddd;background:transparent;border-radius:14px;padding:3px 12px;font-size:13px;color:inherit}.pas-like:disabled{opacity:.6}</style>
+    # ───────────────────────────────────────────────────────────────────
     #阅读进度条
     - <style>#reading-progress{position:fixed;top:0;left:0;width:0%;height:3px;background-color:#ff5733;z-index:99999;transition:width .1s ease;}</style>
   bottom:
@@ -365,6 +371,9 @@ inject:
             console.error("[vinyl] 歌曲数据获取失败：" + e + " | " + api);
           });
       })();</script>'
+
+    # ── FastAPI 后端接入（当前已隔离，暂时停用）；恢复见 API-README.md ──
+    # - '<script src="/js/api-stats.js"></script>'
 
 # --------------------------------------------------------------------------
 # 顶部导航菜单
