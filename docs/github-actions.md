@@ -16,7 +16,7 @@ GitHub Pages 从 gh-pages 分支发布
 - **gh-pages 分支**：只放构建产物（`index.html`、`css/`、`js/` …），由 Action 自动生成
 - 以后写文章只需 push 到 main，站点自动更新
 
-## ⚠️ 你必须手动做两件事
+## 你必须手动做两件事
 
 ### 1. 把 Pages 的发布源设为「Deploy from a branch」+ `gh-pages`
 
@@ -27,7 +27,7 @@ GitHub Pages 从 gh-pages 分支发布
 **这是必须的**：本 workflow 用 `peaceiris/actions-gh-pages` 把产物**推到 `gh-pages` 分支**，
 只有当 Pages 的 Source 指向那个分支时，这些产物才会真正发布。
 
-> ⚠️ 不要把 Source 设成「GitHub Actions」。
+> 不要把 Source 设成「GitHub Actions」。
 > 那样只有 `actions/deploy-pages` 能发布，推到 `gh-pages` 的产物**完全不会被使用**——
 > workflow 会显示成功，但站点依然是旧的或 404。
 > 「GitHub Actions」模式需要另一套 workflow（`upload-pages-artifact` + `deploy-pages`）。

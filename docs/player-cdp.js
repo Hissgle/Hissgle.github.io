@@ -1,6 +1,6 @@
-// 通过 CDP 用**真实可信的鼠标事件**点击黑胶唱片，验证播放/暂停与转动。
+// 通过 CDP 用真实鼠标事件点击黑胶唱片，验证播放/暂停与转动。
 // 必须用真事件：headless 下 JS 的 .click() 不算用户交互，audio.play() 会被
-// NotAllowedError 拒绝（这正是程序化点击测不出播放的原因）。
+// NotAllowedError 拒绝，这正是程序化点击测不出播放的原因。
 //
 // 用法：
 //   node docs/player-cdp.js                             # 默认 http://127.0.0.1:4000/ + 端口 9333
@@ -132,7 +132,7 @@ async function evalIn(cdp, expr) {
     const st = await evalIn(cdp, `(function(){var r=document.getElementById('vinyl-player');var a=r&&r.querySelector('audio');return {has:!!r,src:!!(a&&a.src),t:a?a.currentTime:-1};})()`)
     if (st.src) { ready = true; console.log('  就绪（第 ' + (i + 1) + ' 次探测）'); break }
   }
-  if (!ready) console.log('  ⚠ 音频 src 一直没就绪，继续尝试点击')
+  if (!ready) console.log('  音频 src 一直没就绪，继续尝试点击')
 
   const states = []
   states.push(await evalIn(cdp, '(function(){' + SNAP + '})()'))

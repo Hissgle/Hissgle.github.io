@@ -1,11 +1,5 @@
-// 验证「切换页面时音乐不中断」：
-//   1. 真实点击播放唱片
-//   2. 真实点击导航栏的「归档」（走 pjax，不整页刷新）
-//   3. 检查：
-//      - 页面内容确实换了（pjax 生效）
-//      - window.__navigations 标记还在（说明没有整页刷新）
-//      - **同一个 audio 元素还在、还在播、currentTime 继续增长**
-//      - 唱片还在转
+// 验证「切换页面时音乐不中断」：点播放 → 点导航栏的「归档」走 pjax → 检查页面内容换了、
+// 没有整页刷新（window.__navigations 还在）、同一个 audio 还在播且 currentTime 继续增长。
 //
 // 用法：node docs/pjax-check.js [url] [debugPort] [--launch]
 const { spawn } = require('child_process')

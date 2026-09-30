@@ -1,36 +1,13 @@
-# ==========================================================================
-# Butterfly 主题自定义配置
-# --------------------------------------------------------------------------
-# 本文件会覆盖主题自带的 themes/butterfly/_config.yml 中的同名项，
-# 只写需要改动的部分即可，未写的项自动沿用主题默认值。
-# 加载顺序（后者覆盖前者）：
-#   themes/butterfly/_config.yml            (主题默认值)
-#   themes/butterfly/scripts/common/default_config.js  (内置兜底值)
-#   _config.butterfly.yml                   (本文件，优先级最高)
-# ==========================================================================
+# Butterfly 主题配置：覆盖 themes/butterfly/_config.yml 的同名项，只写要改的部分。
 
-# --------------------------------------------------------------------------
-# 站点访问统计（不蒜子 Busuanzi）
-# --------------------------------------------------------------------------
-# 数据来源：https://busuanzi.ibruce.info  无需注册，静态站点开箱即用
-#   site_uv  : 本站访客数（按浏览器/设备去重，即独立访客 UV）
-#   site_pv  : 本站总浏览量（每次打开页面都计一次，即 PV）
-#   page_pv  : 每篇文章的浏览量（显示在文章顶部信息栏）
+# 站点访问统计（不蒜子），数据源 https://busuanzi.ibruce.info
 busuanzi:
   site_uv: true
   site_pv: true
   page_pv: true
 
-# --------------------------------------------------------------------------
-# 首页文章封面图
-# --------------------------------------------------------------------------
-# 首页每张文章卡片顶上那块配图。原来这里是空的，所以卡片只有光秃秃的文字。
-# 下面用 CSS 渐变色代替图片：不用找图、不产生图片请求、手机上也秒开。
-# 设置多张会**每张卡片随机取一张**，看起来更有层次。
-#
-# 换成真实图片：把某个值改成 /img/xxx.jpg 这种路径即可（混用也行）。
-# 注意：值里如果只写 "#ff7e5f" 这种纯色，会被主题当成 background-color 处理。
-# 想改配色直接改下面的色号就行。
+# 首页文章卡片封面：用 CSS 渐变代替图片，不产生图片请求，多张会随机取一张。
+# 值只写纯色（如 "#ff7e5f"）会被当成 background-color 处理。
 cover:
   default_cover:
     - 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'
@@ -40,177 +17,85 @@ cover:
     - 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)'
     - 'linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)'
 
-# --------------------------------------------------------------------------
-# 页面背景
-# --------------------------------------------------------------------------
-# 原来没设置，所以正文两侧是大片纯白，显得空。
-# 这里给一个很淡的渐变，卡片浮在上面仍有层次，也不影响文字可读性。
-# 想更明显的效果，把色号调深一点即可。
+# 页面背景：淡渐变，让卡片浮在上面有层次
 background: 'linear-gradient(180deg, #eef3fb 0%, #f7f9fc 40%, #f2f6fa 100%)'
 
-# --------------------------------------------------------------------------
-# 首屏副标题（打字机 + 一言 API）
-# --------------------------------------------------------------------------
-# ⚠️ effect 的取值很反直觉（主题源码 layout/includes/third-party/subtitle.pug）：
-#     effect: false → 启用「打字机」循环效果（会加载 typed.js）
-#     effect: true  → 不启用打字效果，直接显示文本并立即结束
-#    所以想做打字机必须写 false。
-#
-# source: 1 表示调用一言 API（https://v1.hitokoto.cn），每次刷新换一句。
-# 接口拿不到时会自动退回下面的 sub 文案，所以不会出现空白首屏。
+# 首屏副标题。false = 开打字机，true = 不打字（见 subtitle.pug）。
+# source: 1 表示调一言 API，取不到时自动退回下面的 sub 文案。
 subtitle:
   enable: true
   effect: false
   source: 1
-  # 打字机参数，见 https://github.com/mattboldt/typed.js/#customization
   typed_option:
     typeSpeed: 60
     backSpeed: 10
     backDelay: 2200
     loop: true
-  # 兜底/自留文案：一言接口失败时显示这些；接口正常时会一起轮播
   sub:
     - 我已随暖春一同离去，但你会熟悉这片天空
 
-# --------------------------------------------------------------------------
 # 侧边栏卡片
-# --------------------------------------------------------------------------
-# 本站访客数 / 总浏览量 显示在「网站资讯」卡片里，所以它必须 enable: true
 aside:
   card_webinfo:
     enable: true
-    # 文章总数
     post_count: true
-    # 最后更新时间
     last_push_date: true
-    # 建站时间，显示为「已运行 xx 天」。
-    # 格式：月/日/年 时间 或 年/月/日 时间
-    runtime_date: 2026/9/17 12:00
-
-  # 「最新评论」卡片：评论后端已通，把最新评论显示在侧边栏。
-  # storage 是缓存分钟数，避免每次刷新都请求后端。
+    runtime_date: 2026/9/17 12:00 # 建站时间，显示为「已运行 xx 天」
   card_newest_comments:
     enable: true
     limit: 6
     avatar: true
-    storage: 10
-
-  # 「标签」卡片：必须写在 aside: 里面，写成顶层 card_tags: 主题不会读到。
-  # color: true 时侧边栏标签用 custom_colors 里的颜色轮换上色。
+    storage: 10 # 缓存分钟数，避免每次刷新都请求后端
+  
   card_tags:
     enable: true
-    # 0 表示显示全部
-    limit: 40
+    limit: 40 # 0 = 显示全部
     color: true
-    # 注意：这里只支持颜色值字符串（主题只做「按顺序轮换」），
-    # 不支持 `- tag: xxx / color: xxx` 这种按标签名指定的写法。
+    # 只支持颜色值字符串，不支持按标签名指定的写法
     custom_colors:
       - "#FF6B6B"
       - "#4ECDC4"
-    # 颜色是按这个顺序取到的，固定顺序颜色才不会每次刷新乱跳
-    orderby: name
+    orderby: name # 顺序固定，颜色才不会每次刷新乱跳
     order: 1
 
-# --------------------------------------------------------------------------
-# 鼠标点击特效
-# --------------------------------------------------------------------------
-# 点击页面时冒出爱心。只对桌面端开启，手机上不加载，省性能。
+# 鼠标点击爱心，只对桌面端开启
 click_heart:
   enable: true
   mobile: false
 
-# --------------------------------------------------------------------------
-# 樱花飘落 + 鼠标划过把花瓣推开
-# --------------------------------------------------------------------------
-# 脚本在 source/js/sakura.js，用下面的 inject.bottom 注入到**所有页面**。
-# 两个效果：
-#   1) 花瓣持续缓缓飘落
-#   2) 鼠标划过处，**已有的花瓣被推开、散开**，随后慢慢恢复飘落
-#      （注意：不会在鼠标处生成新花瓣）
-#
-# 调参数就改下面这行的 data-* 值，不用动 js 文件：
-#   data-mobile      "true" 让手机上也有（默认 false，手机性能和耗电考虑）
-#   data-density     飘落密度，越大越多（默认 0.00007）
-#   data-trail       "false" 关掉「划过推开花瓣」
-#   data-push        推开力度，越大甩得越远（默认 9）
-#   data-pushradius  影响半径 px，越大被推开的花瓣越多（默认 110）
-#   data-color       基础花瓣色，会自动生成深浅变化
-#   data-zindex      绘制层级，保持较小值以免挡住内容
-#
-# 用 data-* 而不是内联 <script>：内联脚本里的 { } 在 YAML 中会产生解析歧义。
-#
-# 想临时看效果/关掉：浏览器控制台执行
-#   window.sakura.pushedCount()  // 当前正被推开的花瓣数
-#   window.sakura.destroy()      // 立即移除效果（刷新即恢复）
+# 樱花飘落脚本在 source/js/sakura.js，通过下面的 inject.bottom 注入所有页面。
+# 调参改那行的 data-* 即可：mobile / density / trail / push / pushradius / color / zindex。
+# 内联脚本里的 { } 在 YAML 里会有解析歧义。
+# 控制台可用 window.sakura.pushedCount() / window.sakura.destroy() 调试。
 inject:
-  # 主题原有的页眉注入：只保留 custom.css。
-  # APlayer 的样式表已经不需要了 —— 唱片播放器的界面全部在 inject.bottom 里自绘。
   head:
     - <link rel="stylesheet" href="/css/custom.css">
-    # ── FastAPI 后端接入（当前已隔离，暂时停用）────────────────────────
-    # 恢复方法：在项目根目录执行  powershell -ExecutionPolicy Bypass -File api\enable-fastapi.ps1
-    # 停用原因：隧道地址会变、需要本机常开；等确定托管方案后再启用。
+    # FastAPI 后端已隔离停用，恢复见 api/enable-fastapi.ps1
     # - <script>window.BLOG_API_BASE='https://space-differential-currencies-tucson.trycloudflare.com';</script>
     # - <style>.post-api-stats{display:flex;gap:16px;align-items:center;margin:12px 0;font-size:14px;color:#888}.post-api-stats b{color:#ff5733}.pas-like{cursor:pointer;border:1px solid #ddd;background:transparent;border-radius:14px;padding:3px 12px;font-size:13px;color:inherit}.pas-like:disabled{opacity:.6}</style>
-    # ───────────────────────────────────────────────────────────────────
-    #阅读进度条
+    # 阅读进度条
     - <style>#reading-progress{position:fixed;top:0;left:0;width:0%;height:3px;background-color:#ff5733;z-index:99999;transition:width .1s ease;}</style>
   bottom:
-    #计算滚动进度条
+    # 滚动进度条
     - <script>(function(){var bar=document.getElementById('reading-progress')||document.createElement('div');bar.id='reading-progress';document.body.appendChild(bar);function update(){var post=document.getElementById('post');if(!post){bar.style.width='0%';bar.style.display='none';return}bar.style.display='block';var h=document.documentElement.scrollHeight-document.documentElement.clientHeight;var t=document.documentElement.scrollTop||document.body.scrollTop;if(h>0){bar.style.width=Math.min((t/h)*100,100)+'%'}else{bar.style.width='0%'}}update();window.addEventListener('scroll',update);document.addEventListener('pjax:complete',function(){bar=document.getElementById('reading-progress')||bar;update()})})();</script>
     - '<canvas id="universe"></canvas>'
     - '<script src="/js/universe.js"></script>'
     - <script id="sakura-js" src="/js/sakura.js" data-mobile="false" data-density="0.00007" data-trail="true" data-push="9" data-pushradius="110" data-zindex="1" data-color="#ffc0d0"></script>
-    # ----------------------------------------------------------------------
-    # 网易云音乐 —— 黑胶唱片播放器（左下角固定）
-    # ----------------------------------------------------------------------
-    # 界面完全用 CSS 画出来（黑胶盘 + 纹路 + 高光 + 唱臂），不用任何图片，
-    # 所以也就没有歌曲封面。也没有 APlayer 那套默认 UI。
+    # 网易云黑胶唱片播放器（左下角固定）。界面全部用 CSS 自绘，不用任何图片。
+    # 交互：点一下暂停（停在当前角度不回到起点），再次点击继续转动。
     #
-    # 交互：
-    #   播放中 → 唱片匀速缓缓转动
-    #   点一下 → 暂停，并且**停在转到的那个角度**（不是跳回起点）
-    #   再点一下 → 从原角度继续转
-    #
-    # ⚠️ 这里**故意不用 MetingJS**，原因：
-    #   MetingJS 2.0.1 是把播放器注册成自定义元素（customElements.define("meting-js", ...)），
-    #   而这种自定义元素必须由插件自己去「升级」那个 div。实测在 Edge/Chromium 里，
-    #   页面里那个 <div class="aplayer" data-...> 只停留在普通 HTMLDivElement，
-    #   从来不会被接管，所以播放器一个像素都渲染不出来（控制台也不报错，最难查）。
-    #   给 div 加 is="meting-js" 也一样不生效。
-    #
-    # 也不需要 APlayer 本体：这里的界面是自绘的，APlayer 那套 UI 一个都用不上，
-    # 只要一个原生 <audio> 放歌就够了。
-    #
-    # 下面的 data-vinyl 就是播放器配置（JSON，单引号包住，里面用双引号）：
-    #   type            "song"     = 单曲（当前用的就是这个）
-    #                   "playlist" = 歌单
-    #   id              ⚠️ type="song" 时填**歌曲 ID**；type="playlist" 时填**歌单 ID**。
-    #                   填错类型接口会返回 HTTP 500，拿不到数据 -> 播放器不渲染。
-    #   api             数据接口，保持默认即可
-    #   loop            "one" = 单曲循环（推荐，就是"一直循环这一首"）
-    #                   "all" = 列表循环    "none" = 播完停
-    #   size            唱片直径，单位 px（默认 132）
-    #   spin            转一圈的秒数，越大转得越慢（默认 20）
-    #   label           圆心标签底色，纯装饰（默认淡粉）
-    #
-    # 怎么换成你想听的歌：
-    #   1. 网易云网页版打开歌曲，地址栏 https://music.163.com/#/song?id=XXXXXXXXXX
-    #   2. 把那串数字填到下面 "id"，type 保持 "song"
-    #   3. 改完**必须重启 hexo server**（它不热加载本文件），然后跑
-    #      node docs/player-check.js 确认能播
-    #
-    # ⚠️ 不是每首歌都能播：这个公共接口里大量歌曲的直链会返回 404（版权限制），
-    #    表现是"唱片转着、但没声音"。当前这首是实测可播的。
-    # ----------------------------------------------------------------------
+    # data-vinyl 是配置（JSON）：type 为 song 时 id 填歌曲 ID，为 playlist 时填歌单 ID，
+    # 填错类型接口返回 500。loop 可选 one / all / none。
+    # 换歌：从 https://music.163.com/#/song?id=XXXX 取那串数字填到 id。
+
     - '<div id="vinyl-player" data-vinyl=''{"type":"song","id":"1303464858","server":"netease","api":"https://api.i-meto.com/meting/api?server=:server&type=:type&id=:id&r=:r","loop":"one","size":132,"spin":20,"label":"#f3c6d4"}''></div>'
-    # 样式也走 inject，方便和结构放一起改。inject 里的内容是原样拼进 HTML 的，所以要自带 <style>。
+    
     - '<style>
       #vinyl-player { position: fixed; left: 24px; bottom: 24px; z-index: 2147483000; user-select: none; -webkit-tap-highlight-color: transparent; }
       #vinyl-player, #vinyl-player * { box-sizing: border-box; }
       #vinyl-player .vinyl-stage { position: relative; display: inline-block; width: var(--vinyl-size); height: var(--vinyl-size); cursor: pointer; }
 
-      /* 黑胶盘本体：底色 + 一圈圈纹路（repeating-radial-gradient）+ 高光 */
+      /* 黑胶盘本体：底色 + 一圈圈纹路 + 高光 */
       #vinyl-player .vinyl-disc {
         position: absolute; inset: 0; border-radius: 50%;
         background:
@@ -221,13 +106,13 @@ inject:
         animation-play-state: paused;
         will-change: transform;
       }
-      /* 斜向高光，静止时也能看出是"唱片"而不是黑圆圈 */
+      /* 斜向高光，静止时也能看出是唱片而不是黑圆圈 */
       #vinyl-player .vinyl-disc::after {
         content: ""; position: absolute; inset: 0; border-radius: 50%;
         background: linear-gradient(135deg, rgba(255,255,255,.13) 0%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%, rgba(255,255,255,.07) 100%);
         pointer-events: none;
       }
-      /* 播放时才开始转；暂停时 animation-play-state: paused，停在当前角度不回到起点 */
+      /* 播放时才转；暂停时停在当前角度 */
       #vinyl-player.is-playing .vinyl-disc { animation-play-state: running; }
 
       /* 圆心标签（纯装饰，不是封面） */
@@ -267,23 +152,14 @@ inject:
       @media (prefers-reduced-motion: reduce) { #vinyl-player .vinyl-disc { animation-duration: 60s; } }
       @keyframes vinyl-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>'
-    # ⚠️ inject 里的内容是按原样拼进 HTML 的，**不会**自动加 <script> 标签，
-    #    所以下面这段必须自己带上开闭标签，否则会变成页面上的一坨纯文本。
-    #
-    # ⚠️ 结构用 createElement/appendChild 拼，不要依赖一大段 innerHTML 字符串。
-    #
-    # ⚠️⚠️ 这段脚本里**绝对不能出现 // 行注释**！
-    #    Hexo 处理 inject 时会把整段的换行折叠成空格（整个脚本变成一行），
-    #    于是 // 后面的所有代码（包括下一行的 var 声明）全都被注释掉，
-    #    报错是 "ReferenceError: stage is not defined" 这种莫名其妙的形式。
-    #    要写注释请用 /* */，或者干脆不写。
+    # inject 内容是原样拼进 HTML 的，不会自动加 <script> 标签，必须自带开闭标签。
+    # 这段脚本里绝对不能出现 // 行注释 —— Hexo 会把 inject 的换行折叠成空格，
+    # 于是 // 后面整段代码都被注释掉，报错是 "stage is not defined" 这种莫名形式。只用 /* */。
     - '<script>(function () {
         var root = document.getElementById("vinyl-player");
         if (!root || !window.fetch) { return; }
-        /* 兜底：万一这段脚本被重跑（比如以后给它加了 data-pjax），
-           已经初始化过就直接退出，避免叠出第二个播放器和第二个 audio。
-           注意本脚本现在**不带** data-pjax，pjax 切换时不会重跑，
-           播放器又在被替换的容器之外，所以音乐才能不断。 */
+        /* 幂等保护：脚本被重跑时不叠出第二个播放器。
+           本脚本不带 data-pjax，pjax 换页不会重跑，播放器又在被替换的容器之外，所以音乐不断。 */
         var existing = root.querySelector("audio");
         if (existing && existing.src) { return; }
         var cfg;
@@ -372,43 +248,18 @@ inject:
           });
       })();</script>'
 
-    # ── FastAPI 后端接入（当前已隔离，暂时停用）；恢复见 API-README.md ──
+    # FastAPI 后端已隔离停用，恢复见 API-README.md
     # - '<script src="/js/api-stats.js"></script>'
 
-    # ======================================================================
-    # 滚动进入视口的渐显动效（卡片从下往上淡入）
-    # ======================================================================
-    # 效果：页面往下滚，某个卡片刚进入屏幕时，它从下方 34px 处一边上移一边淡入。
-    #       已经划过去的卡片不会再动 —— 用 IntersectionObserver 只触发一次。
-    #
-    # 作用范围：所有卡片，含侧边栏
-    #   .recent-post-item   首页 / 归档 / 分类 / 标签页的文章卡片
-    #   .card-widget        侧边栏的每一个卡片（作者、公告、最新文章、标签、网站资讯…）
-    #   #aside-content      整个侧边栏（窄屏时它排在正文下面，一起淡入更整齐）
-    #   #post / .post       文章页的正文卡片
-    #   .post-copyright / #pagination / #post-comment  版权、翻页、评论区
-    #
-    # ── 想调节奏 ──────────────────────────────────────────────────────────
-    #   时长/位移/缓动  改 <style> 里 .js-reveal 那几条（都在一块，很好找）
-    #   触发时机        改脚本里的 rootMargin（下面有说明）
-    #   逐张错开        改脚本里的 STAGGER（单位毫秒）
-    #   关掉整个动效    删掉下面这一段，或把 <style> 里 html.reveal-on 改成 html.reveal-off
-    #
-    # ── 实现要点（改之前先看这几条，都是踩过的坑）─────────────────────────
-    #   1) 绝不给卡片加 overflow:hidden 或用绝对定位包一层 ——
-    #      主题的 .cardHover 自带 overflow:hidden（为了裁圆角），
-    #      而 .recent-post-item / .card-widget 就是那个元素本身，
-    #      所以 CSS 变换必须直接加在卡片自己身上，不能再套壳。
-    #   2) html.reveal-on 这个开关类由脚本自己加。
-    #      脚本正常加载 -> 卡片先隐藏再等观察器放出来；
-    #      脚本挂了（被墙/CDN 出错/语法错误）-> 这个类根本没加上 -> 卡片照常显示。
-    #      这样写是为了避免"JS 一挂全站卡片永久白屏"。
-    #   3) 不用 theme.pjax 的 data-pjax：本脚本自己监听 pjax:complete 重新扫描，
-    #      换页后新出现的卡片也会动（换页本身还会重跑一次，用属性做幂等保护）。
-    #   4) prefers-reduced-motion: reduce 时整套动效完全不生效（无障碍 + 省电）。
-    #   5) 和 vinyl 播放器那段一样：脚本里**不能出现 // 行注释**
-    #      （inject 会把换行折叠成空格，后面整段代码都会被注释掉），只用 /* */。
-    # ======================================================================
+    # 滚动渐显：卡片进入视口时从下方 34px 淡入上移（IntersectionObserver 只触发一次）。
+    # 作用范围见脚本里的 SEL；调节奏改 <style> 里的 .js-reveal 和脚本里的 STAGGER。
+    # 几个要点：
+    #   1) 不给卡片套壳加 overflow:hidden —— 主题 .cardHover 自带它，而 .recent-post-item
+    #      本身就是那个元素，CSS 变换必须直接加在卡片自己身上。
+    #   2) html.reveal-on 由脚本自己加：脚本挂了就不会隐藏卡片，避免 JS 一挂全站白屏。
+    #   3) 自己监听 pjax:complete 重新扫描，用属性做幂等。
+    #   4) 尊重 prefers-reduced-motion。
+    #   5) 同 vinyl：脚本里不能出现 // 行注释。
     - '<style>
       html.reveal-on .js-reveal {
         opacity: 0;
@@ -436,7 +287,7 @@ inject:
       var LEAD = 80;
       var root = document.documentElement;
       if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) { return; }
-      /* 打开开关：从这一刻起卡片才隐藏。上面 return 掉了，就永远不隐藏。 */
+      /* 打开开关：从这一刻起卡片才隐藏。上面 return 掉了就永远不隐藏。 */
       root.classList.add("reveal-on");
 
       function mark(el, delay) {
@@ -445,7 +296,7 @@ inject:
         if (delay) { el.style.setProperty("--reveal-delay", delay + "ms"); }
       }
 
-      /* 动效跑完就把 will-change 撤掉，不然卡片长期占一层合成层，滚动反而更费性能。 */
+      /* 动效跑完撤掉 will-change，否则卡片长期占一层合成层，滚动反而更费性能 */
       function dropHint(el) {
         if (el.getAttribute("data-reveal-done") === "1") { return; }
         el.setAttribute("data-reveal-done", "1");
@@ -455,9 +306,8 @@ inject:
       var observer = null;
 
       function init() {
-        /* ⚠️ 整个函数体都包在 try 里：new IntersectionObserver 在
-           不支持它的老浏览器里会直接抛错，如果只把后半段包起来，
-           这一抛就会跳过下面的 onFail，卡片就永久留在隐藏状态了。 */
+        /* 整个函数体包在 try 里：new IntersectionObserver 在不支持的老浏览器里会直接
+           抛错，只包后半段的话这一抛会跳过 onFail，卡片就永久隐藏了。 */
         try {
           var windW = window.innerWidth || 0;
           if (windW && windW < 768) { STAGGER = 70; }
@@ -465,8 +315,7 @@ inject:
           var items = [].slice.call(document.querySelectorAll(SEL));
           if (!items.length) { return; }
 
-          /* 首屏就在视口里的卡片：错开一点逐张浮出；
-             屏幕外往下滚出来的：立刻开始，不做延迟，跟着滚动走。 */
+          /* 首屏视口内的卡片错开逐张浮出；屏幕外的跟着滚动走，不做延迟 */
           var vh = window.innerHeight || document.documentElement.clientHeight || 800;
           var stagger = 0;
           items.forEach(function (el) {
@@ -493,9 +342,8 @@ inject:
               });
             });
           }, {
-            /* 下边留 60px：卡片刚露头一点点就触发，不是等它整张都进来才开始。
-               0.01 这个阈值很小，是为了让"比屏幕还高的卡片"也能触发
-               （那种卡片交集比例永远到不了 0.2，阈值一大就永远不显示）。 */
+            /* 阈值取 0.01 是为了让「比屏幕还高的卡片」也能触发（那种卡片交集比例
+               永远到不了 0.2）；下边留 60px 让卡片刚露头就开始。 */
             threshold: 0.01,
             rootMargin: "0px 0px -60px 0px"
           });
@@ -506,8 +354,7 @@ inject:
         }
       }
 
-      /* 任何一步出错都走这里：把开关关掉，让所有卡片回到正常显示。
-         宁可没有动效，也不能让内容留在隐藏状态。 */
+      /* 出错就关掉开关，让卡片回到正常显示 —— 宁可没有动效，也不能让内容留在隐藏状态 */
       function onFail(err) {
         if (observer) { observer.disconnect(); observer = null; }
         [].slice.call(document.querySelectorAll(SEL)).forEach(function (el) {
@@ -522,10 +369,7 @@ inject:
       function boot() {
         try {
           init();
-          /* 兜底看门狗：万一观察器一个回调都没等到（浏览器兼容问题、
-             脚本被别的插件改写之类），3 秒后无条件放行所有卡片。
-             宁可动效不完整，也不能让内容一直隐形。
-             已经正常显示过的卡片带 data-reveal-done，不会被它再动一次。 */
+          /* 看门狗：万一观察器一个回调都没等到，3 秒后无条件放行所有卡片 */
           setTimeout(function () {
             if (!root.classList.contains("reveal-on")) { return; }
             var stuck = [].slice.call(document.querySelectorAll(".js-reveal"))
@@ -547,208 +391,85 @@ inject:
         boot();
       }
 
-      /* pjax 换页后 DOM 被整块替换，重新扫描一遍。用属性做幂等，
-         所以即使 init 被多调几次也不会重复动效。 */
+      /* pjax 换页后 DOM 被整块替换，重新扫描一遍；用属性做幂等 */
       document.addEventListener("pjax:complete", boot);
       document.addEventListener("pjax:success", boot);
       })();</script>'
 
-# --------------------------------------------------------------------------
-# 顶部导航菜单
-# --------------------------------------------------------------------------
-# 语法：显示名称: /路径/ || 图标class
-# 可用图标见 https://fontawesome.com/v5/search（挑 fa-solid / fas 开头的）
+# 顶部导航。语法：显示名: /路径/ || 图标class（图标见 fontawesome.com）
 menu:
   关于: /about/ || fas fa-user
   友链: /link/ || fas fa-link
   归档: /archives/ || fas fa-archive
 
-# --------------------------------------------------------------------------
-# 浏览器标签页图标（favicon）
-# --------------------------------------------------------------------------
-# ⚠️ 原来这里指向 /img/favicon.png，但那个文件并不存在，所以标签页图标是破的。
-# 现在指向主题自带的图标文件（真实存在于 themes/butterfly/source/img/）。
-# 换成自己的图标：把图片放到 source/img/ 下，然后把下面这行改成 /img/你的文件名
-#   推荐 .png 或 .ico，尺寸 32x32 或 64x64，别用几百 KB 的大图
+# 标签页图标。原来指向不存在的 /img/favicon.png，现在用主题自带的。
 favicon: /img/favicon.ico
 
-# --------------------------------------------------------------------------
-# 导航栏左上角
-# --------------------------------------------------------------------------
-# 左上角默认显示的是**文字**站点标题（取自 _config.yml 的 title，当前为 WELCOME）。
-# 想让它变成一个 logo 图片，就填下面这个 logo（留空则只显示文字）：
+# 导航栏左上角。默认显示文字站点标题，填 logo 可换成图片。
 nav:
-  # logo 会显示在站点标题左边。填图片路径，例如 /img/logo.png
   logo:
-  # 是否显示文字站点标题。设 false 就只剩 logo 图片
   display_title: true
-  # 滚动时导航栏吸顶
-  fixed: true
+  fixed: true # 滚动时吸顶
 
-# --------------------------------------------------------------------------
-# 加载动画
-# --------------------------------------------------------------------------
-# 用 pace 顶部细进度条，比全屏遮罩轻，不会拖慢观感。
+# 加载动画：用 pace 顶部细进度条，比全屏遮罩轻
 preloader:
   enable: true
   source: 2
 
-# --------------------------------------------------------------------------
-# 访问统计脚本来源（不蒜子的替代）
-# --------------------------------------------------------------------------
-# 不蒜子官方接口（busuanzi.ibruce.info）经常加载不出来，表现为
-# 「本站访客数 / 本站总浏览量 一直在转圈」。
-# 这里改用 Vercount：一个兼容不蒜子 span 标签的替代服务，
-# 我们页面上的 id 不用改，只换脚本地址即可。
-#   官方：https://vercount.one   项目：https://github.com/EvanNotFound/vercount
-# 如果你想换回官方不蒜子，把下面两行删掉即可。
+# 第三方静态资源地址。本机访问不了 cdn.jsdelivr.net，统一改走 npmmirror。
+# third_party_provider 只影响 preconnect 的域名：CDN.option 在 cdn.js 里是最后合并的，
+# 会覆盖地址生成，真实资源地址都由下面 option 写死。默认值 jsdelivr 会让页面去
+
 CDN:
+  third_party_provider: custom
+  custom_format: https://registry.npmmirror.com/${name}/${version}/files/${min_file}
   option:
     busuanzi: https://events.vercount.one/js
-    # pjax 库也换到 npmmirror。
-    # ⚠️ 默认走 jsdelivr，但主题拼出来的地址是
-    #      https://cdn.jsdelivr.net/npm/pjax@0.2.8/dist/pjax.min.js
-    #    实测 404 —— pjax 这个包根本没有 dist/ 目录，压缩包就放在根目录。
-    #    所以这里必须手填一个能用的地址，否则 pjax 加载不到，
-    #    「切换页面不中断播放」就完全不会生效（而且控制台只报 Pjax is not defined）。
     pjax: https://registry.npmmirror.com/pjax/0.2.8/files/pjax.min.js
-
-    # ----------------------------------------------------------------------
-    # 其余第三方脚本也统一从 jsdelivr 换到 npmmirror
-    # ----------------------------------------------------------------------
-    # 背景：主题默认的 CDN.third_party_provider 是 jsdelivr，而这些第三方脚本
-    #       **只有在生成静态页时才会拼出 CDN 地址**，本地 `hexo server` 预渲染时
-    #       同样会写进 HTML —— 也就是说本地预览和线上用的是同一批地址。
-    #       但实测本机对 cdn.jsdelivr.net 是 ECONNREFUSED（完全不可达），
-    #       于是线上页面里这几个资源 404/超时，外观和交互就跟本地不一样：
-    #         fontawesome   → 全站图标变成空白方块（首页文章数、导航、侧栏都受影响）
-    #         lazyload      → 懒加载失效，首页封面图停在占位 GIF 上不出来
-    #         click_heart   → 点击页面的爱心特效不出现
-    #         pace_js/css   → 顶部加载进度条不出现
-    #         instantpage   → 预加载失效（无感，可忽略）
-    #       注意：主题内部的 main.js / utils.js / tw_cn.js 走的是
-    #       internal_provider: local，不受影响，所以 HTML 里它们是 /js/xxx.js。
-    #
-    # 镜像地址格式与上面 pjax 一致：
-    #   https://registry.npmmirror.com/{包名}/{版本}/files/{包内真实路径}
-    # 下面这些地址均已实测返回 200。
     fontawesome: https://registry.npmmirror.com/@fortawesome/fontawesome-free/7.3.1/files/css/all.min.css
     lazyload: https://registry.npmmirror.com/vanilla-lazyload/19.1.3/files/dist/lazyload.iife.min.js
     click_heart: https://registry.npmmirror.com/butterfly-extsrc/1.1.6/files/dist/click-heart.min.js
     pace_js: https://registry.npmmirror.com/pace-js/1.2.4/files/pace.min.js
-    # pace 的主题样式在 npm 包里带 .min 后缀（themes/blue/pace-theme-minimal.min.css），
-    # 与 jsdelivr 上那个不带 .min 的路径不同，别照抄 jsdelivr 的写法。
     pace_default_css: https://registry.npmmirror.com/pace-js/1.2.4/files/themes/blue/pace-theme-minimal.css
-    # instant.page 包里只有 instantpage.js，没有 .min 版本。
     instantpage: https://registry.npmmirror.com/instant.page/5.2.0/files/instantpage.js
-    # InfiniteGrid：首页/相册的「加载更多」与网格布局依赖它。
     egjs_infinitegrid: https://registry.npmmirror.com/@egjs/infinitegrid/4.13.0/files/dist/infinitegrid.min.js
-    # typed.js：首屏副标题的打字机效果。
-    # 当前 subtitle.effect 为 false，会走到「不打字」那条分支，所以页面上暂时用不到；
-    # 一旦把 effect 改成 true 启用打字机，就会用到这个地址。
     typed: https://registry.npmmirror.com/typed.js/3.0.0/files/dist/typed.umd.js
-    # 文章分享按钮（每篇文章底部）
     sharejs: https://registry.npmmirror.com/butterfly-extsrc/1.1.6/files/sharejs/dist/js/social-share.min.js
     sharejs_css: https://registry.npmmirror.com/butterfly-extsrc/1.1.6/files/sharejs/dist/css/share.min.css
-    # Waline 评论框客户端。评论后端（serverURL 那个 vercel 域名）是另一回事，
-    # 它能不能访问取决于你的网络，与这里的静态资源 CDN 无关。
     waline_js: https://registry.npmmirror.com/@waline/client/3.15.2/files/dist/waline.js
     waline_css: https://registry.npmmirror.com/@waline/client/3.15.2/files/dist/waline.css
 
-# --------------------------------------------------------------------------
-# 页面切换方式（Pjax）
-# --------------------------------------------------------------------------
-# 不开这个的话，点导航栏就是整页刷新 -> 播放器被销毁 -> 音乐中断。
-# 开了之后只替换 #body-wrap / .js-pjax 里的内容，播放器在它们**之外**，所以能一直放。
-#
-# exclude 里排除的链接会走整页刷新（默认情况不需要排除播放器本身，
-# 因为它在被替换的容器之外；这里留空即可）。
+# Pjax 页面切换：只替换 #body-wrap 里的内容，播放器在它之外所以音乐不断
 pjax:
   enable: true
   exclude:
 
-# --------------------------------------------------------------------------
-# 评论系统
-# --------------------------------------------------------------------------
-# 支持的系统：Disqus/Disqusjs/Livere/Gitalk/Valine/Waline/Utterances/
-#             Facebook Comments/Twikoo/Giscus/Remark42/Artalk
-# 最多可同时配置两个，用英文逗号分隔，第一个作为默认显示，例如：Waline,Twikoo
-#
-# ⚠️ 评论功能需要一个「后端」来存放评论数据，静态博客自己存不了。
-#    本博客选定方案：Waline（免费、可自建、自带评论管理后台）。
-#
-#    【启用步骤】
-#    1. 按项目根目录 WALINE-SETUP.md 的说明部署 Waline 后端，
-#       拿到形如 https://xxx.vercel.app 的地址；
-#    2. 把下面的 serverURL 填成该地址（结尾不要带 /）；
-#    3. 把下面的 use 改成 Waline。
-#
-#    在 serverURL 填好之前，use 保持留空（此时页面不会渲染评论框，
-#    但访问统计照常工作）。
+# 评论系统：Waline
 comments:
   use: Waline
-  # 在评论按钮旁显示评论系统的名字
   text: true
-  # 懒加载：评论框滚动到可视区域才加载
-  # ⚠️ 开启后首页卡片上的评论数（card_post_count）会失效，本项目建议保持 false
   lazyload: false
-  # 在文章顶部信息栏显示该文章的评论数。
-  # ⚠️ 保持 false：蝴蝶主题只有 Disqus/Gitalk 这类自带统计脚本的系统会回填
-  #    这个位置，Waline 不回填，打开只会留下一个永远空白的数字。
-  #    Waline 的评论数改由下面的 card_post_count（首页卡片）显示。
   count: false
-  # 在首页文章卡片上显示每篇文章的评论数。
-  # 需要先把下面的 waline.serverURL 填好才会生效（留空时不显示，也不会报错）。
   card_post_count: true
-  # 评论框是否懒加载见上面的 lazyload；注意 card_post_count 与 lazyload: true 互斥
 
-# --------------------------------------------------------------------------
-# Waline 配置
-# --------------------------------------------------------------------------
-# 官方文档：https://waline.js.org
+# Waline 后端地址，文档 https://waline.js.org
 waline:
-  # ←←← 部署完 Waline 后端后，把地址填在这里（例如 https://waline-xxx.vercel.app）
   serverURL: https://myblog-sandy-theta.vercel.app
-  # 评论框背景，可填颜色或图片地址，留空使用主题默认
   bg:
-  # 用 Waline 的浏览量替代不蒜子显示在文章顶部。
-  # 本项目统一使用不蒜子统计，因此保持 false，避免出现两套数字。
-  pageview: false
-  # 其他透传给 Waline 前端的参数，例如：
-  # option:
-  #   lang: zh-CN
-  #   emoji:
-  #     - https://unpkg.com/@waline/emojis@1.2.0/weibo
+  pageview: false # 已用不蒜子统计，避免出现两套数字
 
 reading_progress: 
   enable: true 
   color: "#ff5733"
   height: 3px
 
-# --------------------------------------------------------------------------
-# 默认显示模式（白天 / 黑夜）
-# --------------------------------------------------------------------------
-# 可选值：light（默认，白天）/ dark（黑夜）
-#
-# 这一行是「首次进入页面时用哪套配色」的唯一开关。它的作用有两个，
-# 都在服务器生成 HTML 时就写死了，所以不会有闪烁：
-#   1) <html data-theme="dark">  —— 页面一打开就是黑夜，不用等 JS
-#   2) 编译出 [data-theme='dark'] 那套 CSS 变量（深色卡片、深色文字等）
-#      ⚠️ 这一条同时受 darkmode.enable 影响，只要 display_mode == 'dark'
-#         或 darkmode.enable == true 就会编译。本主题配置里 darkmode.enable
-#         已经是 true（右下角那个日月按钮就是它），所以两套配色一直都在
-#         CSS 里，改这行**不需要重新编译 CSS**，只影响初始值。
-#
-# 右下角按钮的行为（主题原有逻辑，不用改）：
-#   点一下切到白天，再点切回黑夜，并且会把你的选择记到 localStorage 的
-#   'theme' 里；下次再进来优先用你上次选的，而不是这里的默认值。
-#   也就是说：这行只在「没手动切过」的情况下生效。
-#   想每次都强制黑夜（不管上次选了什么），见下面第 2 种做法。
-#
-#   1) 只改默认值（推荐）：保持这一行 display_mode: dark，手动切换照常记忆
-#   2) 永远强制黑夜：把右下角按钮关掉即可 —— 在配置里加
-#         darkmode:
-#           button: false
-#      按钮没了就没人能改 data-theme，也就永远是黑夜。
-#      另：autoChangeMode 保持 false，否则会按时间/系统设置覆盖这里的默认值。
+# 首次进入页面时的配色：light / dark。
+# 只在「没手动切过主题」时生效 —— 右下角按钮的切换结果存在 localStorage 里，优先于这里。
+# darkmode.enable 已是 true，两套 CSS 变量一直都会编译，改这里不用重新编译 CSS。
 display_mode: dark
+
+
+live2d:
+  enable: false
+  mobile:
+    show: false

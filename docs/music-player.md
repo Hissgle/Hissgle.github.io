@@ -116,7 +116,7 @@ window.customElements.define('meting-js', MetingJSElement)
 **处理：不用 MetingJS，也不用 APlayer 的 UI。** 自己 `fetch` 数据 +
 原生 `<audio>` + 自绘界面。见坑 3。
 
-## 坑 3：`inject` 里的 `//` 行注释会毁掉整段脚本 ⭐
+## 坑 3：`inject` 里的 `//` 行注释会毁掉整段脚本 
 **Hexo 处理 `inject` 时会把整段的换行折叠成空格**（整个脚本变成一行）。于是：
 
 ```js
@@ -235,7 +235,7 @@ NotAllowedError: play() failed because the user didn't interact with the documen
 并在唱片下面提示访客点一下取消静音。
 
 > 验证方法见 `docs/autoplay-real-page.js`：把自动播放逻辑接到真实页面（真实歌曲、真实容器）上跑。
-> ⚠️ **不要用 headless 默认配置下结论**：headless 会把自动播放全部禁掉（连 muted 都禁），
+> **不要用 headless 默认配置下结论**：headless 会把自动播放全部禁掉（连 muted 都禁），
 > 必须显式给浏览器自动播放权限，才等价于普通浏览器窗口。我一开始就被这点误导过。
 
 ### 1) 音频元素那段：加静音兜底 + 自动播放开关
@@ -296,7 +296,7 @@ function toggle() {
 { "type": "song", "id": "1303464858", "loop": "one", "autoplay": true }
 ```
 
-### 5) ⚠️ 顺手修一处残留
+### 5) 顺手修一处残留
 
 第 ~325 行现在是：
 

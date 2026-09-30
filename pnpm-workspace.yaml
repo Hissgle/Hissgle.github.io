@@ -1,5 +1,18 @@
+# Windows 上创建符号链接会失败，pnpm 默认的 isolated 模式会因此静默跳过顶层依赖
+# 链接（表现为 node_modules 顶层只剩 .bin/.pnpm，构建报 Cannot find module 'hexo'）。
+# 换成硬链接模式即可。删掉这行本机就装不出可用的 node_modules。
+nodeLinker: hoisted
+
+# 每项都要显式写 true/false，留占位符会让 pnpm install 直接报 ERR_PNPM_IGNORED_BUILDS。
+# 下面这些要么用不到（hexo-minify 的图片/字体压缩后端），要么是 macOS 专用（fsevents）。
 allowBuilds:
   core-js: false
+  cwebp-bin: false
+  fsevents: false
+  gifsicle: false
   hexo-helper-live2d: false
   hexo-util: false
+  jpegtran-bin: false
   live2d-widget: false
+  pngquant-bin: false
+  ttf2woff2: false
