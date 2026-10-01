@@ -17,6 +17,40 @@ body,
     background-image: none !important;
 }
 
+/* 头图底部长线性渐隐，让星空背景自然透出，避免底边突然截断。
+   首页 .full_page 是满屏，用固定 380px；其他页面 .not-home-page 只有 400px 高
+   （窄屏 280px），固定值会把整块图吃掉，所以改用百分比按比例渐隐。
+   同时补 -webkit- 前缀，Safari 才认。 */
+#page-header.full_page,
+#page-header.not-home-page {
+    -webkit-mask-image: var(--header-fade);
+    mask-image: var(--header-fade);
+}
+
+#page-header.full_page {
+    --header-fade: linear-gradient(
+        to bottom,
+        #000 0,
+        #000 calc(100% - 380px),
+        rgba(0, 0, 0, .92) calc(100% - 300px),
+        rgba(0, 0, 0, .6) calc(100% - 190px),
+        rgba(0, 0, 0, .28) calc(100% - 100px),
+        transparent 100%
+    );
+}
+
+#page-header.not-home-page {
+    --header-fade: linear-gradient(
+        to bottom,
+        #000 0,
+        #000 46%,
+        rgba(0, 0, 0, .88) 60%,
+        rgba(0, 0, 0, .58) 76%,
+        rgba(0, 0, 0, .26) 90%,
+        transparent 100%
+    );
+}
+
 /* 相册子页面一行固定两张图。原来用主题的 {% gallery %}（走 InfiniteGrid，
    每行几张由 JS 按容器宽度算），纯 CSS 指定不了，所以换成 Grid。 */
 #article-container .gallery-grid {
