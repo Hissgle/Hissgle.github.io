@@ -37,6 +37,63 @@ body,
     object-fit: cover; /* 按上面比例裁剪填满，不拉伸变形；想完整显示可改成 contain */
 }
 
+html.gallery-fade-on #article-container .gallery-grid img {
+    opacity: 0;
+    filter: blur(16px);
+    transform: translateY(18px) scale(1.06);
+    will-change: opacity, filter, transform;
+}
+
+html.gallery-fade-on #article-container .gallery-grid img.gf-in {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+    transition:
+        opacity calc(var(--gf-dur, 1.05s) * .86) cubic-bezier(.22, .61, .36, 1) var(--gf-delay, 0ms),
+        filter var(--gf-dur, 1.05s) cubic-bezier(.22, .61, .36, 1) var(--gf-delay, 0ms),
+        transform var(--gf-dur, 1.05s) cubic-bezier(.22, .61, .36, 1) var(--gf-delay, 0ms);
+}
+
+html[data-theme='dark'].gallery-fade-on #article-container .gallery-grid img {
+    filter: blur(16px) brightness(.88) contrast(.95);
+}
+
+html[data-theme='dark'].gallery-fade-on #article-container .gallery-grid img.gf-in {
+    filter: blur(0) brightness(.88) contrast(.95);
+}
+
+html.gallery-fade-on #article-container .gallery-grid img.gf-done {
+    will-change: auto;
+}
+
+html.gallery-fade-on #article-container .gallery-group {
+    opacity: 0;
+    transform: translateY(24px);
+    will-change: opacity, transform;
+}
+
+html.gallery-fade-on #article-container .gallery-group.gf-in {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+        opacity calc(var(--gf-dur, 1.05s) * .86) cubic-bezier(.22, .61, .36, 1) var(--gf-delay, 0ms),
+        transform var(--gf-dur, 1.05s) cubic-bezier(.22, .61, .36, 1) var(--gf-delay, 0ms);
+}
+
+html.gallery-fade-on #article-container .gallery-group.gf-done {
+    will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html.gallery-fade-on #article-container .gallery-grid img,
+    html.gallery-fade-on #article-container .gallery-group {
+        opacity: 1;
+        filter: none;
+        transform: none;
+        transition: none;
+    }
+}
+
 .rainbow-text {
     /* 彩虹渐变，首尾同色才能无缝循环 */
     background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000);
