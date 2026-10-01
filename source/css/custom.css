@@ -593,3 +593,11 @@ html[data-theme='dark'] #local-search {
         transform: none;
     }
 }
+
+/* 正文与评论区之间那条分隔线：主题在 comments/index.pug 里硬编码了
+   hr.custom-hr（虚线 + 剪刀图标，图标来自 hr_icon 配置，默认是 fa-scissors）。
+   直接改 pug 会被主题升级覆盖，所以在自定义层隐藏；用 :has() 精确定位，
+   避免误伤文章正文里作者自己写的 --- 分隔线。 */
+hr.custom-hr:has(+ #post-comment) {
+    display: none;
+}
