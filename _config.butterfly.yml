@@ -399,6 +399,7 @@ inject:
     - '<script src="/js/header-fade.js"></script>'
 
     - '<script src="/js/gallery-fade.js"></script>'
+    - '<script src="/js/search-ui.js"></script>'
 
 # 顶部导航。语法：显示名: /路径/ || 图标class（图标见 fontawesome.com）
 menu:
