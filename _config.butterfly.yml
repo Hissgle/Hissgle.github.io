@@ -34,6 +34,11 @@ subtitle:
   sub:
     - 我已随暖春一同离去，但你会熟悉这片天空
 
+# 文章末尾的「相关推荐」卡片。主题默认是开启的（limit: 6），
+# 这里显式关掉；以后想加回来把 enable 改回 true 即可。
+related_post:
+  enable: false
+
 # 侧边栏卡片
 aside:
   card_webinfo:
