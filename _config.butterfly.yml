@@ -396,6 +396,8 @@ inject:
       document.addEventListener("pjax:success", boot);
       })();</script>'
 
+    - '<script src="/js/header-fade.js"></script>'
+
 # 顶部导航。语法：显示名: /路径/ || 图标class（图标见 fontawesome.com）
 menu:
   关于: /about/ || fas fa-user

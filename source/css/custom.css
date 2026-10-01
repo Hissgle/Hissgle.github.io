@@ -59,3 +59,19 @@ body,
         background-position: 200% center;
     }
 }
+
+html.hero-fade-on #page-header.full_page #site-info {
+    --hero-p: 0;
+    opacity: calc(1 - var(--hero-p));
+    filter: blur(calc(var(--hero-p) * 9px));
+    transform: translateY(calc(var(--hero-p) * -26px)) scale(calc(1 - var(--hero-p) * 0.06));
+    transform-origin: 50% 55%;
+    will-change: opacity, filter, transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html.hero-fade-on #page-header.full_page #site-info {
+        filter: none;
+        transform: none;
+    }
+}
