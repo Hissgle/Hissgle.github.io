@@ -601,3 +601,132 @@ html[data-theme='dark'] #local-search {
 hr.custom-hr:has(+ #post-comment) {
     display: none;
 }
+
+/* ===== 顶栏极简 =====
+   思路：只留文字，靠留白和字重建立层次；去掉图标、文字投影、悬停下划线动画、
+   吸顶时的实心色块。全部写在自定义层 —— themes/butterfly 下的 styl 主题升级会被覆盖。
+   亮暗两套只改 #nav 上的两个变量。 */
+
+#nav {
+    --nav-bg: rgba(255, 255, 255, .62);
+    --nav-line: rgba(15, 23, 42, .07);
+}
+
+html[data-theme='dark'] #nav {
+    --nav-bg: rgba(18, 18, 18, .5);
+    --nav-line: rgba(255, 255, 255, .08);
+}
+
+/* 细线常驻但透明，吸顶时只改颜色。若等吸顶才加 border，宽度从 0 变 1px
+   会跟主题的 transition: all .5s 打架，出现闪一下。 */
+#nav {
+    padding: 0 48px;
+    border-bottom: 1px solid transparent;
+}
+
+#nav .menus_items .menus_item,
+#nav #search-button {
+    padding-left: 24px;
+}
+
+/* 移动端菜单收进汉堡，留白收回到主题原来的数值 */
+@media screen and (max-width: 768px) {
+    #nav {
+        padding: 0 16px;
+    }
+
+    #nav .menus_items .menus_item,
+    #nav #search-button {
+        padding-left: 14px;
+    }
+}
+
+/* 站点名：bold(700) -> 500，加字距，去掉 2px 双层文字投影 */
+#nav .site-name {
+    font-weight: 500;
+    letter-spacing: .1em;
+    text-shadow: none;
+}
+
+/* 菜单项与搜索：去掉文字投影，颜色变化补上过渡。
+   必须写到 #nav .site-page 这一层 —— 主题是 `#nav .site-page { text-shadow: ... }`（1 个 id + 1 个 class），
+   只写 `#nav a`（1 个 id + 1 个标签）会比它低一级，压不住。 */
+#nav a,
+#nav span.site-page,
+#nav .site-page {
+    text-shadow: none;
+    transition: color .25s ease, opacity .25s ease;
+}
+
+/* 悬停：原来会从左侧滑出一条 3px 圆角下划线（主题色提亮 30%），动作太显眼，去掉。
+   有底色的状态（吸顶 / 无头图页面）背景是白或深色，hover 改成「变淡」比换成主题蓝更克制；
+   首页顶部的透明态背景是头图，保持主题的变白行为不动（所以这里不写 #page-header.fixed，
+   那个类在页面加载时就已经挂上了，会把透明态一起带走）。 */
+#nav .site-page:not(.child)::after {
+    display: none;
+}
+
+#page-header.nav-fixed #nav a:hover,
+#page-header.nav-fixed #nav span.site-page:hover,
+#page-header.not-top-img #nav a:hover,
+#page-header.not-top-img #nav span.site-page:hover {
+    color: var(--font-color);
+    opacity: .55;
+}
+
+/* 搜索按钮只留放大镜。nav.pug 里文字是 span.site-page 的直接子 span，
+   图标是它前面的 <i>，所以只隐藏 span 即可。 */
+#nav #search-button .site-page > span {
+    display: none;
+}
+
+/* 有底色的两种状态（滚动吸顶 / 页面无头图）：实心色块 + 投影 -> 半透明 + 背景模糊 + 细线。
+   半透明度调低、blur 调大，让底下的内容透出来，而不是糊一层白/黑。 */
+#page-header.nav-fixed #nav,
+#page-header.not-top-img #nav {
+    background: var(--nav-bg) !important;
+    box-shadow: none !important;
+    border-bottom-color: var(--nav-line);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    backdrop-filter: blur(14px) saturate(1.4);
+}
+
+/* ===== 顶栏图标 =====
+   原来的 Font Awesome 是实心填充，视觉重量跟「极简」冲突，换成 24×24 的线条图标（stroke 1.8）。
+   用 mask 把 SVG 当形状使：颜色取 currentColor，所以 hover 变色、暗色模式都自动跟随，
+   不用为每个状态各写一份；以后换图标也只改 --nav-icon 一行。
+
+   _config.butterfly.yml 里的 `|| fas fa-xxx` 仍然保留 —— menu_item.pug 靠 `if icon`
+   决定要不要渲染 <i>，而且写出来能看出每项是什么语义。下面先用 content: none
+   把 FA 的字形顶掉，只留 <i> 当容器。 */
+#nav .menus_items .menus_item a i::before {
+    content: none;
+}
+
+#nav .menus_items .menus_item a i {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: 4px;
+    background-color: currentColor;
+    -webkit-mask: var(--nav-icon) center / contain no-repeat;
+    mask: var(--nav-icon) center / contain no-repeat;
+    vertical-align: -2px;
+    opacity: .85;
+}
+
+#nav .menus_items .menus_item a i.fa-images {
+    --nav-icon: url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22currentColor%22%20stroke-width=%221.8%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%3E%3Cpath%20d=%22M18%2022H4a2%202%200%200%201-2-2V6%22/%3E%3Cpath%20d=%22m22%2013-1.296-1.296a2.41%202.41%200%200%200-3.408%200L11%2018%22/%3E%3Ccircle%20cx=%2212%22%20cy=%228%22%20r=%222%22/%3E%3Crect%20width=%2216%22%20height=%2216%22%20x=%226%22%20y=%222%22%20rx=%222%22/%3E%3C/svg%3E");
+}
+
+#nav .menus_items .menus_item a i.fa-user {
+    --nav-icon: url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22currentColor%22%20stroke-width=%221.8%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%3E%3Cpath%20d=%22M19%2021v-2a4%204%200%200%200-4-4H9a4%204%200%200%200-4%204v2%22/%3E%3Ccircle%20cx=%2212%22%20cy=%227%22%20r=%224%22/%3E%3C/svg%3E");
+}
+
+#nav .menus_items .menus_item a i.fa-link {
+    --nav-icon: url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22currentColor%22%20stroke-width=%221.8%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%3E%3Cpath%20d=%22M10%2013a5%205%200%200%200%207.54.54l3-3a5%205%200%200%200-7.07-7.07l-1.72%201.71%22/%3E%3Cpath%20d=%22M14%2011a5%205%200%200%200-7.54-.54l-3%203a5%205%200%200%200%207.07%207.07l1.71-1.71%22/%3E%3C/svg%3E");
+}
+
+#nav .menus_items .menus_item a i.fa-archive {
+    --nav-icon: url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22currentColor%22%20stroke-width=%221.8%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%3E%3Crect%20width=%2220%22%20height=%225%22%20x=%222%22%20y=%223%22%20rx=%221%22/%3E%3Cpath%20d=%22M4%208v11a2%202%200%200%200%202%202h12a2%202%200%200%200%202-2V8%22/%3E%3Cpath%20d=%22M10%2012h4%22/%3E%3C/svg%3E");
+}

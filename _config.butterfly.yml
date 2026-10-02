@@ -401,13 +401,26 @@ inject:
       document.addEventListener("pjax:success", boot);
       })();</script>'
 
+    # 顶栏左上角显示 HISSGLE，而 config.title 是 WELCOME（浏览器标签页和首屏大标题都用它），
+    # 所以在自定义层单独把顶栏这一处覆盖掉。
+    # 只选 .nav-site-title 里的 —— #blog-info 下还有 .nav-page-title（文章页吸顶时显示的
+    # 文章标题 + 返回首页），那里的 .site-name 不能碰。
+    - '<script>(function(){function t(){var e=document.querySelector("#blog-info .nav-site-title .site-name");if(e&&e.textContent.trim()!=="HISSGLE"){e.textContent="HISSGLE"}}t();document.addEventListener("pjax:complete",t);document.addEventListener("pjax:success",t)})();</script>'
+
     - '<script src="/js/header-fade.js"></script>'
 
     - '<script src="/js/gallery-fade.js"></script>'
     - '<script src="/js/search-ui.js"></script>'
 
-# 顶部导航。语法：显示名: /路径/ || 图标class（图标见 fontawesome.com）
+# 顶部导航。语法：显示名: /路径/，也可以写成 显示名: /路径/ || 图标class（图标见 fontawesome.com）
+# 这里的图标 class 不是拿来显示 Font Awesome 的 —— custom.css 的「顶栏图标」段会把 FA 字形
+# 顶掉，再把 <i> 当线条图标的容器用。之所以还留着：一是 menu_item.pug 靠 `if icon` 判断
+# 要不要渲染 <i>，二是写出来能一眼看出每项是什么语义。
+# 「相册」其实定义在 themes/butterfly/_config.yml 里。主题配置和本文件是深合并（不是替换），
+# 只写下面三项的话它会带着 fas fa-images 混进来。这里把同名键重写一遍盖掉它，
+# 就不必去动 themes/ 下的文件（那边改了主题升级会丢）。
 menu:
+  相册: /gallery/ || fas fa-images
   关于: /about/ || fas fa-user
   友链: /link/ || fas fa-link
   归档: /archives/ || fas fa-archive

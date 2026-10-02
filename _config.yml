@@ -3,6 +3,8 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
+# 站点标题。会用在浏览器标签页、首屏大标题、SEO / Open Graph。
+# 顶栏左上角显示的是 HISSGLE，那一处在 _config.butterfly.yml 的 inject 里单独覆盖。
 title: WELCOME
 subtitle: To my personal bolg
 description: ''
