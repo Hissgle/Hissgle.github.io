@@ -56,14 +56,6 @@
       syncEmpty();
     });
 
-    var foot = document.createElement('div');
-    foot.className = 'sb-foot';
-    foot.innerHTML =
-      '<span><kbd>&uarr;</kbd><kbd>&darr;</kbd> 选择</span>' +
-      '<span><kbd>Enter</kbd> 打开</span>' +
-      '<span><kbd>Esc</kbd> 关闭</span>';
-    dialog.appendChild(foot);
-
     var emptyBox = document.createElement('div');
     emptyBox.className = 'sb-empty-box';
     emptyBox.innerHTML =
@@ -129,10 +121,15 @@
     });
 
     var closingTimer = null;
+    var closeWatchdog = null;
+    var closing = false;
+    var openIntent = false;
+    var searchBtn = document.querySelector('#search-button');
 
     function syncAnim() {
       var name = dialog.style.animationName || '';
       if (name === 'search_close') {
+        closing = true;
         dialog.classList.remove('sb-open');
         dialog.classList.add('sb-closing');
         clearTimeout(closingTimer);
@@ -140,10 +137,13 @@
           dialog.classList.remove('sb-closing', 'sb-open');
         }, 600);
       } else if (dialog.style.display === 'block') {
+        closing = false;
         clearTimeout(closingTimer);
         dialog.classList.remove('sb-closing');
         dialog.classList.add('sb-open');
       } else {
+        closing = false;
+        clearTimeout(closeWatchdog);
         resetInput();
       }
     }
@@ -157,19 +157,24 @@
       syncEmpty();
     }
 
-    function forceCloseIfStuck() {
-      setTimeout(function () {
-        if (dialog.style.display !== 'block') return;
-        clearTimeout(closingTimer);
-        dialog.classList.remove('sb-open', 'sb-closing');
-        dialog.style.animation = '';
-        dialog.style.display = '';
-      }, 700);
+    function hideAll() {
+      dialog.classList.remove('sb-open', 'sb-closing');
+      dialog.style.animation = '';
+      dialog.style.display = '';
+      if (mask) {
+        mask.style.animation = '';
+        mask.style.display = '';
+      }
     }
 
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' || e.code === 'Escape') forceCloseIfStuck();
-    });
+    function forceCloseIfStuck() {
+      clearTimeout(closeWatchdog);
+      closeWatchdog = setTimeout(function () {
+        if (openIntent) return;
+        if (dialog.style.display !== 'block' && (!mask || mask.style.display !== 'block')) return;
+        hideAll();
+      }, 900);
+    }
 
     if (typeof MutationObserver === 'function') {
       new MutationObserver(syncAnim).observe(dialog, {
@@ -179,13 +184,58 @@
     }
 
     dialog.addEventListener('animationend', function (e) {
-      if (e.animationName === 'sb-pop-out') {
+      if (e.pseudoElement) return;
+      if (closing && e.animationName === 'sb-pop-out') {
         dialog.classList.remove('sb-closing', 'sb-open');
       }
+      if (openIntent) e.stopImmediatePropagation();
     });
 
-    if (closeBtn) closeBtn.addEventListener('click', forceCloseIfStuck);
-    if (mask) mask.addEventListener('click', forceCloseIfStuck);
+    if (mask) {
+      mask.addEventListener('animationend', function (e) {
+        if (e.pseudoElement) return;
+        if (openIntent) e.stopImmediatePropagation();
+      });
+    }
+
+    if (searchBtn) {
+      searchBtn.addEventListener('click', function () {
+        openIntent = true;
+        clearTimeout(closeWatchdog);
+      });
+    }
+
+    if (mask) {
+      mask.addEventListener('click', function (e) {
+        if (searchBtn) {
+          var r = searchBtn.getBoundingClientRect();
+          if (r.width > 0 && r.height > 0 &&
+            e.clientX >= r.left && e.clientX <= r.right &&
+            e.clientY >= r.top && e.clientY <= r.bottom) {
+            e.stopImmediatePropagation();
+            e.preventDefault();
+            input.focus();
+            return;
+          }
+        }
+        openIntent = false;
+        forceCloseIfStuck();
+      }, true);
+    }
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function () {
+        openIntent = false;
+        forceCloseIfStuck();
+      });
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' || e.code === 'Escape') {
+        openIntent = false;
+        forceCloseIfStuck();
+      }
+    });
 
     if (typeof MutationObserver === 'function') {
       var listObserver = new MutationObserver(syncEmpty);

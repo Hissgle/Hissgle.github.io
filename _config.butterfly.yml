@@ -6,7 +6,6 @@ busuanzi:
   site_pv: true
   page_pv: true
 
-# 首页文章卡片封面：用 CSS 渐变代替图片，不产生图片请求，多张会随机取一张。
 # 值只写纯色（如 "#ff7e5f"）会被当成 background-color 处理。
 cover:
   default_cover:
@@ -34,8 +33,6 @@ subtitle:
   sub:
     - 我已随暖春一同离去，但你会熟悉这片天空
 
-# 文章末尾的「相关推荐」卡片。主题默认是开启的（limit: 6），
-# 这里显式关掉；以后想加回来把 enable 改回 true 即可。
 related_post:
   enable: false
 
@@ -45,7 +42,7 @@ aside:
     enable: true
     post_count: true
     last_push_date: true
-    runtime_date: 2026/9/17 12:00 # 建站时间，显示为「已运行 xx 天」
+    runtime_date: 2026/9/17 12:00 
   card_newest_comments:
     enable: true
     limit: 6
@@ -60,7 +57,7 @@ aside:
     custom_colors:
       - "#FF6B6B"
       - "#4ECDC4"
-    orderby: name # 顺序固定，颜色才不会每次刷新乱跳
+    orderby: name # 顺序固定
     order: 1
 
 # 鼠标点击爱心，只对桌面端开启
