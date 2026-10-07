@@ -6,9 +6,6 @@ node_modules/
 public/
 .deploy*/
 
-# 根目录下误生成的旧构建产物（正确输出目录是 public/，见 _config.yml 的 public_dir）。
-# 每条都必须带前导 / 锚定到仓库根：写成 about/ 或 img/ 会连 source/about/、
-# source/img/、source/js/ 一起忽略掉，那才是真正的源文件。
 /2026/
 /about/
 /archives/
@@ -18,17 +15,15 @@ public/
 /link/
 /index.html
 _multiconfig.yml
-# pnpm 本地包缓存（可达数十 MB，切勿提交）
+# pnpm 本地包缓存
 .pnpm-store/
 
-# 图片压缩前的原图备份，仅本地留档（不在 source/ 下，不会进 public/）
+
 backup/
 
-# WorkBuddy 的项目数据目录（工作记忆、技能等本地记录），不入库
 .workbuddy-ai/
 
-# FastAPI 后端 —— 整体隔离，不进仓库（本地文件保留）
-# 想恢复上传时删掉下面两行即可，详细说明见 api/API-README.md
+# FastAPI 后端
 api/
 source/js/api-stats.js
 
