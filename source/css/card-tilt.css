@@ -1,0 +1,71 @@
+html.card-tilt-on .recent-post-items {
+  perspective: 1100px;
+  perspective-origin: 50% 50%;
+}
+
+html.card-tilt-on .recent-post-item {
+  transform-style: preserve-3d;
+  transition: box-shadow .3s ease;
+}
+
+html.card-tilt-on .recent-post-item.ct-ready.ct-evaded,
+html.card-tilt-on .recent-post-item.ct-ready[data-reveal-done='1'] {
+  transform:
+    translate3d(0, calc(var(--ct-lift, 0) * var(--ct-lift-y, -10px)), 0)
+    scale(calc(1 + var(--ct-lift, 0) * var(--ct-zoom, 0.03)))
+    rotateX(var(--ct-rx, 0deg))
+    rotateY(var(--ct-ry, 0deg));
+}
+
+html.card-tilt-on .recent-posts,
+html.card-tilt-on .recent-post-items {
+  --ct-lift-y: -10px;
+  --ct-zoom: 0.03;
+}
+
+html.card-tilt-on .recent-post-item.ct-ready.js-reveal:not(.ct-evaded):not([data-reveal-done='1']) {
+  transition: transform var(--reveal-dur, .68s) cubic-bezier(.22, .61, .36, 1) var(--reveal-delay, 0s);
+}
+
+html.card-tilt-on .recent-post-item.ct-ready.ct-active {
+  box-shadow:
+    0 calc(6px + var(--ct-lift, 1) * 8px) calc(12px + var(--ct-lift, 1) * 14px) rgba(7, 17, 27, .10),
+    0 calc(2px + var(--ct-lift, 1) * 3px) calc(5px + var(--ct-lift, 1) * 6px) rgba(7, 17, 27, .08),
+    var(--card-hover-box-shadow);
+}
+
+html.card-tilt-on .recent-post-item.ct-active {
+  cursor: pointer;
+}
+
+#recent-posts .recent-post-item:not(.ads-wrap) {
+  cursor: pointer;
+}
+
+#recent-posts .recent-post-item:not(.ads-wrap) .recent-post-info {
+  cursor: pointer;
+}
+
+#recent-posts .recent-post-item:not(.ads-wrap) .article-meta-wrap a {
+  cursor: pointer;
+}
+
+#recent-posts .recent-post-item .post_cover .post-bg,
+#recent-posts .recent-post-item:hover .post_cover .post-bg,
+#recent-posts .recent-post-item .post_cover .post-bg:hover,
+#recent-posts .recent-post-item:hover .post_cover .post-bg:hover,
+#recent-posts .recent-post-item .post-bg:hover {
+  transform: none;
+  transition: filter 375ms ease-in .2s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.card-tilt-on .recent-post-items {
+    perspective: none;
+  }
+
+  html.card-tilt-on .recent-post-item,
+  html.card-tilt-on .recent-post-item.ct-ready {
+    transform: none !important;
+  }
+}

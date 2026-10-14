@@ -1,0 +1,13 @@
+/* 顶部阅读进度条。逻辑在 source/js/reading-progress.js。
+   注意：_config.butterfly.yml 里另有 reading_progress 配置段，
+   如果主题版本已内置该功能，两者可能重复，需要确认后删掉一份。 */
+#reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 3px;
+  background-color: #ff5733;
+  z-index: 99999;
+  transition: width .1s ease;
+}

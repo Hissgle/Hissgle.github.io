@@ -1,0 +1,33 @@
+/* ===== 滚动渐显 =====
+   卡片进入视口时从下方 34px 淡入上移（IntersectionObserver 只触发一次）。
+   逻辑在 source/js/reveal.js，作用范围见那里的 SEL。
+
+   节奏通过 CSS 变量调：--reveal-y（位移）、--reveal-dur（时长）、--reveal-delay（错开延迟），
+   错开步长 STAGGER 在 JS 里。
+
+   关键点：html.reveal-on 由脚本自己加，脚本挂了就不会隐藏卡片，避免 JS 一挂全站白屏。
+   本文件原先内联在 _config.butterfly.yml 的 inject.bottom 里。
+*/
+
+html.reveal-on .js-reveal {
+  opacity: 0;
+  transform: translateY(var(--reveal-y, 34px));
+  transition:
+    opacity var(--reveal-dur, .68s) cubic-bezier(.22, .61, .36, 1) var(--reveal-delay, 0s),
+    transform var(--reveal-dur, .68s) cubic-bezier(.22, .61, .36, 1) var(--reveal-delay, 0s);
+  will-change: opacity, transform;
+}
+
+html.reveal-on .js-reveal.js-reveal-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.reveal-on .js-reveal,
+  html.reveal-on .js-reveal.js-reveal-in {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}

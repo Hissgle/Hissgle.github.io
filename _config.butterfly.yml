@@ -72,342 +72,52 @@ click_heart:
 inject:
   head:
     - <link rel="stylesheet" href="/css/custom.css">
+    # 下面几个样式原先内联在本文件里，现已拆成独立文件：
+    # 独立文件能被浏览器缓存，也能参与 hexo-minify 的 CSS 压缩。
+    # 注意顺序：custom.css 在前，其它文件里的规则大多是对主题的定向覆盖，不依赖 custom.css。
+    - <link rel="stylesheet" href="/css/reading-progress.css">
+    - <link rel="stylesheet" href="/css/vinyl.css">
+    - <link rel="stylesheet" href="/css/reveal.css">
+    - <link rel="stylesheet" href="/css/card-tilt.css">
     # FastAPI 后端已隔离停用，恢复见 api/enable-fastapi.ps1
     # - <script>window.BLOG_API_BASE='https://space-differential-currencies-tucson.trycloudflare.com';</script>
     # - <style>.post-api-stats{display:flex;gap:16px;align-items:center;margin:12px 0;font-size:14px;color:#888}.post-api-stats b{color:#ff5733}.pas-like{cursor:pointer;border:1px solid #ddd;background:transparent;border-radius:14px;padding:3px 12px;font-size:13px;color:inherit}.pas-like:disabled{opacity:.6}</style>
-    # 阅读进度条
-    - <style>#reading-progress{position:fixed;top:0;left:0;width:0%;height:3px;background-color:#ff5733;z-index:99999;transition:width .1s ease;}</style>
   bottom:
-    # 滚动进度条
-    - <script>(function(){var bar=document.getElementById('reading-progress')||document.createElement('div');bar.id='reading-progress';document.body.appendChild(bar);function update(){var post=document.getElementById('post');if(!post){bar.style.width='0%';bar.style.display='none';return}bar.style.display='block';var h=document.documentElement.scrollHeight-document.documentElement.clientHeight;var t=document.documentElement.scrollTop||document.body.scrollTop;if(h>0){bar.style.width=Math.min((t/h)*100,100)+'%'}else{bar.style.width='0%'}}update();window.addEventListener('scroll',update);document.addEventListener('pjax:complete',function(){bar=document.getElementById('reading-progress')||bar;update()})})();</script>
-    - '<canvas id="universe"></canvas>'
-    - '<script src="/js/universe.js"></script>'
-    - <script id="sakura-js" src="/js/sakura.js" data-mobile="false" data-density="0.00007" data-trail="true" data-push="9" data-pushradius="110" data-zindex="1" data-color="#ffc0d0"></script>
+    # 声明式内容放在样式/脚本之前，保证脚本执行时 DOM 已经存在。
     # 网易云黑胶唱片播放器（左下角固定）。界面全部用 CSS 自绘，不用任何图片。
     # 交互：点一下暂停（停在当前角度不回到起点），再次点击继续转动。
     #
     # data-vinyl 是配置（JSON）：type 为 song 时 id 填歌曲 ID，为 playlist 时填歌单 ID，
     # 填错类型接口返回 500。loop 可选 one / all / none。
     # 换歌：从 https://music.163.com/#/song?id=XXXX 取那串数字填到 id。
-
+    # 样式见 /css/vinyl.css，逻辑见 /js/vinyl.js。
     - '<div id="vinyl-player" data-vinyl=''{"type":"song","id":"1303464858","server":"netease","api":"https://api.i-meto.com/meting/api?server=:server&type=:type&id=:id&r=:r","loop":"one","size":132,"spin":20,"label":"#f3c6d4"}''></div>'
-    
-    - '<style>
-      #vinyl-player { position: fixed; left: 24px; bottom: 24px; z-index: 2147483000; user-select: none; -webkit-tap-highlight-color: transparent; }
-      #vinyl-player, #vinyl-player * { box-sizing: border-box; }
-      #vinyl-player .vinyl-stage { position: relative; display: inline-block; width: var(--vinyl-size); height: var(--vinyl-size); cursor: pointer; }
+    - '<canvas id="universe"></canvas>'
 
-      /* 黑胶盘本体：底色 + 一圈圈纹路 + 高光 */
-      #vinyl-player .vinyl-disc {
-        position: absolute; inset: 0; border-radius: 50%;
-        background:
-          repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,.055) 0 1px, rgba(0,0,0,0) 1px 4px),
-          radial-gradient(circle at 50% 50%, #2a2a30 0 10%, #0d0d10 45%, #16161a 70%, #0a0a0c 100%);
-        box-shadow: 0 6px 18px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.06);
-        animation: vinyl-spin var(--vinyl-spin) linear infinite;
-        animation-play-state: paused;
-        will-change: transform;
-      }
-      /* 斜向高光，静止时也能看出是唱片而不是黑圆圈 */
-      #vinyl-player .vinyl-disc::after {
-        content: ""; position: absolute; inset: 0; border-radius: 50%;
-        background: linear-gradient(135deg, rgba(255,255,255,.13) 0%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%, rgba(255,255,255,.07) 100%);
-        pointer-events: none;
-      }
-      /* 播放时才转；暂停时停在当前角度 */
-      #vinyl-player.is-playing .vinyl-disc { animation-play-state: running; }
-
-      /* 圆心标签（纯装饰，不是封面） */
-      #vinyl-player .vinyl-label {
-        position: absolute; top: 50%; left: 50%; width: 36%; height: 36%;
-        margin: -18% 0 0 -18%; border-radius: 50%; background: var(--vinyl-label, #f3c6d4);
-        box-shadow: inset 0 0 0 1px rgba(0,0,0,.12);
-        display: flex; align-items: center; justify-content: center;
-        font: 600 10px/1 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
-        color: rgba(0,0,0,.5); letter-spacing: .5px;
-      }
-      /* 中心轴孔 */
-      #vinyl-player .vinyl-hole {
-        position: absolute; top: 50%; left: 50%; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px;
-        border-radius: 50%; background: #f7f9fc; box-shadow: 0 0 0 1px rgba(0,0,0,.35) inset;
-      }
-      /* 唱臂：播放时从边缘压到唱片上 */
-      #vinyl-player .vinyl-arm {
-        position: absolute; right: -6%; top: 8%; width: 10%; height: 46%;
-        background: linear-gradient(90deg, #cfd4dc, #8b929d 60%, #6d737d);
-        border-radius: 3px; transform-origin: 50% 4%;
-        transform: rotate(-18deg); transition: transform .5s ease; box-shadow: 0 1px 3px rgba(0,0,0,.35);
-      }
-      #vinyl-player .vinyl-arm::before {
-        content: ""; position: absolute; top: -6px; left: 50%; width: 16px; height: 16px; margin-left: -8px;
-        border-radius: 50%; background: #aeb4bd; box-shadow: 0 1px 2px rgba(0,0,0,.3);
-      }
-      #vinyl-player.is-playing .vinyl-arm { transform: rotate(14deg); }
-
-      #vinyl-player .vinyl-hint {
-        display: block; margin-top: 8px; text-align: center;
-        font: 500 11px/1.4 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
-        color: #8a94a6; transition: color .2s;
-      }
-      #vinyl-player .vinyl-hint b { display: block; font-weight: 600; color: #5d6675; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      @media (max-width: 640px) { #vinyl-player { left: 14px; bottom: 14px; transform: scale(.85); transform-origin: left bottom; } }
-      @media (prefers-reduced-motion: reduce) { #vinyl-player .vinyl-disc { animation-duration: 60s; } }
-      @keyframes vinyl-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    </style>'
-    # inject 内容是原样拼进 HTML 的，不会自动加 <script> 标签，必须自带开闭标签。
-    # 这段脚本里绝对不能出现 // 行注释 —— Hexo 会把 inject 的换行折叠成空格，
-    # 于是 // 后面整段代码都被注释掉，报错是 "stage is not defined" 这种莫名形式。只用 /* */。
-    - '<script>(function () {
-        var root = document.getElementById("vinyl-player");
-        if (!root || !window.fetch) { return; }
-        /* 幂等保护：脚本被重跑时不叠出第二个播放器。
-           本脚本不带 data-pjax，pjax 换页不会重跑，播放器又在被替换的容器之外，所以音乐不断。 */
-        var existing = root.querySelector("audio");
-        if (existing && existing.src) { return; }
-        var cfg;
-        try { cfg = JSON.parse(root.getAttribute("data-vinyl")); } catch (e) { return; }
-        var size = cfg.size || 132;
-        root.style.setProperty("--vinyl-size", size + "px");
-        root.style.setProperty("--vinyl-spin", (cfg.spin || 20) + "s");
-        if (cfg.label) { root.style.setProperty("--vinyl-label", cfg.label); }
-
-        function el(tag, cls, text) {
-          var n = document.createElement(tag);
-          if (cls) { n.className = cls; }
-          if (text) { n.textContent = text; }
-          return n;
-        }
-
-        /* 结构：黑胶盘 + 中心标签 + 轴孔 + 唱臂 + 文字 */
-        var stage = el("div", "vinyl-stage");
-        stage.setAttribute("role", "button");
-        stage.setAttribute("tabindex", "0");
-        stage.setAttribute("aria-label", "播放或暂停音乐");
-        stage.appendChild(el("div", "vinyl-disc"));
-        stage.appendChild(el("div", "vinyl-label", "VINYL"));
-        stage.appendChild(el("div", "vinyl-hole"));
-        stage.appendChild(el("div", "vinyl-arm"));
-
-        var titleEl = el("b");
-        var stateEl = el("span", "vinyl-state");
-        var hintEl = el("span", "vinyl-hint");
-        hintEl.appendChild(titleEl);
-        hintEl.appendChild(stateEl);
-
-        root.appendChild(stage);
-        root.appendChild(hintEl);
-
-        var audio = document.createElement("audio");
-        audio.preload = "metadata";
-        audio.loop = cfg.loop !== "none";
-        audio.setAttribute("playsinline", "");
-        root.appendChild(audio);
-
-        function setPlaying(on) {
-          if (on) { root.classList.add("is-playing");  }
-          else { root.classList.remove("is-playing");  }
-        }
-
-        function toggle() {
-          if (!audio.src) { return; }
-          if (audio.paused) {
-            var p = audio.play();
-            if (p && p.catch) { p.catch(function () {}); }
-          } else {
-            audio.pause();
-          }
-        }
-
-        stage.addEventListener("click", toggle);
-        stage.addEventListener("keydown", function (e) {
-          if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") { e.preventDefault(); toggle(); }
-        });
-
-        audio.addEventListener("play", function () { setPlaying(true); });
-        audio.addEventListener("pause", function () { setPlaying(false); });
-        audio.addEventListener("ended", function () { setPlaying(false); });
-        audio.addEventListener("error", function () { stateEl.textContent = "音频加载失败"; });
-
-        setPlaying(true);
-        
-
-        var api = (cfg.api || "https://api.i-meto.com/meting/api?server=:server&type=:type&id=:id&r=:r")
-          .replace(":server", cfg.server).replace(":type", cfg.type)
-          .replace(":id", cfg.id).replace(":r", String(Math.random()));
-        fetch(api)
-          .then(function (r) { return r.json(); })
-          .then(function (list) {
-            var t = (list || [])[0];
-            if (!t) { stateEl.textContent = "没有拿到歌曲"; return; }
-            audio.src = t.url;
-            titleEl.textContent = t.title + (t.author ? " - " + t.author : "");
-            titleEl.title = titleEl.textContent;
-            setPlaying(false);
-          })
-          .catch(function (e) {
-            stateEl.textContent = "数据获取失败";
-            console.error("[vinyl] 歌曲数据获取失败：" + e + " | " + api);
-          });
-      })();</script>'
+    # 以下脚本原先内联在本文件里，现已全部拆成独立文件。
+    # 好处：可被浏览器缓存、可参与 hexo-minify 的 JS 压缩、有语法高亮、可单独 lint。
+    #
+    # 顺序有依赖：reading-progress.js 需要 body 里已有 #reading-progress（由它自己兜底创建），
+    # universe.js / sakura.js 需要上面的 <canvas>。
+    - <script src="/js/reading-progress.js"></script>
+    - <script src="/js/nav-title.js"></script>
+    - <script src="/js/universe.js"></script>
+    - <script id="sakura-js" src="/js/sakura.js" data-mobile="false" data-density="0.00007" data-trail="true" data-push="9" data-pushradius="110" data-zindex="1" data-color="#ffc0d0"></script>
+    - <script src="/js/vinyl.js"></script>
 
     # FastAPI 后端已隔离停用，恢复见 API-README.md
     # - '<script src="/js/api-stats.js"></script>'
 
-    # 滚动渐显：卡片进入视口时从下方 34px 淡入上移（IntersectionObserver 只触发一次）。
-    # 作用范围见脚本里的 SEL；调节奏改 <style> 里的 .js-reveal 和脚本里的 STAGGER。
-    # 几个要点：
-    #   1) 不给卡片套壳加 overflow:hidden —— 主题 .cardHover 自带它，而 .recent-post-item
-    #      本身就是那个元素，CSS 变换必须直接加在卡片自己身上。
-    #   2) html.reveal-on 由脚本自己加：脚本挂了就不会隐藏卡片，避免 JS 一挂全站白屏。
-    #   3) 自己监听 pjax:complete 重新扫描，用属性做幂等。
-    #   4) 尊重 prefers-reduced-motion。
-    #   5) 同 vinyl：脚本里不能出现 // 行注释。
-    - '<style>
-      html.reveal-on .js-reveal {
-        opacity: 0;
-        transform: translateY(var(--reveal-y, 34px));
-        transition: opacity var(--reveal-dur, .68s) cubic-bezier(.22, .61, .36, 1) var(--reveal-delay, 0s),
-                    transform var(--reveal-dur, .68s) cubic-bezier(.22, .61, .36, 1) var(--reveal-delay, 0s);
-        will-change: opacity, transform;
-      }
-      html.reveal-on .js-reveal.js-reveal-in {
-        opacity: 1;
-        transform: translateY(0);
-      }
-      @media (prefers-reduced-motion: reduce) {
-        html.reveal-on .js-reveal,
-        html.reveal-on .js-reveal.js-reveal-in {
-          opacity: 1 !important;
-          transform: none !important;
-          transition: none !important;
-        }
-      }
-      </style>'
-    - '<script>(function () {
-      var SEL = ".recent-post-item, .card-widget, #aside-content, #post, #pagination, #post-comment, .post-copyright, .post";
-      var STAGGER = 95;
-      var LEAD = 80;
-      var root = document.documentElement;
-      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) { return; }
-      /* 打开开关：从这一刻起卡片才隐藏。上面 return 掉了就永远不隐藏。 */
-      root.classList.add("reveal-on");
+    # 滚动渐显：卡片进入视口时从下方 34px 淡入上移。样式见 /css/reveal.css。
+    - <script src="/js/reveal.js"></script>
 
-      function mark(el, delay) {
-        if (el.getAttribute("data-reveal-in") === "1") { return; }
-        el.setAttribute("data-reveal-in", "1");
-        if (delay) { el.style.setProperty("--reveal-delay", delay + "ms"); }
-      }
+    # 首页博文卡片悬停：浮起 + 朝鼠标位置倾斜（弹簧模拟，封面图不再放大）。
+    # 样式见 /css/card-tilt.css，可调参数在脚本顶部（MAX_TILT / STIFF / DAMP）。
+    - <script src="/js/card-tilt.js"></script>
 
-      /* 动效跑完撤掉 will-change，否则卡片长期占一层合成层，滚动反而更费性能 */
-      function dropHint(el) {
-        if (el.getAttribute("data-reveal-done") === "1") { return; }
-        el.setAttribute("data-reveal-done", "1");
-        el.style.willChange = "auto";
-      }
-
-      var observer = null;
-
-      function init() {
-        /* 整个函数体包在 try 里：new IntersectionObserver 在不支持的老浏览器里会直接
-           抛错，只包后半段的话这一抛会跳过 onFail，卡片就永久隐藏了。 */
-        try {
-          var windW = window.innerWidth || 0;
-          if (windW && windW < 768) { STAGGER = 70; }
-
-          var items = [].slice.call(document.querySelectorAll(SEL));
-          if (!items.length) { return; }
-
-          /* 首屏视口内的卡片错开逐张浮出；屏幕外的跟着滚动走，不做延迟 */
-          var vh = window.innerHeight || document.documentElement.clientHeight || 800;
-          var stagger = 0;
-          items.forEach(function (el) {
-            el.classList.add("js-reveal");
-            var box = el.getBoundingClientRect();
-            if (box.top < vh && box.bottom > 0) {
-              mark(el, LEAD + stagger);
-              stagger += STAGGER;
-            }
-          });
-
-          if (typeof window.IntersectionObserver !== "function") { throw new Error("IntersectionObserver unavailable"); }
-
-          if (observer) { observer.disconnect(); }
-          observer = new IntersectionObserver(function (entries) {
-            entries.forEach(function (entry) {
-              if (!entry.isIntersecting) { return; }
-              var el = entry.target;
-              mark(el, 0);
-              el.classList.add("js-reveal-in");
-              observer.unobserve(el);
-              el.addEventListener("transitionend", function (ev) {
-                if (ev.target === el) { dropHint(el); }
-              });
-            });
-          }, {
-            /* 阈值取 0.01 是为了让「比屏幕还高的卡片」也能触发（那种卡片交集比例
-               永远到不了 0.2）；下边留 60px 让卡片刚露头就开始。 */
-            threshold: 0.01,
-            rootMargin: "0px 0px -60px 0px"
-          });
-
-          items.forEach(function (el) { observer.observe(el); });
-        } catch (err) {
-          onFail(err);
-        }
-      }
-
-      /* 出错就关掉开关，让卡片回到正常显示 —— 宁可没有动效，也不能让内容留在隐藏状态 */
-      function onFail(err) {
-        if (observer) { observer.disconnect(); observer = null; }
-        [].slice.call(document.querySelectorAll(SEL)).forEach(function (el) {
-          el.classList.remove("js-reveal");
-          el.classList.add("js-reveal-in");
-          el.style.willChange = "auto";
-        });
-        root.classList.remove("reveal-on");
-        if (window.console) { console.warn("[reveal] 滚动渐显动效初始化失败，已回退到普通显示：", err); }
-      }
-
-      function boot() {
-        try {
-          init();
-          /* 看门狗：万一观察器一个回调都没等到，3 秒后无条件放行所有卡片 */
-          setTimeout(function () {
-            if (!root.classList.contains("reveal-on")) { return; }
-            var stuck = [].slice.call(document.querySelectorAll(".js-reveal"))
-              .filter(function (el) { return el.getAttribute("data-reveal-done") !== "1"; });
-            if (!stuck.length) { return; }
-            stuck.forEach(function (el) {
-              el.style.setProperty("--reveal-delay", "0ms");
-              el.classList.add("js-reveal-in");
-            });
-          }, 3000);
-        } catch (err) {
-          onFail(err);
-        }
-      }
-
-      if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", boot);
-      } else {
-        boot();
-      }
-
-      /* pjax 换页后 DOM 被整块替换，重新扫描一遍；用属性做幂等 */
-      document.addEventListener("pjax:complete", boot);
-      document.addEventListener("pjax:success", boot);
-      })();</script>'
-
-    # 顶栏左上角显示 HISSGLE，而 config.title 是 WELCOME（浏览器标签页和首屏大标题都用它），
-    # 所以在自定义层单独把顶栏这一处覆盖掉。
-    # 只选 .nav-site-title 里的 —— #blog-info 下还有 .nav-page-title（文章页吸顶时显示的
-    # 文章标题 + 返回首页），那里的 .site-name 不能碰。
-    - '<script>(function(){function t(){var e=document.querySelector("#blog-info .nav-site-title .site-name");if(e&&e.textContent.trim()!=="HISSGLE"){e.textContent="HISSGLE"}}t();document.addEventListener("pjax:complete",t);document.addEventListener("pjax:success",t)})();</script>'
-
-    - '<script src="/js/header-fade.js"></script>'
-
-    - '<script src="/js/gallery-fade.js"></script>'
-    - '<script src="/js/search-ui.js"></script>'
+    - <script src="/js/header-fade.js"></script>
+    - <script src="/js/gallery-fade.js"></script>
+    - <script src="/js/search-ui.js"></script>
 
 # 顶部导航。语法：显示名: /路径/，也可以写成 显示名: /路径/ || 图标class（图标见 fontawesome.com）
 # 这里的图标 class 不是拿来显示 Font Awesome 的 —— custom.css 的「顶栏图标」段会把 FA 字形
