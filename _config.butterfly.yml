@@ -72,6 +72,7 @@ click_heart:
 inject:
   head:
     - <link rel="stylesheet" href="/css/custom.css">
+    - <link rel="stylesheet" href="/css/glass-mask.css">
     # 下面几个样式原先内联在本文件里，现已拆成独立文件：
     # 独立文件能被浏览器缓存，也能参与 hexo-minify 的 CSS 压缩。
     # 注意顺序：custom.css 在前，其它文件里的规则大多是对主题的定向覆盖，不依赖 custom.css。
