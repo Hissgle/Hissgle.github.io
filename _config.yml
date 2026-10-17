@@ -77,7 +77,11 @@ meta_generator: false # 不输出 generator 元信息
 date_format: YYYY-MM-DD
 time_format: HH:mm:ss
 ## updated_option supports 'mtime', 'date', 'empty'
-updated_option: 'mtime'
+# 不用 mtime：CI checkout 后文件 mtime 全等于构建时刻，每篇文章的
+# 「最后更新时间」都会变成构建当天，属于假数据。
+# 改用 front-matter 的 updated:；没写的文章回退为发布日期（与日期相同时主题不显示更新行）。
+# 真正更新文章时在 front-matter 里手动加一行 updated: 即可。
+updated_option: 'date'
 
 # Pagination
 ## Set per_page to 0 to disable pagination
@@ -96,12 +100,9 @@ ignore:
 theme: butterfly
 
 # Deployment
-## Docs: https://hexo.io/docs/one-command-deployment
-
-deploy:
-  type: git
-  repo: https://github.com/Hissgle/Hissgle.github.io.git
-  branch: gh-pages
+## 部署统一由 GitHub Actions 完成（.github/workflows/deploy.yml 构建后推 gh-pages 分支）。
+## 本地不再配置 hexo deploy：deployer 与 Action 都推 gh-pages 会互相覆盖，
+## 且 deployer 需要本机保存推送凭据。详见 docs/github-actions.md。
 
 aplayer:
   meting: true

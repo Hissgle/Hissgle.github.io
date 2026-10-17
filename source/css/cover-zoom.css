@@ -1,0 +1,45 @@
+/* cover-zoom.css — 首页点博文卡片「封面放大铺满屏幕」过渡层的静态样式。
+ *
+ * 两个节点都由 /js/cover-zoom.js 动态创建与移除：
+ *   #cz-stage  放大中的封面图（位置/尺寸/裁剪/透明度由脚本逐阶段写内联样式）
+ *   #cz-dim    变暗层，同时负责在过渡期间挡住页面上的后续点击
+ *
+ * z-index 放在主题所有固定层（导航 90、侧栏按钮 100、pace 1000、搜索 1001）之上。
+ */
+
+#cz-stage {
+  position: fixed;
+  z-index: 9990;
+  overflow: hidden;
+  pointer-events: none; /* 输入交给下面的 #cz-dim 挡 */
+  /* 不加 will-change / translateZ 之类的合成提示：让放大过程按帧重绘，避免合成器
+     拿着开始时的低分辨率纹理直接拉伸导致发虚 */
+}
+
+#cz-stage img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 50%;
+  user-select: none;
+}
+
+#cz-dim {
+  position: fixed;
+  inset: 0;
+  z-index: 9980;
+  background: #000;
+  opacity: 0;
+  pointer-events: auto; /* 过渡开始的瞬间就挡住页面上的后续点击 */
+}
+
+/* 脚本在减弱动效偏好下不会启动过渡；这里再做一层保险 */
+@media (prefers-reduced-motion: reduce) {
+  #cz-stage,
+  #cz-dim {
+    display: none !important;
+  }
+}

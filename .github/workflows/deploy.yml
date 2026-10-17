@@ -1,8 +1,9 @@
 # 自动构建并部署到 GitHub Pages。
 #
-# 仓库 Settings → Pages → Source 必须设为「GitHub Actions」，
-# 否则 GitHub 会用内置的 Jekyll 处理本仓库，报 "The butterfly theme could not be found"。
-# 启用后不要再在本机跑 hexo deploy，两者会互相覆盖。
+# 仓库 Settings → Pages → Source 必须设为「Deploy from a branch」+ gh-pages 分支 + / (root)。
+# 本 workflow 用 peaceiris/actions-gh-pages 把产物推到 gh-pages 分支，
+# Source 指向该分支产物才会被发布；设成「GitHub Actions」的话推送产物不会被使用，站点一直是旧的。
+# 详细原理与报错排查见 docs/github-actions.md。
 
 name: Deploy Hexo Blog
 

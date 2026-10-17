@@ -167,7 +167,8 @@ comments:
 ```bash
 pnpm run clean
 pnpm run build      # 等价于 hexo generate
-pnpm run deploy     # 等价于 hexo deploy，推送到 GitHub Pages
+git add . && git commit -m "comments: 接入 Waline" && git push
+# push 到 main 后 GitHub Actions 自动构建并发布到 gh-pages
 ```
 
 ### 第 5 步（可选）：在首页卡片显示每篇评论数

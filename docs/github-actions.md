@@ -16,9 +16,9 @@ GitHub Pages 从 gh-pages 分支发布
 - **gh-pages 分支**：只放构建产物（`index.html`、`css/`、`js/` …），由 Action 自动生成
 - 以后写文章只需 push 到 main，站点自动更新
 
-## 你必须手动做两件事
+## 你必须手动做一件事
 
-### 1. 把 Pages 的发布源设为「Deploy from a branch」+ `gh-pages`
+### 把 Pages 的发布源设为「Deploy from a branch」+ `gh-pages`
 
 仓库 → **Settings** → 左侧 **Pages** → **Build and deployment** → **Source**
 
@@ -56,27 +56,6 @@ github-pages 232 | Error: The butterfly theme could not be found.
 > 两者是并行的：Hexo workflow 在 Actions 里正常跑，
 > Jekyll 则在「pages build and deployment」里失败。
 > 所以要先确认 Hexo workflow 本身是否成功（见下方排查表）。
-
-### 2. 清掉 main 里已有的构建产物
-
-现在 `main` 分支里混着 **22 个构建产物文件**（历史原因：早期用本机 `hexo deploy` 推上去的）：
-
-```
-2026/  about/  archives/  css/  img/  js/  link/  index.html
-```
-
-清理（在仓库根目录执行，`.gitignore` 已包含 `public/`，所以产物不会再被跟踪）：
-
-```bash
-git rm -r --cached 2026 about archives css img js link index.html
-git commit -m "chore: 构建产物移出 main，改由 gh-pages 分支承载"
-git push
-```
-
-`--cached` 只从 git 索引移除，**不会删你本地的文件**。
-
-> 之后 `main` 就干净了；产物全部由 Action 生成到 `gh-pages`。
-> 这一步在改 Pages 设置**之后**做更稳妥，避免站点短暂不可用。
 
 ## 相对原 workflow 修了什么
 
@@ -169,8 +148,9 @@ getPageType is not a function
 
 - **本地不再需要**在 `themes/butterfly/node_modules` 里做目录联接了，
   根依赖已经覆盖。本地环境现在与 CI 完全一致。
-- **不要再执行 `hexo deploy`**：`_config.yml` 的 `deploy.branch` 已改为 `gh-pages`，
-  和 Action 目标一致；但两者同时用会互相覆盖，建议统一用 Action。
+- **本机已没有 `hexo deploy` 命令**：`_config.yml` 的 `deploy:` 段和
+  `hexo-deployer-git` 依赖已移除，`package.json` 的 `deploy` 脚本一并删掉，
+  部署统一由 Action 完成。误跑 `hexo deploy` 现在会直接报缺少 deployer 的错，不会再互相覆盖。
 - 本地预览：`pnpm run server`
 - 本地构建：`pnpm run site`（= `hexo clean && hexo generate`）
 
@@ -178,14 +158,13 @@ getPageType is not a function
 
 | 症状 | 原因 |
 | --- | --- |
-| `pages build and deployment` 里报<br>`github-pages 232 \| Error: The butterfly theme could not be found.` | **GitHub 用内置 Jekyll 构建器跑本仓库**。这是最容易被误导的报错——它和你的 Hexo workflow 无关。把 Pages → Source 设为「Deploy from a branch」并指向 `gh-pages`（见上文第 1 步） |
+| `pages build and deployment` 里报<br>`github-pages 232 \| Error: The butterfly theme could not be found.` | **GitHub 用内置 Jekyll 构建器跑本仓库**。这是最容易被误导的报错——它和你的 Hexo workflow 无关。把 Pages → Source 设为「Deploy from a branch」并指向 `gh-pages`（见上文） |
 | Action 全绿但站点是旧的/404 | Pages 的 Source 没指向 `gh-pages`；或指向了「GitHub Actions」（那样 peaceiris 推送的产物不会被使用） |
 | Action 里 `Cannot find module 'moment-timezone'` | 根 `package.json` 的该依赖被删了 |
 | Action 报 `ERR_PNPM_OUTDATED_LOCKFILE` | 改了 `package.json` 但没同步 lockfile；本机跑 `pnpm install` 后提交 `pnpm-lock.yaml` |
 | Action 报 `This version of pnpm requires at least Node.js v22.13`<br>且日志里 `The current version of Node.js is v20.x` | **步骤顺序错了**：`pnpm/action-setup` 排在 `actions/setup-node` 之前，pnpm 跑在 runner 自带的旧 Node 上。把 setup-node 提到前面 |
 | `ERR_UNKNOWN_BUILTIN_MODULE: No such built-in module: node:sqlite` | 同一个根因（Node 太旧），pnpm 11 依赖 `node:sqlite`；按上一条处理 |
 | Action 成功但站点 404 / 内容没更新 | Pages 的 Source 没指向 `gh-pages`（指向「GitHub Actions」时 peaceiris 的产物不会被使用） |
-| `hexo deploy` 推送被拒 | 本机提交历史与远端冲突；用 Action 部署即可绕开 |
 
 ### 为什么会同时出现两种构建
 

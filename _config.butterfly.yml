@@ -19,17 +19,21 @@ cover:
 # 页面背景：淡渐变，让卡片浮在上面有层次
 background: 'linear-gradient(180deg, #eef3fb 0%, #f7f9fc 40%, #f2f6fa 100%)'
 
-# 首屏副标题。false = 开打字机，true = 不打字（见 subtitle.pug）。
-# source: 1 表示调一言 API，取不到时自动退回下面的 sub 文案。
+# 首屏副标题。effect: true = 打字机（Typed.js 逐字打出，带闪烁光标）；false = 静态文本直接显示。
+# 依据：themes/butterfly/layout/includes/third-party/subtitle.pug 的分支是 if (!{effect}) → 走 Typed，
+# 上游官方 _config.yml 注释也是 Typewriter Effect: true。注意本条语义曾在这里被写反过。
+# source: 1 表示调一言 API（v1.hitokoto.cn，不是百度的文心一言），
+# 取不到时自动退回下面的 sub 文案，兜底文案同样走打字机。
 subtitle:
   enable: true
-  effect: false
+  effect: true
   source: 1
   typed_option:
     typeSpeed: 60
     backSpeed: 10
     backDelay: 2200
     loop: true
+    showCursor: true # 打字过程与暂停期间显示光标（typed.js 默认开，显式写出防版本默认值变化）
   sub:
     - 我已随暖春一同离去，但你会熟悉这片天空
 
@@ -80,6 +84,13 @@ inject:
     - <link rel="stylesheet" href="/css/vinyl.css">
     - <link rel="stylesheet" href="/css/reveal.css">
     - <link rel="stylesheet" href="/css/card-tilt.css">
+    # 首页点卡片「封面放大铺满屏幕」过渡层（脚本在下方 bottom 里）
+    - <link rel="stylesheet" href="/css/cover-zoom.css">
+    # 主题 subtitle.pug 的 pjaxSendOnce 销毁回调里写的是裸标识符 `typed`（上游笔误，
+    # 应为 window.typed）。首屏打字机还没初始化就点卡片跳走时该标识符不存在，会抛
+    # ReferenceError。这里预先把全局变量定义成 null 让回调安全短路；不改 themes/ 下的
+    # 文件，主题升级不会丢，打字机实例初始化后照常被销毁。
+    - <script>window.typed = null;</script>
     # FastAPI 后端已隔离停用，恢复见 api/enable-fastapi.ps1
     # - <script>window.BLOG_API_BASE='https://space-differential-currencies-tucson.trycloudflare.com';</script>
     # - <style>.post-api-stats{display:flex;gap:16px;align-items:center;margin:12px 0;font-size:14px;color:#888}.post-api-stats b{color:#ff5733}.pas-like{cursor:pointer;border:1px solid #ddd;background:transparent;border-radius:14px;padding:3px 12px;font-size:13px;color:inherit}.pas-like:disabled{opacity:.6}</style>
@@ -115,6 +126,10 @@ inject:
     # 首页博文卡片悬停：浮起 + 朝鼠标位置倾斜（弹簧模拟，封面图不再放大）。
     # 样式见 /css/card-tilt.css，可调参数在脚本顶部（MAX_TILT / STIFF / DAMP）。
     - <script src="/js/card-tilt.js"></script>
+
+    # 点卡片进文章：封面平滑放大铺满屏幕，Pjax 换页后「落」进文章页 banner。
+    # 仅首页卡片触发；参数在脚本顶部 CFG。样式见 /css/cover-zoom.css。
+    - <script src="/js/cover-zoom.js"></script>
 
     - <script src="/js/header-fade.js"></script>
     - <script src="/js/gallery-fade.js"></script>
