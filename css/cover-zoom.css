@@ -1,0 +1,1 @@
+#cz-stage{position:fixed;z-index:9990;overflow:hidden;pointer-events:none}#cz-stage img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;object-position:50% 50%;user-select:none}#cz-dim{position:fixed;inset:0;z-index:9980;background:#000;opacity:0;pointer-events:auto}@media (prefers-reduced-motion:reduce){#cz-dim,#cz-stage{display:none!important}}
