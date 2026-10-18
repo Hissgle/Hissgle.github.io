@@ -40,6 +40,25 @@ subtitle:
 related_post:
   enable: false
 
+# ===== 全站字体（Claude 风格混排）=====
+# 取自 Claude 的排版体系：界面无衬线 + 正文/标题衬线 + 代码等宽。
+# Claude 用的是 Anthropic 定制私有字体，不能合法自托管，这里换成免费的观感替身：
+#   Space Grotesk   ≈ Styrene / Anthropic Sans（界面）
+#   Source Serif 4  ≈ Galaxie Copernicus / Anthropic Serif（正文、标题）
+#   JetBrains Mono  ≈ Anthropic Mono（代码）
+# 字体栈变量（--font-*）定义在 source/css/fonts.css，这里只引用变量，
+# 换字体改那一个文件即可；中文字形这些字体没有，回退系统字体（苹方/雅黑），
+# 与 Claude 中文环境下的表现一致。细节见 docs/fonts.md。
+font:
+  font_family: 'var(--font-sans)'
+  code_font_family: 'var(--font-mono)'
+
+# 站名/副标题/侧栏作者信息（#site-title、#site-subtitle、.site-name、作者卡）
+# 走衬线，对应 Claude 衬线 logotype 的观感；font_link 留空 = 不额外加载远程字体。
+blog_title_font:
+  font_link:
+  font_family: 'var(--font-serif)'
+
 # 侧边栏卡片
 aside:
   card_webinfo:
@@ -75,6 +94,16 @@ click_heart:
 # 控制台可用 window.sakura.pushedCount() / window.sakura.destroy() 调试。
 inject:
   head:
+    # 全站字体：@font-face、字体栈变量与衬线的应用规则都在 /css/fonts.css。
+    # 变量是字体栈的唯一出处，主题配置 font.font_family 等引用它们。
+    # 注意顺序：主题默认 inject.head 里也有一条同内容的 custom.css（themes/butterfly/_config.yml），
+    # deepMerge 对数组是「主题项在前、用户项追加、完全相同去重」，所以 custom.css 实际
+    # 先于这里的所有文件加载。想用 custom.css 覆盖字体规则，得靠更高优先级的选择器。
+    # preload 只挑首屏必用的两个文件：衬线（站名/卡片标题/正文）和界面无衬线；
+    # 等宽、斜体文件由 @font-face 按需求加载，不占首屏。
+    - <link rel="preload" href="/fonts/source-serif-4-latin-standard-normal.woff2" as="font" type="font/woff2" crossorigin>
+    - <link rel="preload" href="/fonts/space-grotesk-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+    - <link rel="stylesheet" href="/css/fonts.css">
     - <link rel="stylesheet" href="/css/custom.css">
     - <link rel="stylesheet" href="/css/glass-mask.css">
     # 下面几个样式原先内联在本文件里，现已拆成独立文件：

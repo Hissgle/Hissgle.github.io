@@ -1,0 +1,120 @@
+/* ============================================================================
+   全站字体 —— Claude 风格的「衬线 + 无衬线」混排
+   ----------------------------------------------------------------------------
+   Claude 用的是 Anthropic 委托定制的私有字体（Anthropic Serif / Sans / Mono，
+   前身是 Galaxie Copernicus + Styrene B），没有公开发售、不能合法自托管，
+   这里用观感最接近的免费开源字体替代：
+
+     Source Serif 4   正文、文章标题、站名     （衬线，对应 Anthropic Serif）
+     Space Grotesk    导航、卡片信息、按钮等界面（无衬线，对应 Anthropic Sans）
+     JetBrains Mono   代码、键盘键位           （等宽，对应 Anthropic Mono）
+
+   三个字体都是 SIL OFL-1.1 许可（可免费自托管/商用），
+   woff2 文件在 source/fonts/，许可原文是同目录的 license-*.txt。
+   这几个字体都没有汉字 —— Claude 的中文同样落到系统字体（苹方/微软雅黑），
+   所以「中文保持系统黑体」才是和 Claude 在中文环境下一致的做法。
+
+   字体栈只在本文件定义（--font-* 变量）；_config.butterfly.yml 里的
+   font.font_family / code_font_family / blog_title_font.font_family
+   都引用这些变量 —— 换字体只需要改下面第 1 节。
+   ============================================================================ */
+
+/* ---------------------------------------------------------------------------
+   1) 字体栈（唯一出处）
+--------------------------------------------------------------------------- */
+:root {
+  /* 界面：无衬线 */
+  --font-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'Helvetica Neue', Lato, Roboto, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+
+  /* 内容：衬线。Source Serif 4 之后是衬线的拉丁兜底（Georgia），再往后才是
+     中文 —— 中文字符落到系统黑体，和 Claude 中文观感一致 */
+  --font-serif: 'Source Serif 4', Georgia, 'Times New Roman', 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+
+  /* 代码：等宽。generic monospace 放中间让拉丁先走等宽，中文继续走系统黑体 */
+  --font-mono: 'JetBrains Mono', Consolas, Menlo, Monaco, monospace,
+    'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+/* ---------------------------------------------------------------------------
+   2) @font-face —— 变量字体，一个字重范围一个文件，不再按字重拆文件
+   unicode-range 限定为拉丁字符：中文不进入这几个字体，直接走系统回退，
+   不会白白触发下载；斜体/等宽文件也只有页面真的用到对应文本时才被拉取。
+--------------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url('/fonts/source-serif-4-latin-standard-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2190-2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: italic;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url('/fonts/source-serif-4-latin-standard-italic.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2190-2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Space Grotesk 本身没有意大利体，斜体交给浏览器合成即可 */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('/fonts/space-grotesk-latin-wght-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2190-2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-latin-wght-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2190-2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: italic;
+  font-weight: 100 800;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-latin-wght-italic.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2190-2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ---------------------------------------------------------------------------
+   3) 衬线的应用点（内容 → 衬线；界面继续用主题配置里的 --font-sans，不动）
+   .post-title 有两套结构：有顶图（#post-info 在 #page-header 里）和无顶图
+   （#post-info 在 #post 里），用 `#post-info .post-title` 一次覆盖。
+   #article-container 是正文容器（文章页、关于页、友链页共用这个 id），
+   代码/标签云/侧边栏/评论等界面元素不在其中，不会被波及。
+--------------------------------------------------------------------------- */
+.article-title, /* 首页/分类/标签页的卡片标题 */
+.article-sort-item-title, /* 归档页的文章标题 */
+#post-info .post-title, /* 文章页大标题 */
+#article-container { /* 正文 */
+  font-family: var(--font-serif);
+}
+
+/* 正文里的键盘键位（kbd）：主题硬编码了 Monaco，这里与代码字体统一。
+   `#article-container` 是 id，比主题的 `.container kbd` 高一档，稳定覆盖 */
+#article-container kbd {
+  font-family: var(--font-mono);
+}

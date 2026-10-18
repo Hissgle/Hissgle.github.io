@@ -17,6 +17,7 @@
 | 顶部菜单 | 新增 `menu` + `nav.fixed` | 首页/关于/友链/归档，导航吸顶 |
 | 关于页 | 新增 `source/about/index.md` | `/about/` |
 | 友链页 | 新增 `source/link/index.md` + `source/_data/link.yml` | `/link/` |
+| 全站字体 | 新增 `font` / `blog_title_font` 配置 + `source/css/fonts.css` | 界面无衬线 + 正文/标题衬线（Claude 风格混排），中文沿用系统字体，见 [fonts.md](fonts.md) |
 
 ## 新增页面的维护方式
 
