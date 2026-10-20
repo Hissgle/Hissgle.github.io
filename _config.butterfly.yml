@@ -118,6 +118,8 @@ inject:
     - <link rel="stylesheet" href="/css/cover-zoom.css">
     # 鼠标点击水波纹涟漪（脚本在下方 bottom 里）
     - <link rel="stylesheet" href="/css/click-ripple.css">
+    # 右下角「写文章」入口（Twitter 风格圆形加号，样式在 write-fab.css）
+    - <link rel="stylesheet" href="/css/write-fab.css">
     # 主题 subtitle.pug 的 pjaxSendOnce 销毁回调里写的是裸标识符 `typed`（上游笔误，
     # 应为 window.typed）。首屏打字机还没初始化就点卡片跳走时该标识符不存在，会抛
     # ReferenceError。这里预先把全局变量定义成 null 让回调安全短路；不改 themes/ 下的
@@ -151,6 +153,10 @@ inject:
 
     # FastAPI 后端已隔离停用，恢复见 API-README.md
     # - '<script src="/js/api-stats.js"></script>'
+
+    # 右下角「写文章」入口。部署 Vercel 管理端后，把 data-admin-url 改成实际地址；
+    # 留空或删掉这一行则完全不显示入口。
+    - '<script id="write-fab-script" src="/js/write-fab.js" data-admin-url="https://myblog-admin.vercel.app" defer></script>'
 
     # 滚动渐显：卡片进入视口时从下方 34px 淡入上移。样式见 /css/reveal.css。
     - <script src="/js/reveal.js"></script>

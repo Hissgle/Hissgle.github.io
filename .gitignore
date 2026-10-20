@@ -23,8 +23,8 @@ backup/
 
 .workbuddy-ai/
 
-# FastAPI 后端
-api/
+# FastAPI 后端（只忽略根目录，别误伤 admin/api）
+/api/
 source/js/api-stats.js
 
 # Python 相关
