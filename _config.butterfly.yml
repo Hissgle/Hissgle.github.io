@@ -83,9 +83,10 @@ aside:
     orderby: name # 顺序固定
     order: 1
 
-# 鼠标点击爱心，只对桌面端开启
+# 鼠标点击水波纹涟漪（source/js/click-ripple.js + source/css/click-ripple.css），
+# 取代主题自带的 click_heart 爱心特效；只对桌面端开启。
 click_heart:
-  enable: true
+  enable: false
   mobile: false
 
 # 樱花飘落脚本在 source/js/sakura.js，通过下面的 inject.bottom 注入所有页面。
@@ -115,6 +116,8 @@ inject:
     - <link rel="stylesheet" href="/css/card-tilt.css">
     # 首页点卡片「封面放大铺满屏幕」过渡层（脚本在下方 bottom 里）
     - <link rel="stylesheet" href="/css/cover-zoom.css">
+    # 鼠标点击水波纹涟漪（脚本在下方 bottom 里）
+    - <link rel="stylesheet" href="/css/click-ripple.css">
     # 主题 subtitle.pug 的 pjaxSendOnce 销毁回调里写的是裸标识符 `typed`（上游笔误，
     # 应为 window.typed）。首屏打字机还没初始化就点卡片跳走时该标识符不存在，会抛
     # ReferenceError。这里预先把全局变量定义成 null 让回调安全短路；不改 themes/ 下的
@@ -163,6 +166,9 @@ inject:
     - <script src="/js/header-fade.js"></script>
     - <script src="/js/gallery-fade.js"></script>
     - <script src="/js/search-ui.js"></script>
+
+    # 鼠标点击处的透明水波纹涟漪，取代主题自带的爱心特效。样式见 /css/click-ripple.css。
+    - <script src="/js/click-ripple.js"></script>
 
 # 顶部导航。语法：显示名: /路径/，也可以写成 显示名: /路径/ || 图标class（图标见 fontawesome.com）
 # 这里的图标 class 不是拿来显示 Font Awesome 的 —— custom.css 的「顶栏图标」段会把 FA 字形
