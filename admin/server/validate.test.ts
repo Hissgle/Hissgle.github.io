@@ -7,8 +7,8 @@ import {
   sanitizeFrontMatter,
   sourcePathForSlug,
   tempAssetPath,
-} from './validate';
-import { formatLocal, permalinkFor } from './time';
+} from './validate.js';
+import { formatLocal, permalinkFor } from './time.js';
 
 describe('slug', () => {
   it('normalizes new ASCII slugs', () => {

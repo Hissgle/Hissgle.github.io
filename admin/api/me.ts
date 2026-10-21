@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { destroySession, ensureCsrfCookie, getSession } from '../server/auth';
-import { env } from '../server/env';
-import { handleError, json, methodNotAllowed } from '../server/http';
+import { destroySession, ensureCsrfCookie, getSession } from '../server/auth.js';
+import { env } from '../server/env.js';
+import { handleError, json, methodNotAllowed } from '../server/http.js';
 
 function isConfigured(): boolean {
   return Boolean(

@@ -1,14 +1,14 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { rateLimit, requireAuth, requireMutation } from '../../server/auth';
-import { deleteDraft, getDraft, listDrafts, saveDraft } from '../../server/drafts';
+import { rateLimit, requireAuth, requireMutation } from '../../server/auth.js';
+import { deleteDraft, getDraft, listDrafts, saveDraft } from '../../server/drafts.js';
 import {
   handleError,
   json,
   methodNotAllowed,
   queryString,
   readJson,
-} from '../../server/http';
-import { draftInputSchema, parseBody } from '../../server/validate';
+} from '../../server/http.js';
+import { draftInputSchema, parseBody } from '../../server/validate.js';
 
 export default async function handler(
   req: VercelRequest,

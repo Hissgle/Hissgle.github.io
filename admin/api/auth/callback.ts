@@ -6,10 +6,10 @@ import {
   rateLimit,
   requireConfigured,
   verifyOAuthState,
-} from '../../server/auth';
-import { env, getAdminBaseUrl } from '../../server/env';
-import { exchangeCode, getRepoAccess, getUser } from '../../server/github';
-import { getClientIp, methodNotAllowed } from '../../server/http';
+} from '../../server/auth.js';
+import { env, getAdminBaseUrl } from '../../server/env.js';
+import { exchangeCode, getRepoAccess, getUser } from '../../server/github.js';
+import { getClientIp, methodNotAllowed } from '../../server/http.js';
 
 export default async function handler(
   req: VercelRequest,

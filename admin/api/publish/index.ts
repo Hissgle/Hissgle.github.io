@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { rateLimit, requireAuth, requireMutation } from '../../server/auth';
-import { handleError, json, methodNotAllowed, readJson } from '../../server/http';
-import { publishDraft } from '../../server/publish';
-import { parseBody, publishInputSchema } from '../../server/validate';
+import { rateLimit, requireAuth, requireMutation } from '../../server/auth.js';
+import { handleError, json, methodNotAllowed, readJson } from '../../server/http.js';
+import { publishDraft } from '../../server/publish.js';
+import { parseBody, publishInputSchema } from '../../server/validate.js';
 
 export default async function handler(
   req: VercelRequest,

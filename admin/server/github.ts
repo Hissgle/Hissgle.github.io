@@ -1,9 +1,9 @@
 import matter from 'gray-matter';
 import { JSON_SCHEMA, load } from 'js-yaml';
-import { env, repoOwnerAndName } from './env';
-import { ApiError } from './http';
-import { normalizeDate, permalinkFor } from './time';
-import type { PostDetail, PostSummary } from './types';
+import { env, repoOwnerAndName } from './env.js';
+import { ApiError } from './http.js';
+import { normalizeDate, permalinkFor } from './time.js';
+import type { PostDetail, PostSummary } from './types.js';
 
 const API = 'https://api.github.com';
 

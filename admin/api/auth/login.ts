@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { buildLoginUrl, randomToken, setOAuthStateCookie } from '../../server/auth';
-import { handleError, methodNotAllowed } from '../../server/http';
+import { buildLoginUrl, randomToken, setOAuthStateCookie } from '../../server/auth.js';
+import { handleError, methodNotAllowed } from '../../server/http.js';
 
 export default function handler(req: VercelRequest, res: VercelResponse): void {
   if (req.method !== 'GET') {

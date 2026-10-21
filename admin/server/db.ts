@@ -1,6 +1,6 @@
 import { neon } from '@neondatabase/serverless';
-import { env } from './env';
-import { SCHEMA_STATEMENTS } from './schema';
+import { env } from './env.js';
+import { SCHEMA_STATEMENTS } from './schema.js';
 
 type NeonClient = ReturnType<typeof neon>;
 

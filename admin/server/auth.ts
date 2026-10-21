@@ -1,10 +1,10 @@
 import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { env, getAdminBaseUrl, isProduction } from './env';
-import { clearCookie, parseCookies, setCookie } from './cookies';
-import { ApiError, assertSameOrigin } from './http';
-import { one, query } from './db';
-import type { Session } from './types';
+import { env, getAdminBaseUrl, isProduction } from './env.js';
+import { clearCookie, parseCookies, setCookie } from './cookies.js';
+import { ApiError, assertSameOrigin } from './http.js';
+import { one, query } from './db.js';
+import type { Session } from './types.js';
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
 const STATE_TTL_SECONDS = 60 * 10;

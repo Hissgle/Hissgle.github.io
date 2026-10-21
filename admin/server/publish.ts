@@ -1,19 +1,19 @@
 import { dump } from 'js-yaml';
-import { ApiError } from './http';
+import { ApiError } from './http.js';
 import {
   getDraft,
   getDraftAssetRows,
   logPublish,
   markPublished,
-} from './drafts';
-import { commitFiles, getPost } from './github';
-import { formatLocal, normalizeDate, permalinkFor } from './time';
+} from './drafts.js';
+import { commitFiles, getPost } from './github.js';
+import { formatLocal, normalizeDate, permalinkFor } from './time.js';
 import {
   MAX_TOTAL_ASSET_BYTES,
   finalAssetPath,
   sourcePathForSlug,
   tempAssetPath,
-} from './validate';
+} from './validate.js';
 
 function replaceDeep(value: unknown, from: string, to: string): unknown {
   if (typeof value === 'string') return value.split(from).join(to);

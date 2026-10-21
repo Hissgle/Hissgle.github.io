@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { isProduction } from './env';
+import { isProduction } from './env.js';
 
 export class ApiError extends Error {
   readonly status: number;

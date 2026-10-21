@@ -1,12 +1,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { rateLimit, requireAuth } from '../../server/auth';
-import { getRunForCommit, isLive } from '../../server/github';
+import { rateLimit, requireAuth } from '../../server/auth.js';
+import { getRunForCommit, isLive } from '../../server/github.js';
 import {
   handleError,
   json,
   methodNotAllowed,
   queryString,
-} from '../../server/http';
+} from '../../server/http.js';
 
 export default async function handler(
   req: VercelRequest,

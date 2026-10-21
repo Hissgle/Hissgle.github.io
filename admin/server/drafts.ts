@@ -1,13 +1,13 @@
 import { randomUUID } from 'node:crypto';
-import { one, query } from './db';
-import { ApiError } from './http';
+import { one, query } from './db.js';
+import { ApiError } from './http.js';
 import type {
   AssetDto,
   AssetRow,
   DraftDto,
   DraftRow,
   DraftSummary,
-} from './types';
+} from './types.js';
 import {
   MAX_ASSETS,
   MAX_CONTENT_CHARS,
@@ -18,7 +18,7 @@ import {
   type DraftInput,
   type ParsedAsset,
   tempAssetPath,
-} from './validate';
+} from './validate.js';
 
 function iso(value: unknown): string {
   if (value instanceof Date) return value.toISOString();

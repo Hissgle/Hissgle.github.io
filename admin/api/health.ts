@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { query } from '../server/db';
-import { env } from '../server/env';
-import { json, methodNotAllowed } from '../server/http';
+import { query } from '../server/db.js';
+import { env } from '../server/env.js';
+import { json, methodNotAllowed } from '../server/http.js';
 
 export default async function handler(
   req: VercelRequest,

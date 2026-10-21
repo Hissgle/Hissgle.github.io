@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { rateLimit, requireAuth } from '../../server/auth';
-import { getPost, listPosts } from '../../server/github';
-import { handleError, json, methodNotAllowed, queryString } from '../../server/http';
+import { rateLimit, requireAuth } from '../../server/auth.js';
+import { getPost, listPosts } from '../../server/github.js';
+import { handleError, json, methodNotAllowed, queryString } from '../../server/http.js';
 
 export default async function handler(
   req: VercelRequest,

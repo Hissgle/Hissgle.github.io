@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseFrontMatter } from './github';
+import { parseFrontMatter } from './github.js';
 
 describe('front matter parsing', () => {
   it('parses the existing Hexo format without turning dates into Date objects', () => {

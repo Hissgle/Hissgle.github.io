@@ -1,14 +1,14 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { rateLimit, requireAuth, requireMutation } from '../../server/auth';
-import { deleteAsset, getAssetRow, insertAsset } from '../../server/drafts';
+import { rateLimit, requireAuth, requireMutation } from '../../server/auth.js';
+import { deleteAsset, getAssetRow, insertAsset } from '../../server/drafts.js';
 import {
   handleError,
   json,
   methodNotAllowed,
   queryString,
   readJson,
-} from '../../server/http';
-import { assetInputSchema, parseAssetInput, parseBody } from '../../server/validate';
+} from '../../server/http.js';
+import { assetInputSchema, parseAssetInput, parseBody } from '../../server/validate.js';
 
 export default async function handler(
   req: VercelRequest,

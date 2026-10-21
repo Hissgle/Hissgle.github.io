@@ -4,8 +4,8 @@ import {
   destroySession,
   requireAuth,
   requireMutation,
-} from '../../server/auth';
-import { handleError, json, methodNotAllowed } from '../../server/http';
+} from '../../server/auth.js';
+import { handleError, json, methodNotAllowed } from '../../server/http.js';
 
 export default async function handler(
   req: VercelRequest,

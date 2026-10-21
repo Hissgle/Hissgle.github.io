@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { ApiError } from './http';
-import { formatLocal, normalizeDate } from './time';
+import { ApiError } from './http.js';
+import { formatLocal, normalizeDate } from './time.js';
 
 export const MAX_ASSET_BYTES = 800 * 1024;
 export const MAX_TOTAL_ASSET_BYTES = 3.5 * 1024 * 1024;
