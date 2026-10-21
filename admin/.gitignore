@@ -8,3 +8,6 @@ dist/
 .env.*.local
 *.log
 .DS_Store
+
+# 设计规范文档只保留在本地
+DESIGN.md

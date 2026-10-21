@@ -1,0 +1,268 @@
+/* ============================================================================
+   写作台 · Design Tokens
+   ----------------------------------------------------------------------------
+   唯一的设计变量来源。组件样式只允许引用语义层（--surface / --text / --border
+   / --space / --text-* / --r-* / --shadow-*），不要直接使用原始色板。
+   主题：颜色用 light-dark() 声明一次，跟随 color-scheme 自动切换；
+   强制主题时在 <html> 上加 data-theme="light" | "dark"。
+   ========================================================================== */
+
+:root {
+  color-scheme: light dark;
+
+  /* ---------- 1. 字体 ---------- */
+  --font-ui: "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-display: "Source Serif 4", "Songti SC", "Noto Serif CJK SC", Georgia, serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 550;
+  --weight-bold: 650;
+  --weight-heavy: 700;
+
+  /* ---------- 2. 字号阶梯（1.2 左右，UI 小字密集区留 10–13px 细档） ---------- */
+  --text-3xs: 10px;   /* 角标、计数、kickier */
+  --text-2xs: 11px;   /* 辅助说明、meta */
+  --text-xs: 12px;    /* 次要按钮、列表副标题 */
+  --text-sm: 13px;    /* 默认控件、正文 UI */
+  --text-base: 14px;  /* 主按钮、输入框、正文 */
+  --text-md: 15px;    /* 阅读区正文 */
+  --text-lg: 17px;    /* 小标题 */
+  --text-xl: 21px;    /* 区块标题 */
+  --text-2xl: 26px;   /* 弹窗标题 */
+  --text-3xl: 32px;   /* 移动端文章标题 */
+  --text-4xl: 42px;   /* 登录页标题 */
+  --text-display: clamp(30px, 4vw, 46px); /* 编辑器标题 */
+  --text-hero: clamp(34px, 5vw, 54px);    /* 空状态标题 */
+
+  /* 行高 */
+  --leading-none: 1;
+  --leading-tight: 1.18;
+  --leading-snug: 1.35;
+  --leading-normal: 1.55;
+  --leading-relaxed: 1.7;
+  --leading-loose: 1.9;
+
+  /* 字距 */
+  --tracking-tighter: -0.04em;
+  --tracking-tight: -0.03em;
+  --tracking-snug: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.03em;
+  --tracking-caps: 0.14em;
+  --tracking-caps-wide: 0.2em;
+
+  /* ---------- 3. 色板（原始值 · 不要在组件里直接引用） ---------- */
+  /* 暖中性：纸张偏暖，避免纯灰的冷感 */
+  --warm-0: #ffffff;
+  --warm-25: #fbfaf7;
+  --warm-50: #f7f5f1;
+  --warm-100: #efece5;
+  --warm-200: #e2ded6;
+  --warm-400: #a8a39b;
+  --warm-500: #77736d;
+  --warm-600: #565250;
+  --warm-800: #26262a;
+  --warm-900: #17181b;
+  --warm-950: #141518;
+
+  /* 品牌橙：唯一强调色，只用于主行动与品牌标识 */
+  --orange-50: #fff4f0;
+  --orange-100: #ffe3da;
+  --orange-200: #ffc3b2;
+  --orange-400: #ff8a6f;
+  --orange-500: #ff5733;
+  --orange-600: #e44725;
+  --orange-700: #bd3a26;
+
+  /* 功能色 */
+  --blue-400: #6dc4f7;
+  --blue-500: #1d9bf0;
+  --green-500: #4b8a62;
+  --green-700: #377a4f;
+  --green-900: #22553a;
+  --red-600: #bd3a26;
+  --red-700: #a93220;
+
+  /* ---------- 4. 语义色 · 表面 ---------- */
+  --surface-page: light-dark(var(--warm-50), var(--warm-950));
+  --surface-subtle: light-dark(var(--warm-25), #191a1e);
+  --surface-card: light-dark(var(--warm-0), #1d1e22);
+  --surface-inset: light-dark(rgba(31, 29, 26, 0.04), rgba(255, 255, 255, 0.04));
+  --surface-hover: light-dark(rgba(31, 29, 26, 0.065), rgba(255, 255, 255, 0.07));
+  --surface-press: light-dark(rgba(31, 29, 26, 0.1), rgba(255, 255, 255, 0.11));
+  --surface-translucent: light-dark(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.035));
+  --surface-input: light-dark(var(--warm-25), #17181c);
+  --surface-input-focus: light-dark(var(--warm-0), #1b1c20);
+  --surface-glass: light-dark(
+    color-mix(in srgb, var(--warm-50) 86%, transparent),
+    color-mix(in srgb, var(--warm-950) 86%, transparent)
+  );
+
+  /* 反色区域（侧边栏 / 登录页）· 两套主题下恒定 */
+  --surface-inverse: #17181b;
+  --surface-inverse-2: #202126;
+  --surface-inverse-deep: #141518;
+  --surface-inverse-glass: rgba(28, 29, 33, 0.78);
+  --surface-scrim: light-dark(rgba(18, 18, 20, 0.42), rgba(0, 0, 0, 0.56));
+  --inverse-fill-subtle: rgba(255, 255, 255, 0.055);
+  --inverse-fill: rgba(255, 255, 255, 0.08);
+  --inverse-fill-strong: rgba(255, 255, 255, 0.09);
+  --inverse-fill-accent: rgba(255, 87, 51, 0.16);
+
+  /* ---------- 5. 语义色 · 文本 ---------- */
+  --text-primary: light-dark(#1b1c1e, #ece8e1);
+  --text-secondary: light-dark(var(--warm-500), #a29d95);
+  --text-tertiary: light-dark(var(--warm-400), #736f68);
+  --text-accent: light-dark(var(--orange-600), var(--orange-500));
+  --text-danger: light-dark(#a43a23, #ff9d87);
+  --text-success: light-dark(var(--green-700), #7fbb96);
+  --text-inverse: #f4f1eb;
+  --text-inverse-strong: #f6f2eb;
+  --text-inverse-muted: #9c9a94;
+  --text-inverse-faint: rgba(255, 255, 255, 0.45);
+  --text-inverse-soft: rgba(255, 255, 255, 0.62);
+
+  /* ---------- 6. 语义色 · 描边 ---------- */
+  --border-subtle: light-dark(rgba(31, 29, 26, 0.1), rgba(255, 255, 255, 0.09));
+  --border-default: light-dark(rgba(31, 29, 26, 0.16), rgba(255, 255, 255, 0.15));
+  --border-strong: light-dark(rgba(31, 29, 26, 0.28), rgba(255, 255, 255, 0.24));
+  --border-accent: rgba(255, 87, 51, 0.45);
+  --border-accent-soft: rgba(255, 87, 51, 0.24);
+  --border-danger: rgba(255, 87, 51, 0.25);
+  --border-success: rgba(75, 138, 98, 0.35);
+  --border-inverse: rgba(255, 255, 255, 0.09);
+  --border-inverse-strong: rgba(255, 255, 255, 0.16);
+  --border-glass: light-dark(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.1));
+
+  /* ---------- 7. 语义色 · 交互 ---------- */
+  --accent: var(--orange-500);
+  --accent-hover: var(--orange-600);
+  --accent-press: var(--orange-700);
+  --accent-contrast: #ffffff;
+  --accent-soft: light-dark(rgba(255, 87, 51, 0.1), rgba(255, 87, 51, 0.16));
+  --accent-soft-strong: rgba(255, 87, 51, 0.16);
+  --accent-tint: rgba(255, 87, 51, 0.055);
+
+  --danger: var(--red-600);
+  --danger-hover: var(--red-700);
+  --danger-soft: rgba(255, 87, 51, 0.08);
+  --danger-surface: light-dark(#fff3ef, #38201a);
+  --danger-surface-strong: #8c2f1c;
+  --danger-inverse-text: #ffb3a2;
+  --danger-inverse-text-strong: #ffd2c8;
+  --danger-inverse-soft: rgba(255, 87, 51, 0.1);
+  --danger-inverse-border: rgba(255, 120, 100, 0.3);
+  --inverse-ring: rgba(255, 255, 255, 0.018);
+  --inverse-ring-outer: rgba(255, 255, 255, 0.012);
+  --overlay-surface: rgba(20, 20, 22, 0.62);
+  --overlay-border: rgba(255, 255, 255, 0.28);
+
+  --success: var(--green-500);
+  --success-soft: rgba(75, 138, 98, 0.08);
+  --success-surface: #22553a;
+
+  --info: var(--blue-500);
+
+  /* 背景光晕与选中 */
+  --glow-accent: light-dark(rgba(255, 87, 51, 0.06), rgba(255, 87, 51, 0.1));
+  --glow-info: light-dark(rgba(29, 155, 240, 0.05), rgba(29, 155, 240, 0.07));
+  --glow-accent-strong: rgba(255, 87, 51, 0.22);
+  --selection: rgba(255, 87, 51, 0.22);
+  --code-surface: light-dark(rgba(31, 29, 26, 0.07), rgba(255, 255, 255, 0.09));
+  --code-block-surface: #1f2024;
+  --code-block-text: #e8e5df;
+  --focus-color: light-dark(var(--orange-600), var(--orange-400));
+
+  /* ---------- 8. 圆角 ---------- */
+  --r-2xs: 4px;   /* 行内 code */
+  --r-xs: 6px;    /* 极小徽标 */
+  --r-sm: 8px;    /* 图标按钮、工具栏按钮 */
+  --r-md: 12px;   /* 按钮、输入框、小卡片 */
+  --r-lg: 16px;   /* 内容卡片 */
+  --r-xl: 20px;   /* 浮层 */
+  --r-2xl: 24px;  /* 弹窗、登录卡 */
+  --r-3xl: 28px;
+  --r-pill: 999px;
+
+  /* ---------- 9. 间距（4px 基准） ---------- */
+  --space-0: 0;
+  --space-px: 1px;
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-2-5: 10px;
+  --space-3: 12px;
+  --space-3-5: 14px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ---------- 10. 控件高度 ---------- */
+  --control-xs: 32px;
+  --control-sm: 36px;
+  --control-md: 40px;
+  --control-lg: 46px;
+  --control-xl: 50px;
+
+  /* ---------- 11. 阴影 ---------- */
+  --elev-1-color: light-dark(rgba(33, 29, 24, 0.06), rgba(0, 0, 0, 0.28));
+  --elev-2-color: light-dark(rgba(33, 29, 24, 0.08), rgba(0, 0, 0, 0.34));
+  --elev-3-color: light-dark(rgba(22, 20, 18, 0.24), rgba(0, 0, 0, 0.5));
+  --elev-4-color: light-dark(rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0.55));
+  --accent-glow-color: rgba(255, 87, 51, 0.24);
+  --danger-glow-color: rgba(189, 58, 38, 0.22);
+  --inverse-glow-color: rgba(0, 0, 0, 0.35);
+
+  --shadow-xs: 0 1px 2px var(--elev-1-color);
+  --shadow-sm: 0 8px 24px var(--elev-1-color);
+  --shadow-md: 0 18px 50px var(--elev-2-color);
+  --shadow-lg: 0 34px 90px var(--elev-3-color);
+  --shadow-toast: 0 16px 40px var(--elev-4-color);
+  --shadow-accent: 0 8px 20px var(--accent-glow-color);
+  --shadow-accent-lg: 0 12px 28px var(--accent-glow-color);
+  --shadow-danger: 0 8px 20px var(--danger-glow-color);
+  --shadow-inverse: 0 30px 80px var(--inverse-glow-color);
+  --shadow-sidebar: 24px 0 60px rgba(0, 0, 0, 0.24);
+  --focus-ring: 0 0 0 3px var(--accent-soft);
+
+  /* ---------- 12. 动效 ---------- */
+  --dur-fast: 120ms;
+  --dur-base: 160ms;
+  --dur-slow: 240ms;
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.3, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.2, 0.9, 0.3, 1.1);
+
+  /* ---------- 13. 层级 ---------- */
+  --z-base: 0;
+  --z-sticky: 20;
+  --z-loading: 30;
+  --z-scrim: 35;
+  --z-sidebar: 40;
+  --z-bar: 50;
+  --z-modal: 100;
+  --z-toast: 120;
+
+  /* ---------- 14. 布局 ---------- */
+  --layout-sidebar-w: 292px;
+  --layout-content-max: 1180px;
+  --layout-gutter: var(--space-8);
+  --layout-topbar-h: 68px;
+}
+
+/* 强制主题：任何带 data-theme 的容器都会成为独立的主题作用域 */
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+}

@@ -1,0 +1,1090 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <title>写作台 · 设计规范 v1.0</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+    <style>
+      /* ---- 规范页自身的排版，全部基于 token ---- */
+      body {
+        background: var(--surface-page);
+      }
+
+      .ds-wrap {
+        width: min(1140px, 100%);
+        margin: 0 auto;
+        padding: 0 var(--space-8) var(--space-16);
+      }
+
+      .ds-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        border-bottom: 1px solid var(--border-subtle);
+        background: var(--surface-glass);
+        backdrop-filter: blur(18px) saturate(1.2);
+      }
+
+      .ds-header-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-4);
+        width: min(1140px, 100%);
+        margin: 0 auto;
+        padding: var(--space-3) var(--space-8);
+      }
+
+      .ds-brand {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        min-width: 0;
+      }
+
+      .ds-brand-mark {
+        display: grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        flex: 0 0 auto;
+        border-radius: var(--r-sm);
+        background: var(--accent);
+        color: var(--accent-contrast);
+        font-family: var(--font-display);
+        font-size: var(--text-lg);
+        font-weight: var(--weight-heavy);
+      }
+
+      .ds-brand strong {
+        display: block;
+        font-family: var(--font-display);
+        font-size: var(--text-base);
+        font-weight: var(--weight-bold);
+        letter-spacing: var(--tracking-snug);
+        white-space: nowrap;
+      }
+
+      .ds-brand small {
+        display: block;
+        color: var(--text-tertiary);
+        font-family: var(--font-mono);
+        font-size: var(--text-3xs);
+      }
+
+      .ds-nav {
+        display: flex;
+        gap: var(--space-1);
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+
+      .ds-nav a {
+        padding: var(--space-1-5) var(--space-2-5);
+        border-radius: var(--r-sm);
+        color: var(--text-secondary);
+        font-size: var(--text-xs);
+        text-decoration: none;
+        white-space: nowrap;
+        transition: background var(--dur-fast) var(--ease-standard);
+      }
+
+      .ds-nav a:hover {
+        background: var(--surface-hover);
+        color: var(--text-primary);
+      }
+
+      .ds-theme-switch {
+        display: flex;
+        gap: var(--space-0-5);
+        padding: var(--space-0-5);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--r-sm);
+        background: var(--surface-subtle);
+      }
+
+      .ds-theme-switch button {
+        padding: var(--space-1) var(--space-2);
+        border: 0;
+        border-radius: var(--r-2xs);
+        background: transparent;
+        color: var(--text-tertiary);
+        font-size: var(--text-2xs);
+        cursor: pointer;
+      }
+
+      .ds-theme-switch button[aria-pressed="true"] {
+        background: var(--surface-card);
+        color: var(--text-primary);
+        box-shadow: var(--shadow-xs);
+      }
+
+      /* ---- 章节 ---- */
+      .ds-hero {
+        padding: var(--space-16) 0 var(--space-12);
+        border-bottom: 1px solid var(--border-subtle);
+      }
+
+      .ds-kicker {
+        margin: 0 0 var(--space-3);
+        color: var(--text-tertiary);
+        font-size: var(--text-3xs);
+        font-weight: var(--weight-heavy);
+        letter-spacing: var(--tracking-caps-wide);
+        text-transform: uppercase;
+      }
+
+      .ds-hero h1 {
+        max-width: 18ch;
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: var(--text-hero);
+        font-weight: var(--weight-bold);
+        letter-spacing: var(--tracking-tighter);
+        line-height: var(--leading-tight);
+      }
+
+      .ds-hero p {
+        max-width: 62ch;
+        margin: var(--space-4) 0 0;
+        color: var(--text-secondary);
+        font-size: var(--text-md);
+        line-height: var(--leading-relaxed);
+        text-align: left;
+      }
+
+      .ds-metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: var(--space-3);
+        margin-top: var(--space-8);
+      }
+
+      .ds-metric {
+        padding: var(--space-4);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--r-md);
+        background: var(--surface-card);
+      }
+
+      .ds-metric b {
+        display: block;
+        font-family: var(--font-display);
+        font-size: var(--text-2xl);
+        font-weight: var(--weight-bold);
+        letter-spacing: var(--tracking-tight);
+      }
+
+      .ds-metric span {
+        display: block;
+        margin-top: var(--space-1);
+        color: var(--text-tertiary);
+        font-size: var(--text-2xs);
+      }
+
+      .ds-section {
+        padding: var(--space-12) 0;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+
+      .ds-section-head {
+        display: flex;
+        align-items: baseline;
+        gap: var(--space-3);
+        margin-bottom: var(--space-6);
+      }
+
+      .ds-section-head h2 {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: var(--text-2xl);
+        font-weight: var(--weight-bold);
+        letter-spacing: var(--tracking-tight);
+      }
+
+      .ds-section-head span {
+        color: var(--text-tertiary);
+        font-family: var(--font-mono);
+        font-size: var(--text-2xs);
+      }
+
+      .ds-sub {
+        margin: var(--space-8) 0 var(--space-3);
+        color: var(--text-secondary);
+        font-size: var(--text-xs);
+        font-weight: var(--weight-bold);
+        letter-spacing: var(--tracking-wide);
+      }
+
+      .ds-sub:first-of-type {
+        margin-top: 0;
+      }
+
+      .ds-grid-4 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: var(--space-3);
+      }
+
+      .ds-card {
+        padding: var(--space-5);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--r-lg);
+        background: var(--surface-card);
+        box-shadow: var(--shadow-sm);
+      }
+
+      .ds-card h3 {
+        margin: 0 0 var(--space-2);
+        font-size: var(--text-base);
+        font-weight: var(--weight-bold);
+      }
+
+      .ds-card p {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: var(--text-sm);
+        line-height: var(--leading-relaxed);
+      }
+
+      .ds-card-index {
+        display: inline-block;
+        margin-bottom: var(--space-3);
+        color: var(--accent);
+        font-family: var(--font-mono);
+        font-size: var(--text-2xs);
+        letter-spacing: var(--tracking-wide);
+      }
+
+      /* ---- 色板 ---- */
+      .ds-ramp {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+        gap: var(--space-1-5);
+      }
+
+      .ds-swatch {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-1-5);
+        font-family: var(--font-mono);
+        font-size: var(--text-3xs);
+      }
+
+      .ds-swatch i {
+        display: block;
+        height: 52px;
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--r-sm);
+      }
+
+      .ds-swatch span {
+        color: var(--text-secondary);
+      }
+
+      .ds-swatch em {
+        color: var(--text-secondary);
+        font-style: normal;
+      }
+
+      .ds-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: var(--text-sm);
+      }
+
+      .ds-table th {
+        padding: var(--space-2) var(--space-3);
+        border-bottom: 1px solid var(--border-default);
+        color: var(--text-tertiary);
+        font-size: var(--text-3xs);
+        font-weight: var(--weight-heavy);
+        letter-spacing: var(--tracking-caps);
+        text-align: left;
+        text-transform: uppercase;
+      }
+
+      .ds-table td {
+        padding: var(--space-2-5) var(--space-3);
+        border-bottom: 1px solid var(--border-subtle);
+        vertical-align: middle;
+      }
+
+      .ds-table code,
+      .ds-code {
+        padding: var(--space-px) var(--space-1);
+        border-radius: var(--r-2xs);
+        background: var(--code-surface);
+        color: var(--text-primary);
+        font-family: var(--font-mono);
+        font-size: var(--text-2xs);
+      }
+
+      .ds-chip {
+        display: inline-block;
+        width: 34px;
+        height: 22px;
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--r-xs);
+        vertical-align: middle;
+      }
+
+      /* 演示聚焦态，不用真实 focus */
+      .ds-stage input[data-demo-focus] {
+        border-color: var(--border-accent);
+        background: var(--surface-input-focus);
+        box-shadow: var(--focus-ring);
+      }
+
+      .ds-muted {
+        color: var(--text-tertiary);
+      }
+
+      /* ---- 字体 ---- */
+      .ds-type-row {
+        display: grid;
+        grid-template-columns: 132px 84px minmax(0, 1fr);
+        gap: var(--space-4);
+        align-items: baseline;
+        padding: var(--space-3-5) 0;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+
+      .ds-type-row:last-child {
+        border-bottom: 0;
+      }
+
+      .ds-type-row code {
+        color: var(--text-secondary);
+        font-family: var(--font-mono);
+        font-size: var(--text-2xs);
+      }
+
+      .ds-type-row b {
+        color: var(--text-tertiary);
+        font-family: var(--font-mono);
+        font-size: var(--text-2xs);
+        font-weight: var(--weight-regular);
+      }
+
+      .ds-specimen {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      /* ---- 间距 / 圆角 / 阴影 ---- */
+      .ds-space-row {
+        display: grid;
+        grid-template-columns: 96px 60px minmax(0, 1fr);
+        gap: var(--space-3);
+        align-items: center;
+        padding: var(--space-1-5) 0;
+        font-family: var(--font-mono);
+        font-size: var(--text-2xs);
+      }
+
+      .ds-space-row span:first-child {
+        color: var(--text-secondary);
+      }
+
+      .ds-space-bar {
+        position: relative;
+        height: 10px;
+        border-radius: var(--r-2xs);
+        background: var(--accent-soft-strong);
+      }
+
+      .ds-space-bar::before {
+        position: absolute;
+        inset: 0 auto 0 0;
+        z-index: -1;
+        width: 320px;
+        border-radius: var(--r-2xs);
+        background: var(--surface-subtle);
+        box-shadow: inset 0 0 0 1px var(--border-subtle);
+        content: "";
+      }
+
+      .ds-radius-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+        gap: var(--space-3);
+      }
+
+      .ds-radius {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-2);
+        padding: var(--space-3);
+        border: 1px dashed var(--border-default);
+        border-radius: var(--r-md);
+      }
+
+      .ds-radius i {
+        display: block;
+        width: 100%;
+        height: 52px;
+        border: 1px solid var(--border-default);
+        background: var(--surface-subtle);
+      }
+
+      .ds-radius code {
+        color: var(--text-secondary);
+        font-family: var(--font-mono);
+        font-size: var(--text-3xs);
+      }
+
+      .ds-elev-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: var(--space-5);
+        padding: var(--space-5) var(--space-2);
+      }
+
+      .ds-elev {
+        display: grid;
+        place-items: center;
+        height: 84px;
+        border-radius: var(--r-md);
+        background: var(--surface-card);
+        color: var(--text-secondary);
+        font-family: var(--font-mono);
+        font-size: var(--text-3xs);
+      }
+
+      /* ---- 组件展台 ---- */
+      .ds-stage {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-3);
+        padding: var(--space-6);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--r-lg);
+        background: var(--surface-card);
+      }
+
+      .ds-stage + .ds-stage {
+        margin-top: var(--space-3);
+      }
+
+      .ds-stage-dark {
+        background:
+          radial-gradient(circle at 0 0, color-mix(in srgb, var(--accent) 14%, transparent), transparent 18rem),
+          var(--surface-inverse);
+        border-color: transparent;
+      }
+
+      .ds-stage-col {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .ds-stage-label {
+        width: 100%;
+        color: var(--text-tertiary);
+        font-family: var(--font-mono);
+        font-size: var(--text-3xs);
+      }
+
+      .ds-demo-sidebar {
+        width: 292px;
+        max-width: 100%;
+        padding: var(--space-4);
+        border-radius: var(--r-md);
+        background: var(--surface-inverse);
+      }
+
+      .ds-demo-sidebar .sidebar-section + .sidebar-section {
+        margin-top: var(--space-4);
+      }
+
+      .ds-demo-modal {
+        width: 100%;
+        max-width: 460px;
+        margin: 0 auto;
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--r-2xl);
+        background: var(--surface-card);
+        box-shadow: var(--shadow-md);
+      }
+
+      .ds-toast-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+      }
+
+      .ds-toast-row .toast {
+        position: static;
+        transform: none;
+        animation: none;
+      }
+
+      .ds-compare {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: var(--space-3);
+      }
+
+      .ds-compare-panel {
+        padding: var(--space-5);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--r-lg);
+        background: var(--surface-page);
+        color: var(--text-primary);
+      }
+
+      .ds-compare-panel[data-theme="dark"] {
+        border-color: var(--border-inverse-strong);
+      }
+
+      .ds-compare-panel h4 {
+        margin: 0 0 var(--space-2);
+        font-family: var(--font-mono);
+        font-size: var(--text-2xs);
+        font-weight: var(--weight-regular);
+        color: var(--text-tertiary);
+      }
+
+      /* ---- 规则 ---- */
+      .ds-rules {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: var(--space-3);
+      }
+
+      .ds-rule {
+        padding: var(--space-5);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--r-lg);
+        background: var(--surface-card);
+      }
+
+      .ds-rule h4 {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        margin: 0 0 var(--space-3);
+        font-size: var(--text-sm);
+        font-weight: var(--weight-bold);
+      }
+
+      .ds-rule .dot {
+        display: inline-grid;
+        place-items: center;
+        width: 18px;
+        height: 18px;
+        border-radius: var(--r-pill);
+        font-size: var(--text-3xs);
+      }
+
+      .ds-rule .dot.ok {
+        background: var(--success-soft);
+        color: var(--text-success);
+      }
+
+      .ds-rule .dot.no {
+        background: var(--danger-soft);
+        color: var(--text-danger);
+      }
+
+      .ds-rule ul {
+        display: grid;
+        gap: var(--space-2);
+        margin: 0;
+        padding-left: var(--space-4);
+        color: var(--text-secondary);
+        font-size: var(--text-sm);
+        line-height: var(--leading-normal);
+      }
+
+      .ds-footer {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        padding: var(--space-8) 0 0;
+        color: var(--text-tertiary);
+        font-size: var(--text-2xs);
+      }
+
+      @media (max-width: 860px) {
+        .ds-wrap,
+        .ds-header-inner {
+          padding-left: var(--space-5);
+          padding-right: var(--space-5);
+        }
+
+        .ds-nav {
+          display: none;
+        }
+
+        .ds-type-row {
+          grid-template-columns: 100px minmax(0, 1fr);
+        }
+
+        .ds-type-row b {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="ds-header">
+      <div class="ds-header-inner">
+        <div class="ds-brand">
+          <span class="ds-brand-mark">H</span>
+          <div>
+            <strong>写作台设计规范</strong>
+            <small>Design System · v1.0</small>
+          </div>
+        </div>
+        <nav class="ds-nav">
+          <a href="#principles">原则</a>
+          <a href="#color">色彩</a>
+          <a href="#type">字体</a>
+          <a href="#scale">尺度</a>
+          <a href="#components">组件</a>
+          <a href="#motion">动效</a>
+          <a href="#rules">规则</a>
+        </nav>
+        <div class="ds-theme-switch" role="group" aria-label="主题">
+          <button type="button" data-set-theme="light" aria-pressed="true">浅色</button>
+          <button type="button" data-set-theme="dark" aria-pressed="false">深色</button>
+          <button type="button" data-set-theme="auto" aria-pressed="false">跟随</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="ds-wrap">
+      <section class="ds-hero">
+        <p class="ds-kicker">Hissgle / 写作台</p>
+        <h1>一套能长期收敛的设计语言</h1>
+        <p>
+          写作台是单用户的长文写作工具：安静、可读、只有一件事需要被强调——发布。
+          本规范把界面里散落的数值收敛成 14 组 token，任何新界面都从 token 出发，而不是从“差不多”出发。
+        </p>
+        <div class="ds-metrics">
+          <div class="ds-metric"><b>14</b><span>组 token</span></div>
+          <div class="ds-metric"><b>12</b><span>档字号</span></div>
+          <div class="ds-metric"><b>9</b><span>档圆角</span></div>
+          <div class="ds-metric"><b>4px</b><span>间距基准</span></div>
+          <div class="ds-metric"><b>2</b><span>主题（自动同步）</span></div>
+        </div>
+      </section>
+
+      <section class="ds-section" id="principles">
+        <div class="ds-section-head">
+          <h2>设计原则</h2>
+          <span>01 / principles</span>
+        </div>
+        <div class="ds-grid-4">
+          <article class="ds-card">
+            <span class="ds-card-index">P1</span>
+            <h3>内容先于界面</h3>
+            <p>正文用衬线、行高 1.9；界面控件一律让位，chrome 只保留必要的边界与分隔。</p>
+          </article>
+          <article class="ds-card">
+            <span class="ds-card-index">P2</span>
+            <h3>一个强调色</h3>
+            <p>橙色只给主行动与品牌标记。其余层级靠中性色的明度与字重区分，不靠加颜色。</p>
+          </article>
+          <article class="ds-card">
+            <span class="ds-card-index">P3</span>
+            <h3>暖纸，不冷灰</h3>
+            <p>底色带一点黄调，长时间写作不刺眼；深色主题保留同一套暖中性色阶。</p>
+          </article>
+          <article class="ds-card">
+            <span class="ds-card-index">P4</span>
+            <h3>克制的动效</h3>
+            <p>只有 120 / 160 / 240ms 三档，只做位移与透明度，不做弹跳式装饰。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="ds-section" id="color">
+        <div class="ds-section-head">
+          <h2>色彩</h2>
+          <span>02 / color</span>
+        </div>
+
+        <p class="ds-sub">原始色板 · 暖中性</p>
+        <div class="ds-ramp">
+          <div class="ds-swatch"><i style="background: var(--warm-0)"></i><span>warm-0</span><em>#ffffff</em></div>
+          <div class="ds-swatch"><i style="background: var(--warm-25)"></i><span>warm-25</span><em>#fbfaf7</em></div>
+          <div class="ds-swatch"><i style="background: var(--warm-50)"></i><span>warm-50</span><em>#f7f5f1</em></div>
+          <div class="ds-swatch"><i style="background: var(--warm-100)"></i><span>warm-100</span><em>#efece5</em></div>
+          <div class="ds-swatch"><i style="background: var(--warm-200)"></i><span>warm-200</span><em>#e2ded6</em></div>
+          <div class="ds-swatch"><i style="background: var(--warm-400)"></i><span>warm-400</span><em>#a8a39b</em></div>
+          <div class="ds-swatch"><i style="background: var(--warm-500)"></i><span>warm-500</span><em>#77736d</em></div>
+          <div class="ds-swatch"><i style="background: var(--warm-600)"></i><span>warm-600</span><em>#565250</em></div>
+          <div class="ds-swatch"><i style="background: var(--warm-800)"></i><span>warm-800</span><em>#26262a</em></div>
+          <div class="ds-swatch"><i style="background: var(--warm-900)"></i><span>warm-900</span><em>#17181b</em></div>
+          <div class="ds-swatch"><i style="background: var(--warm-950)"></i><span>warm-950</span><em>#141518</em></div>
+        </div>
+
+        <p class="ds-sub">原始色板 · 品牌橙与功能色</p>
+        <div class="ds-ramp">
+          <div class="ds-swatch"><i style="background: var(--orange-50)"></i><span>orange-50</span><em>#fff4f0</em></div>
+          <div class="ds-swatch"><i style="background: var(--orange-100)"></i><span>orange-100</span><em>#ffe3da</em></div>
+          <div class="ds-swatch"><i style="background: var(--orange-200)"></i><span>orange-200</span><em>#ffc3b2</em></div>
+          <div class="ds-swatch"><i style="background: var(--orange-400)"></i><span>orange-400</span><em>#ff8a6f</em></div>
+          <div class="ds-swatch"><i style="background: var(--orange-500)"></i><span>orange-500</span><em>#ff5733</em></div>
+          <div class="ds-swatch"><i style="background: var(--orange-600)"></i><span>orange-600</span><em>#e44725</em></div>
+          <div class="ds-swatch"><i style="background: var(--orange-700)"></i><span>orange-700</span><em>#bd3a26</em></div>
+          <div class="ds-swatch"><i style="background: var(--blue-500)"></i><span>blue-500</span><em>#1d9bf0</em></div>
+          <div class="ds-swatch"><i style="background: var(--green-500)"></i><span>green-500</span><em>#4b8a62</em></div>
+          <div class="ds-swatch"><i style="background: var(--green-900)"></i><span>green-900</span><em>#22553a</em></div>
+        </div>
+
+        <p class="ds-sub">语义色 · 组件只允许使用这一层</p>
+        <table class="ds-table">
+          <thead>
+            <tr>
+              <th>Token</th>
+              <th>浅色 / 深色</th>
+              <th>用途</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>--surface-page</code></td><td><i class="ds-chip" style="background: var(--surface-page)"></i></td><td class="ds-muted">页面底色</td></tr>
+            <tr><td><code>--surface-subtle</code></td><td><i class="ds-chip" style="background: var(--surface-subtle)"></i></td><td class="ds-muted">工具条、预览区、占位块</td></tr>
+            <tr><td><code>--surface-card</code></td><td><i class="ds-chip" style="background: var(--surface-card)"></i></td><td class="ds-muted">卡片、弹窗、输入聚焦态</td></tr>
+            <tr><td><code>--text-primary</code></td><td><i class="ds-chip" style="background: var(--text-primary)"></i></td><td class="ds-muted">标题与正文</td></tr>
+            <tr><td><code>--text-secondary</code></td><td><i class="ds-chip" style="background: var(--text-secondary)"></i></td><td class="ds-muted">说明文字、次要标签</td></tr>
+            <tr><td><code>--text-tertiary</code></td><td><i class="ds-chip" style="background: var(--text-tertiary)"></i></td><td class="ds-muted">占位符、meta 信息</td></tr>
+            <tr><td><code>--border-subtle</code></td><td><i class="ds-chip" style="background: var(--border-subtle)"></i></td><td class="ds-muted">卡片描边、分隔线</td></tr>
+            <tr><td><code>--border-default</code></td><td><i class="ds-chip" style="background: var(--border-default)"></i></td><td class="ds-muted">输入框、次级按钮描边</td></tr>
+            <tr><td><code>--accent</code></td><td><i class="ds-chip" style="background: var(--accent)"></i></td><td class="ds-muted">主行动、品牌标记、链接强调</td></tr>
+            <tr><td><code>--danger</code></td><td><i class="ds-chip" style="background: var(--danger)"></i></td><td class="ds-muted">删除等破坏性操作</td></tr>
+            <tr><td><code>--success</code></td><td><i class="ds-chip" style="background: var(--success)"></i></td><td class="ds-muted">已保存、发布成功</td></tr>
+            <tr><td><code>--surface-inverse</code></td><td><i class="ds-chip" style="background: var(--surface-inverse)"></i></td><td class="ds-muted">侧边栏、登录页（恒定深色）</td></tr>
+          </tbody>
+        </table>
+        <p class="ds-sub">同一页面内可并存两套主题（主题作用域由 <code>data-theme</code> 控制）</p>
+        <div class="ds-compare">
+          <div class="ds-compare-panel" data-theme="light">
+            <h4>data-theme="light"</h4>
+            <div class="title-card" style="padding: var(--space-4); box-shadow: none">
+              <div class="field">
+                <span class="field-label">标题</span>
+                <input value="暖纸上的写作台" readonly />
+              </div>
+              <div class="title-meta">已保存 · 1,204 字</div>
+            </div>
+          </div>
+          <div class="ds-compare-panel" data-theme="dark">
+            <h4>data-theme="dark"</h4>
+            <div class="title-card" style="padding: var(--space-4); box-shadow: none">
+              <div class="field">
+                <span class="field-label">标题</span>
+                <input value="暖纸上的写作台" readonly />
+              </div>
+              <div class="title-meta">已保存 · 1,204 字</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="ds-section" id="type">
+        <div class="ds-section-head">
+          <h2>字体</h2>
+          <span>03 / typography</span>
+        </div>
+
+        <div class="ds-grid-4">
+          <article class="ds-card">
+            <h3 style="font-family: var(--font-display)">衬线 · 用于内容</h3>
+            <p style="font-family: var(--font-display); font-size: var(--text-md)">
+              Source Serif 4 / Songti SC —— 标题、正文预览、空状态大标题。
+            </p>
+            <p style="margin-top: var(--space-2)"><code class="ds-code">--font-display</code></p>
+          </article>
+          <article class="ds-card">
+            <h3>无衬线 · 用于界面</h3>
+            <p>Segoe UI / PingFang SC —— 按钮、表单、侧边栏、所有操作性文字。</p>
+            <p style="margin-top: var(--space-2)"><code class="ds-code">--font-ui</code></p>
+          </article>
+          <article class="ds-card">
+            <h3 style="font-family: var(--font-mono)">等宽 · 用于数据</h3>
+            <p style="font-family: var(--font-mono); font-size: var(--text-xs)">/posts/hello-world · 1,204 字</p>
+            <p style="margin-top: var(--space-2)"><code class="ds-code">--font-mono</code></p>
+          </article>
+        </div>
+
+        <p class="ds-sub">字号阶梯 · 12 档（对齐后不再出现 9.5 / 10.5 / 11.5 / 12.5 / 13.5）</p>
+        <div class="ds-type-row"><code>--text-3xs</code><b>10px</b><span class="ds-specimen" style="font-size: var(--text-3xs)">HISSGLE 写作台 · 计数与角标</span></div>
+        <div class="ds-type-row"><code>--text-2xs</code><b>11px</b><span class="ds-specimen" style="font-size: var(--text-2xs)">字段标签、路径提示、图片尺寸</span></div>
+        <div class="ds-type-row"><code>--text-xs</code><b>12px</b><span class="ds-specimen" style="font-size: var(--text-xs)">次要按钮、侧边栏用户名、提示条</span></div>
+        <div class="ds-type-row"><code>--text-sm</code><b>13px</b><span class="ds-specimen" style="font-size: var(--text-sm)">次级按钮、列表标题、弹窗步骤</span></div>
+        <div class="ds-type-row"><code>--text-base</code><b>14px</b><span class="ds-specimen" style="font-size: var(--text-base)">主按钮、输入框、正文 UI</span></div>
+        <div class="ds-type-row"><code>--text-md</code><b>15px</b><span class="ds-specimen" style="font-family: var(--font-display); font-size: var(--text-md)">阅读区正文，衬线，行高 1.9</span></div>
+        <div class="ds-type-row"><code>--text-lg</code><b>17px</b><span class="ds-specimen" style="font-family: var(--font-display); font-size: var(--text-lg)">预览区三级标题</span></div>
+        <div class="ds-type-row"><code>--text-xl</code><b>21px</b><span class="ds-specimen" style="font-family: var(--font-display); font-size: var(--text-xl)">顶栏标题、预览区二级标题</span></div>
+        <div class="ds-type-row"><code>--text-2xl</code><b>26px</b><span class="ds-specimen" style="font-family: var(--font-display); font-size: var(--text-2xl)">弹窗标题、侧边栏标题</span></div>
+        <div class="ds-type-row"><code>--text-3xl</code><b>32px</b><span class="ds-specimen" style="font-family: var(--font-display); font-size: var(--text-3xl)">移动端文章标题</span></div>
+        <div class="ds-type-row"><code>--text-display</code><b>30–46px</b><span class="ds-specimen" style="font-family: var(--font-display); font-size: var(--text-display)">编辑器标题</span></div>
+        <div class="ds-type-row"><code>--text-hero</code><b>34–54px</b><span class="ds-specimen" style="font-family: var(--font-display); font-size: var(--text-hero)">空状态大标题</span></div>
+
+        <p class="ds-sub">字重 · 5 档（避免 600 与 650 混用）</p>
+        <div class="ds-stage ds-stage-col">
+          <span class="ds-stage-label">regular 400 · medium 500 · semibold 550 · bold 650 · heavy 700</span>
+          <div style="display: flex; flex-wrap: wrap; gap: var(--space-5); align-items: baseline">
+            <span style="font-weight: var(--weight-regular); font-size: var(--text-lg)">Aa 写作台</span>
+            <span style="font-weight: var(--weight-medium); font-size: var(--text-lg)">Aa 写作台</span>
+            <span style="font-weight: var(--weight-semibold); font-size: var(--text-lg)">Aa 写作台</span>
+            <span style="font-weight: var(--weight-bold); font-size: var(--text-lg)">Aa 写作台</span>
+            <span style="font-weight: var(--weight-heavy); font-size: var(--text-lg)">Aa 写作台</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="ds-section" id="scale">
+        <div class="ds-section-head">
+          <h2>尺度</h2>
+          <span>04 / scale</span>
+        </div>
+
+        <p class="ds-sub">间距 · 4px 基准（原 13 / 18 / 22 / 26 / 30 / 34 已归位）</p>
+        <div class="ds-space-row"><span>space-1</span><span>4px</span><span class="ds-space-bar" style="width: 4px"></span></div>
+        <div class="ds-space-row"><span>space-2</span><span>8px</span><span class="ds-space-bar" style="width: 8px"></span></div>
+        <div class="ds-space-row"><span>space-3</span><span>12px</span><span class="ds-space-bar" style="width: 12px"></span></div>
+        <div class="ds-space-row"><span>space-4</span><span>16px</span><span class="ds-space-bar" style="width: 16px"></span></div>
+        <div class="ds-space-row"><span>space-5</span><span>20px</span><span class="ds-space-bar" style="width: 20px"></span></div>
+        <div class="ds-space-row"><span>space-6</span><span>24px</span><span class="ds-space-bar" style="width: 24px"></span></div>
+        <div class="ds-space-row"><span>space-7</span><span>28px</span><span class="ds-space-bar" style="width: 28px"></span></div>
+        <div class="ds-space-row"><span>space-8</span><span>32px</span><span class="ds-space-bar" style="width: 32px"></span></div>
+        <div class="ds-space-row"><span>space-10</span><span>40px</span><span class="ds-space-bar" style="width: 40px"></span></div>
+        <div class="ds-space-row"><span>space-12</span><span>48px</span><span class="ds-space-bar" style="width: 48px"></span></div>
+        <div class="ds-space-row"><span>space-16</span><span>64px</span><span class="ds-space-bar" style="width: 64px"></span></div>
+
+        <p class="ds-sub">圆角 · 9 档（原 4–26 之间 14 种取值）</p>
+        <div class="ds-radius-grid">
+          <div class="ds-radius"><i style="border-radius: var(--r-2xs)"></i><code>r-2xs 4</code></div>
+          <div class="ds-radius"><i style="border-radius: var(--r-xs)"></i><code>r-xs 6</code></div>
+          <div class="ds-radius"><i style="border-radius: var(--r-sm)"></i><code>r-sm 8</code></div>
+          <div class="ds-radius"><i style="border-radius: var(--r-md)"></i><code>r-md 12</code></div>
+          <div class="ds-radius"><i style="border-radius: var(--r-lg)"></i><code>r-lg 16</code></div>
+          <div class="ds-radius"><i style="border-radius: var(--r-xl)"></i><code>r-xl 20</code></div>
+          <div class="ds-radius"><i style="border-radius: var(--r-2xl)"></i><code>r-2xl 24</code></div>
+          <div class="ds-radius"><i style="border-radius: var(--r-3xl)"></i><code>r-3xl 28</code></div>
+          <div class="ds-radius"><i style="border-radius: var(--r-pill)"></i><code>r-pill</code></div>
+        </div>
+
+        <p class="ds-sub">阴影 · 4 级高度 + 强调光晕</p>
+        <div class="ds-elev-grid">
+          <div class="ds-elev" style="box-shadow: var(--shadow-xs)">shadow-xs</div>
+          <div class="ds-elev" style="box-shadow: var(--shadow-sm)">shadow-sm · 卡片</div>
+          <div class="ds-elev" style="box-shadow: var(--shadow-md)">shadow-md · 浮层</div>
+          <div class="ds-elev" style="box-shadow: var(--shadow-lg)">shadow-lg · 弹窗</div>
+          <div class="ds-elev" style="box-shadow: var(--shadow-accent); background: var(--accent); color: var(--accent-contrast)">accent</div>
+        </div>
+
+        <p class="ds-sub">控件高度 · 5 档</p>
+        <table class="ds-table">
+          <thead><tr><th>Token</th><th>高度</th><th>用于</th></tr></thead>
+          <tbody>
+            <tr><td><code>--control-xs</code></td><td>32px</td><td class="ds-muted">小号按钮、工具栏按钮</td></tr>
+            <tr><td><code>--control-sm</code></td><td>36px</td><td class="ds-muted">次级按钮、图标按钮、头像</td></tr>
+            <tr><td><code>--control-md</code></td><td>40px</td><td class="ds-muted">主按钮、输入框</td></tr>
+            <tr><td><code>--control-lg</code></td><td>46px</td><td class="ds-muted">新建文章、空状态 CTA</td></tr>
+            <tr><td><code>--control-xl</code></td><td>50px</td><td class="ds-muted">登录按钮</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="ds-section" id="components">
+        <div class="ds-section-head">
+          <h2>组件</h2>
+          <span>05 / components</span>
+        </div>
+
+        <p class="ds-sub">按钮 · 一个主行动，其余退到次级</p>
+        <div class="ds-stage">
+          <button class="publish-button" type="button">发布文章</button>
+          <button class="ghost-button" type="button">预览</button>
+          <button class="ghost-button small" type="button">复制链接</button>
+          <button class="icon-button" type="button" aria-label="更多">···</button>
+          <button class="text-button" type="button">取消</button>
+          <button class="ghost-button danger" type="button">删除草稿</button>
+          <button class="publish-button" type="button" disabled>正在发布…</button>
+        </div>
+
+        <p class="ds-sub">表单 · 标签 11px / 正文 14px / 聚焦用 3px 光晕，不用阴影堆叠</p>
+        <div class="ds-stage ds-stage-col">
+          <div class="meta-grid" style="width: 100%">
+            <div class="field">
+              <span class="field-label">标签</span>
+              <input value="写作、设计与工具" readonly />
+              <small>最多 3 个，用逗号分隔</small>
+            </div>
+            <div class="field">
+              <span class="field-label">聚焦态</span>
+              <input value="这是聚焦时的样子" data-demo-focus readonly />
+            </div>
+          </div>
+          <div class="field" style="width: 100%">
+            <span class="field-label">摘要</span>
+            <textarea rows="2" readonly>两行以上的说明文字放在这里，行高 1.7，颜色退到次级。</textarea>
+          </div>
+          <div class="field" style="width: 100%">
+            <span class="field-label">禁用态</span>
+            <input value="slug 已固定" disabled />
+          </div>
+        </div>
+
+        <p class="ds-sub">侧边栏条目 · 深色反色区，选中态只加一层 9% 白</p>
+        <div class="ds-stage ds-stage-dark">
+          <div class="ds-demo-sidebar">
+            <div class="sidebar-section">
+              <div class="sidebar-section-title"><span>草稿</span><span class="count">2</span></div>
+              <ul class="sidebar-list">
+                <li>
+                  <button class="sidebar-item is-active" type="button">
+                    <span class="sidebar-item-title">设计规范系统</span>
+                    <span class="sidebar-item-meta">3 分钟前 · 4 张图</span>
+                  </button>
+                  <button class="sidebar-delete" type="button" aria-label="删除" style="opacity: 1">×</button>
+                </li>
+                <li>
+                  <button class="sidebar-item" type="button">
+                    <span class="sidebar-item-title">暖纸与长文</span>
+                    <span class="sidebar-item-meta">昨天</span>
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <p class="ds-sub">状态提示 · 成功与失败只用底色区分，形状不变</p>
+        <div class="ds-toast-row">
+          <div class="toast">已保存到草稿</div>
+          <div class="toast toast-success">发布成功</div>
+          <div class="toast toast-error">同步失败，请重试</div>
+        </div>
+
+        <p class="ds-sub">发布弹窗 · 步骤条用 1px 竖线连接，标记 20px</p>
+        <div class="ds-stage" style="padding: var(--space-8) var(--space-5)">
+          <div class="ds-demo-modal">
+            <div class="publish-dialog" style="box-shadow: none; border: 0; width: 100%">
+              <div class="publish-dialog-head">
+                <div>
+                  <p class="editor-kicker">PUBLISH</p>
+                  <h2>发布到博客</h2>
+                </div>
+              </div>
+              <p class="publish-title">一套能长期收敛的设计语言</p>
+              <ul class="publish-steps">
+                <li class="is-done"><span class="step-marker">✓</span>校验文章内容</li>
+                <li class="is-done"><span class="step-marker">✓</span>上传图片资产</li>
+                <li class="is-current"><span class="step-marker">3</span>提交到 GitHub</li>
+                <li><span class="step-marker">4</span>等待站点构建</li>
+              </ul>
+              <div class="publish-dialog-foot">
+                <button class="ghost-button" type="button">关闭</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="ds-sub">空状态 · 唯一的“大标题 + 单一 CTA”场景</p>
+        <div class="ds-stage" style="padding: 0">
+          <div class="empty-state" style="min-height: 0; padding: var(--space-12) var(--space-6); width: 100%">
+            <div class="empty-mark" style="width: 56px; height: 56px; margin-bottom: var(--space-4); border-radius: var(--r-lg)">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M4 5h16M4 12h10M4 19h7" stroke-linecap="round" />
+              </svg>
+            </div>
+            <h1 style="font-size: var(--text-3xl)">从第一句话开始</h1>
+            <p class="empty-desc" style="margin-bottom: var(--space-5)">写作台只做一件事：把想法变成可以发布的文章。</p>
+            <button class="publish-button empty-cta" type="button">写新文章</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="ds-section" id="motion">
+        <div class="ds-section-head">
+          <h2>动效</h2>
+          <span>06 / motion</span>
+        </div>
+        <table class="ds-table">
+          <thead><tr><th>Token</th><th>值</th><th>用于</th></tr></thead>
+          <tbody>
+            <tr><td><code>--dur-fast</code></td><td>120ms</td><td class="ds-muted">悬停变色、工具条按钮</td></tr>
+            <tr><td><code>--dur-base</code></td><td>160ms</td><td class="ds-muted">按钮、输入框、侧边栏条目</td></tr>
+            <tr><td><code>--dur-slow</code></td><td>240ms</td><td class="ds-muted">抽屉、弹窗入场、Toast</td></tr>
+            <tr><td><code>--ease-standard</code></td><td>cubic-bezier(.2,.8,.3,1)</td><td class="ds-muted">默认</td></tr>
+            <tr><td><code>--ease-out</code></td><td>cubic-bezier(.16,1,.3,1)</td><td class="ds-muted">入场</td></tr>
+            <tr><td><code>--ease-spring</code></td><td>cubic-bezier(.2,.9,.3,1.1)</td><td class="ds-muted">仅弹窗，其余不用</td></tr>
+          </tbody>
+        </table>
+        <p class="ds-sub">位移上限 1px；缩放下限 0.985；不做旋转、不做无限循环（加载指示除外）。系统开启“减少动态效果”时全部降为 0.01ms。</p>
+      </section>
+
+      <section class="ds-section" id="rules">
+        <div class="ds-section-head">
+          <h2>使用规则</h2>
+          <span>07 / rules</span>
+        </div>
+        <div class="ds-rules">
+          <article class="ds-rule">
+            <h4><span class="dot ok">✓</span>应该</h4>
+            <ul>
+              <li>新组件先查 token，缺失时补 token 而不是写裸值。</li>
+              <li>橙色只出现在主按钮、品牌标记和链接强调。</li>
+              <li>破坏性操作用 <code class="ds-code">--danger</code>，不要复用橙色。</li>
+              <li>深色反色区域用 <code class="ds-code">--inverse-*</code> 系列。</li>
+            </ul>
+          </article>
+          <article class="ds-rule">
+            <h4><span class="dot no">✗</span>不要</h4>
+            <ul>
+              <li>不要新增 13px / 18px / 26px 这类“临时数值”。</li>
+              <li>不要用 <code class="ds-code">rgba()</code> 直接写描边，改用 border token。</li>
+              <li>不要给次要按钮加阴影或渐变。</li>
+              <li>不要在深色主题里手写颜色覆盖，token 已处理。</li>
+            </ul>
+          </article>
+          <article class="ds-rule">
+            <h4><span class="dot ok">✓</span>无障碍</h4>
+            <ul>
+              <li>正文与背景对比度 ≥ 4.5:1，次要文字 ≥ 3:1。</li>
+              <li>键盘焦点统一 2px <code class="ds-code">--focus-color</code> 外描边。</li>
+              <li>可点击目标 ≥ 28×28，图标按钮 36×36。</li>
+              <li>所有图标按钮必须有 <code class="ds-code">aria-label</code>。</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <footer class="ds-footer">
+        <span>写作台 Design System v1.0 · 2026-10</span>
+        <span>源码：<code class="ds-code">src/design/tokens.css</code> + <code class="ds-code">src/styles.css</code></span>
+      </footer>
+    </main>
+
+    <script>
+      const root = document.documentElement;
+      const buttons = [...document.querySelectorAll('[data-set-theme]')];
+
+      function apply(mode) {
+        if (mode === 'auto') root.removeAttribute('data-theme');
+        else root.setAttribute('data-theme', mode);
+        buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.setTheme === mode)));
+      }
+
+      buttons.forEach((b) => b.addEventListener('click', () => apply(b.dataset.setTheme)));
+
+      // ?theme=dark 可强制主题（便于截图与走查），默认跟随系统
+      const forced = new URLSearchParams(location.search).get('theme');
+      apply(forced === 'dark' || forced === 'light' ? forced : 'auto');
+    </script>
+  </body>
+</html>
