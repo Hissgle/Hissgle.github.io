@@ -81,7 +81,7 @@ export function Sidebar({
               <span className="count">{drafts.length}</span>
             </div>
             {drafts.length === 0 ? (
-              <p className="sidebar-empty">还没有草稿。点上面的按钮开始写。</p>
+              <p className="sidebar-empty">没有未发布的草稿。点上面的按钮开始写。</p>
             ) : (
               <ul className="sidebar-list">
                 {drafts.map((draft) => (

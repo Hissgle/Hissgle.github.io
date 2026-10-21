@@ -324,6 +324,21 @@ export default function App() {
 
   async function handleNew(): Promise<void> {
     if (creating) return;
+
+    // 当前就是一篇空白未发布草稿时直接复用，避免连点「写新文章」堆出一堆无标题草稿。
+    const currentDraft = activeRef.current;
+    const currentEditor = editorRef.current;
+    if (
+      currentDraft &&
+      !currentDraft.sourcePath &&
+      currentEditor &&
+      !currentEditor.title.trim() &&
+      !currentEditor.content.trim()
+    ) {
+      setSidebarOpen(false);
+      return;
+    }
+
     setCreating(true);
     try {
       if (dirtyRef.current) await saveNow();
@@ -372,6 +387,8 @@ export default function App() {
       }
     }
 
+    // 打开已发布文章时后台会挂一份带 sourcePath 的编辑副本，它不会出现在「草稿」列表里，
+    // 只有还没发布过的稿子才算草稿。
     const existing = draftsRef.current.find(
       (draft) => draft.sourcePath === post.path || draft.slug === post.slug,
     );
@@ -764,6 +781,10 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // 侧边栏「草稿」只放还没发布的稿子；已发布文章的编辑副本（sourcePath 非空）留在后台，
+  // 用来承接继续编辑和再次发布，但不占用草稿位置。
+  const unpublishedDrafts = drafts.filter((draft) => !draft.sourcePath);
+
   if (booting) {
     return (
       <div className="boot-screen">
@@ -799,7 +820,7 @@ export default function App() {
   return (
     <div className="app-shell">
       <Sidebar
-        drafts={drafts}
+        drafts={unpublishedDrafts}
         posts={posts}
         activeDraftId={active?.id}
         activeSourcePath={active?.sourcePath}
@@ -868,11 +889,11 @@ export default function App() {
               {creating ? <SpinnerIcon size={17} /> : <PlusIcon size={17} />}
               {creating ? '正在新建…' : '写新文章'}
             </button>
-            {drafts.length > 0 ? (
+            {unpublishedDrafts.length > 0 ? (
               <div className="empty-recent">
                 <p>最近草稿</p>
                 <ul>
-                  {drafts.slice(0, 4).map((draft) => (
+                  {unpublishedDrafts.slice(0, 4).map((draft) => (
                     <li key={draft.id}>
                       <button type="button" onClick={() => void openDraft(draft.id)}>
                         <FileTextIcon size={14} />
