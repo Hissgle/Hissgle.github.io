@@ -27,6 +27,7 @@ type Props = {
   onChange: (patch: Partial<EditorState>) => void;
   onSave: () => Promise<void>;
   onPublish: () => void;
+  onDelete?: () => void;
   onUploadContent: (files: File[]) => Promise<Asset[]>;
   onUploadCover: (file: File) => Promise<void>;
   onRemoveAsset: (asset: Asset) => Promise<void>;
@@ -48,6 +49,7 @@ export function EditorPane({
   onChange,
   onSave,
   onPublish,
+  onDelete,
   onUploadContent,
   onUploadCover,
   onRemoveAsset,
@@ -198,6 +200,18 @@ export function EditorPane({
             <SaveIcon size={16} />
             保存
           </button>
+
+          {active.sourcePath && onDelete ? (
+            <button
+              type="button"
+              className="ghost-button danger"
+              onClick={onDelete}
+              title="删除这篇文章"
+            >
+              <TrashIcon size={16} />
+              删除
+            </button>
+          ) : null}
 
           <button
             type="button"

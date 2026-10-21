@@ -1,6 +1,6 @@
 # 写作台（myblog-admin）
 
-博客右下角「+」背后的管理端：GitHub 登录、Markdown 编辑、图片上传、草稿、编辑旧文、一键发布。
+博客右下角「+」背后的管理端：GitHub 登录、Markdown 编辑、图片上传、草稿、编辑旧文、删除文章、一键发布。
 
 > 当前状态：代码已实现，本地构建与 13 个纯函数测试通过；尚未创建 OAuth App / Neon / Vercel，也尚未把仓库改为私有。按本文第 0–3 节操作即可上线。
 
@@ -207,6 +207,19 @@ npm run build      # tsc + vite build
 - 保留未知 front matter 字段；
 - 发布时写入 `updated` 时间。
 
+### 删除已发布文章
+
+侧边栏「已发布」里每篇文章右侧有垃圾桶；编辑已发布文章时，右上角也有「删除」。
+
+删除需要输入 `DELETE` 确认，服务端会：
+
+- 删除 `source/_posts/<slug>.md`；
+- 删除 `source/img/posts/<slug>/` 下的文章图片；
+- 提交一次 `post(delete): ...` 到 `main`，触发 GitHub Actions 重新部署；
+- 把关联的本地草稿转为普通草稿（标题、正文和图片保留；slug 会清空，重新发布时再填）。
+
+Git 历史仍可找回文件；删除不会修改其他文章或全局封面图。
+
 ### 图片限制
 
 - 每篇最多 5 张；
@@ -229,6 +242,7 @@ npm run build      # tsc + vite build
 - 提交文章的 PAT 只在 Vercel 环境变量里，前端拿不到；PAT 只选一个仓库，权限最小化，90 天轮换。
 - 管理端有严格 CSP、`noindex`、不加载第三方脚本。
 - 草稿图片存在 Neon（base64），发布时校验 MIME/大小/数量；文件名和 slug 做白名单校验，防路径穿越。
+- 删除文章同样要求登录、同源和 CSRF；只允许删除 `source/_posts/<slug>.md` 与 `source/img/posts/<slug>/` 下的文件。
 - GitHub 账号请开 2FA。
 
 ### PAT 轮换

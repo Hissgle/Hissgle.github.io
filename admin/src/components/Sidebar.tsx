@@ -21,6 +21,7 @@ type Props = {
   onOpenDraft: (id: string) => void;
   onOpenPost: (post: PostSummary) => void;
   onDeleteDraft: (draft: DraftSummary) => void;
+  onDeletePost: (post: PostSummary) => void;
   onLogout: () => void;
 };
 
@@ -37,6 +38,7 @@ export function Sidebar({
   onOpenDraft,
   onOpenPost,
   onDeleteDraft,
+  onDeletePost,
   onLogout,
 }: Props) {
   return (
@@ -140,6 +142,18 @@ export function Sidebar({
                         {post.title || post.slug}
                       </span>
                       <span className="sidebar-item-meta">{post.date.slice(0, 10)}</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="sidebar-delete"
+                      aria-label={`删除文章 ${post.title || post.slug}`}
+                      title="删除文章"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onDeletePost(post);
+                      }}
+                    >
+                      <TrashIcon size={14} />
                     </button>
                   </li>
                 ))}

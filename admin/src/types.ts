@@ -42,6 +42,21 @@ export type PostDetail = PostSummary & {
   content: string;
 };
 
+export type DeletePostTarget = {
+  slug: string;
+  title: string;
+  path: string;
+  permalink?: string;
+};
+
+export type DeletePostResult = {
+  commitSha: string;
+  commitUrl: string;
+  sourcePath: string;
+  slug: string;
+  deletedImages: number;
+};
+
 export type Me = {
   authenticated: boolean;
   configured: boolean;

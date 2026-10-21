@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ApiError, api, setCsrfToken } from './api';
 import type {
   Asset,
+  DeletePostTarget,
   Draft,
   DraftSummary,
   EditorState,
@@ -18,6 +19,7 @@ import {
 } from './lib/format';
 import { slugify } from './lib/slug';
 import { compressImage } from './lib/image';
+import { DeletePostDialog } from './components/DeletePostDialog';
 import { EditorPane } from './components/EditorPane';
 import { Login } from './components/Login';
 import { PublishDialog } from './components/PublishDialog';
@@ -133,6 +135,9 @@ export default function App() {
   const [loadingDraft, setLoadingDraft] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [publishStatus, setPublishStatus] = useState<PublishStatus | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<DeletePostTarget | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
   const [toast, setToast] = useState<{ message: string; kind: ToastKind } | null>(null);
 
   const draftsRef = useRef<DraftSummary[]>([]);
@@ -145,6 +150,7 @@ export default function App() {
   const dirtyRef = useRef(false);
   const pollTimerRef = useRef<number | null>(null);
   const pollActiveRef = useRef(false);
+  const deleteInFlightRef = useRef(false);
   const toastTimerRef = useRef<number | null>(null);
 
   function setDrafts(next: DraftSummary[]): void {
@@ -413,6 +419,71 @@ export default function App() {
     }
   }
 
+  function askDeletePost(post: DeletePostTarget): void {
+    if (deleting || deleteInFlightRef.current) return;
+    setDeleteError('');
+    setDeleteTarget(post);
+  }
+
+  function requestDeleteActive(): void {
+    const current = activeRef.current;
+    if (!current?.sourcePath) return;
+    const known = posts.find((post) => post.path === current.sourcePath);
+    askDeletePost(
+      known ?? {
+        slug: current.slug ?? '',
+        title: current.title,
+        path: current.sourcePath,
+      },
+    );
+  }
+
+  function closeDeleteDialog(): void {
+    if (deleting) return;
+    setDeleteTarget(null);
+    setDeleteError('');
+  }
+
+  async function handleDeletePost(): Promise<void> {
+    const target = deleteTarget;
+    if (!target || deleteInFlightRef.current) return;
+
+    deleteInFlightRef.current = true;
+    setDeleting(true);
+    setDeleteError('');
+    try {
+      const result = await api.deletePost(target.slug);
+      setPosts((current) => current.filter((post) => post.path !== target.path));
+      setDrafts(
+        draftsRef.current.map((item) =>
+          item.sourcePath === target.path
+            ? {
+                ...item,
+                slug: null,
+                sourcePath: null,
+                publishedAt: null,
+                lastCommitSha: null,
+              }
+            : item,
+        ),
+      );
+      if (activeRef.current?.sourcePath === target.path) clearActive();
+      setDeleteTarget(null);
+      showToast(
+        result.deletedImages > 0
+          ? `文章已删除（含 ${result.deletedImages} 张图片），等待 Actions 部署完成`
+          : '文章已删除，等待 Actions 部署完成',
+        'success',
+      );
+      void refreshLists().catch(() => undefined);
+    } catch (error) {
+      setDeleteError(errorMessage(error));
+    } finally {
+      deleteInFlightRef.current = false;
+      setDeleting(false);
+    }
+  }
+
   async function uploadAssets(files: File[]): Promise<Asset[]> {
     if (files.length === 0) return [];
     let draft = await ensureDraft();
@@ -634,6 +705,8 @@ export default function App() {
       pollTimerRef.current = null;
     }
     setPublishStatus(null);
+    setDeleteTarget(null);
+    setDeleteError('');
     setCsrfToken('');
     setMe({ authenticated: false, configured: true });
     clearActive();
@@ -681,6 +754,8 @@ export default function App() {
         pollTimerRef.current = null;
       }
       setPublishStatus(null);
+      setDeleteTarget(null);
+      setDeleteError('');
       setMe({ authenticated: false, configured: true });
       clearActive();
     };
@@ -736,6 +811,7 @@ export default function App() {
         onOpenDraft={(id) => void openDraft(id)}
         onOpenPost={(post) => void openPost(post)}
         onDeleteDraft={(draft) => void handleDeleteDraft(draft)}
+        onDeletePost={askDeletePost}
         onLogout={() => void handleLogout()}
       />
 
@@ -758,6 +834,7 @@ export default function App() {
               }
             }}
             onPublish={() => void handlePublish()}
+            onDelete={requestDeleteActive}
             onUploadContent={uploadAssets}
             onUploadCover={uploadCover}
             onRemoveAsset={removeAsset}
@@ -823,6 +900,16 @@ export default function App() {
           status={publishStatus}
           title={editor?.title || active?.title || ''}
           onClose={closePublishDialog}
+        />
+      ) : null}
+
+      {deleteTarget ? (
+        <DeletePostDialog
+          post={deleteTarget}
+          busy={deleting}
+          error={deleteError}
+          onCancel={closeDeleteDialog}
+          onConfirm={() => void handleDeletePost()}
         />
       ) : null}
 

@@ -57,10 +57,22 @@ create table if not exists blog_admin.publish_log (
   draft_id    uuid references blog_admin.drafts(id) on delete set null,
   path        text not null,
   commit_sha  text not null,
-  mode        text not null check (mode in ('create', 'update')),
+  mode        text not null check (mode in ('create', 'update', 'delete')),
   github_id   bigint not null,
   created_at  timestamptz not null default now()
 );
+
+-- 旧库迁移：允许删除操作写入审计日志。
+do $$
+begin
+  alter table blog_admin.publish_log
+    drop constraint if exists publish_log_mode_check;
+  alter table blog_admin.publish_log
+    add constraint publish_log_mode_check
+    check (mode in ('create', 'update', 'delete'));
+exception
+  when duplicate_object then null;
+end $$;
 
 create index if not exists publish_log_created_idx
   on blog_admin.publish_log (created_at desc);

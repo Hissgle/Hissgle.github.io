@@ -265,11 +265,25 @@ export async function markPublished(
   );
 }
 
+export async function unlinkDraftsForSourcePath(sourcePath: string): Promise<number> {
+  const rows = await query<{ id: string }>(
+    `update blog_admin.drafts
+        set slug = null,
+            source_path = null,
+            published_at = null,
+            last_commit_sha = null
+      where source_path = $1
+      returning id`,
+    [sourcePath],
+  );
+  return rows.length;
+}
+
 export async function logPublish(input: {
-  draftId: string;
+  draftId: string | null;
   path: string;
   commitSha: string;
-  mode: 'create' | 'update';
+  mode: 'create' | 'update' | 'delete';
   githubId: number;
 }): Promise<void> {
   await query(

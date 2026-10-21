@@ -218,6 +218,26 @@ export async function getPost(slug: string): Promise<PostDetail | null> {
   }
 }
 
+export async function listPostImagePaths(slug: string): Promise<string[]> {
+  if (!slug || /[/\\]/.test(slug) || slug.includes('..')) {
+    throw new ApiError(422, '文章 slug 不合法');
+  }
+
+  const dir = `source/img/posts/${slug}`;
+  try {
+    const entries = await github<GitHubContent[] | GitHubContent>(
+      `/repos/${env.repo}/contents/${encodeRepoPath(dir)}?ref=${encodeURIComponent(env.branch)}`,
+    );
+    if (!Array.isArray(entries)) return [];
+    return entries
+      .filter((entry) => entry.type === 'file')
+      .map((entry) => entry.path);
+  } catch (error) {
+    if (error instanceof GitHubError && error.status === 404) return [];
+    throw error;
+  }
+}
+
 export async function listPosts(): Promise<PostSummary[]> {
   const entries = await github<GitHubContent[]>(
     `/repos/${env.repo}/contents/${encodeRepoPath('source/_posts')}?ref=${encodeURIComponent(env.branch)}`,
@@ -272,6 +292,7 @@ function assertCommitPath(path: string): void {
 
 async function commitOnce(
   files: CommitFile[],
+  deletions: string[],
   message: string,
 ): Promise<CommitResult> {
   const ref = await github<{ object: { sha: string } }>(
@@ -282,6 +303,9 @@ async function commitOnce(
   const baseCommit = await github<{ tree: { sha: string } }>(
     `/repos/${env.repo}/git/commits/${baseSha}`,
   );
+
+  const filePaths = new Set(files.map((file) => file.path));
+  const deletePaths = [...new Set(deletions)].filter((path) => !filePaths.has(path));
 
   const blobs = await Promise.all(
     files.map(async (file) => {
@@ -297,16 +321,27 @@ async function commitOnce(
     }),
   );
 
+  for (const path of deletePaths) assertCommitPath(path);
+
   const tree = await github<{ sha: string }>(`/repos/${env.repo}/git/trees`, {
     method: 'POST',
     body: JSON.stringify({
       base_tree: baseCommit.tree.sha,
-      tree: blobs.map((blob) => ({
-        path: blob.path,
-        mode: '100644',
-        type: 'blob',
-        sha: blob.sha,
-      })),
+      tree: [
+        ...blobs.map((blob) => ({
+          path: blob.path,
+          mode: '100644',
+          type: 'blob',
+          sha: blob.sha,
+        })),
+        // GitHub Git Data API：树条目 sha 为 null 表示删除该路径。
+        ...deletePaths.map((path) => ({
+          path,
+          mode: '100644',
+          type: 'blob',
+          sha: null,
+        })),
+      ],
     }),
   });
 
@@ -333,11 +368,12 @@ async function commitOnce(
 export async function commitFiles(
   files: CommitFile[],
   message: string,
+  deletions: string[] = [],
 ): Promise<CommitResult> {
   let lastError: unknown;
   for (let attempt = 0; attempt < 2; attempt += 1) {
     try {
-      return await commitOnce(files, message);
+      return await commitOnce(files, deletions, message);
     } catch (error) {
       lastError = error;
       if (

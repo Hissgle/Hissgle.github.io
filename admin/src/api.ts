@@ -1,5 +1,6 @@
 import type {
   Asset,
+  DeletePostResult,
   Draft,
   DraftSummary,
   Me,
@@ -142,6 +143,14 @@ export const api = {
       `/api/posts?slug=${encodeURIComponent(slug)}`,
     );
     return data.post;
+  },
+
+  async deletePost(slug: string): Promise<DeletePostResult> {
+    const data = await request<{ result: DeletePostResult }>(
+      `/api/posts?slug=${encodeURIComponent(slug)}`,
+      { method: 'DELETE' },
+    );
+    return data.result;
   },
 
   async publish(draftId: string): Promise<PublishResult> {
