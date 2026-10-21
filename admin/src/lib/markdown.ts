@@ -36,7 +36,9 @@ export function renderMarkdown(source: string, assets: Asset[]): string {
 
   const html = marked.parse(text, {
     gfm: true,
-    breaks: false,
+    // 站点用 hexo-renderer-marked，它的默认值是 breaks: true（单换行也折成 <br>）。
+    // 预览必须跟着一致，否则「预览正常、线上却串行或标记失效」。
+    breaks: true,
     async: false,
   }) as string;
 
