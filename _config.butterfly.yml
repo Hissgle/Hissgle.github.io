@@ -154,9 +154,9 @@ inject:
     # FastAPI 后端已隔离停用，恢复见 API-README.md
     # - '<script src="/js/api-stats.js"></script>'
 
-    # 右下角「写文章」入口。部署 Vercel 管理端后，把 data-admin-url 改成实际地址；
+    # 右下角「写文章」入口。地址是 Vercel 项目实际域名；换项目/域名时同步修改。
     # 留空或删掉这一行则完全不显示入口。
-    - '<script id="write-fab-script" src="/js/write-fab.js" data-admin-url="https://myblog-admin.vercel.app" defer></script>'
+    - '<script id="write-fab-script" src="/js/write-fab.js" data-admin-url="https://hissgle-github-io-9goh.vercel.app" defer></script>'
 
     # 滚动渐显：卡片进入视口时从下方 34px 淡入上移。样式见 /css/reveal.css。
     - <script src="/js/reveal.js"></script>

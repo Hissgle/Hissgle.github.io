@@ -45,8 +45,8 @@
 GitHub → Settings → Developer settings → OAuth Apps → New OAuth App：
 
 - **Application name**：`Hissgle Writing Desk`
-- **Homepage URL**：`https://myblog-admin.vercel.app`（换成你的 Vercel 域名）
-- **Authorization callback URL**：`https://myblog-admin.vercel.app/api/auth/callback`
+- **Homepage URL**：`https://hissgle-github-io-9goh.vercel.app`（当前 Vercel 实际域名；换项目名后同步改）
+- **Authorization callback URL**：`https://hissgle-github-io-9goh.vercel.app/api/auth/callback`
 
 创建后记下 `Client ID`，生成 `Client Secret`。Scope 在代码里固定为 `repo`（私有仓库需要）。
 
@@ -66,11 +66,11 @@ GitHub → Settings → Developer settings → Personal access tokens → Fine-g
 
 ### 1.3 Neon
 
-在 Neon 项目里新建一个 database（例如 `blog_admin`），拿 **pooled connection string**（带 `sslmode=require`）。
+当前已经通过 Vercel 的 Neon 集成把 `neon-crimson-globe` 连接到写作台项目 `hissgle-github-io-9goh`，并注入了 `DATABASE_URL`（Production + Preview）。写作台只使用独立的 `blog_admin` schema，不会碰 Waline 的 `public` 表。
+
+如果你要完全隔离，也可以在 Neon 里新建 database，改用新连接串；当前复用方案是安全的。
 
 在 Neon SQL Editor 里执行 `db/schema.sql`。管理端第一次访问时也会自动建表，但手动执行一次更直观。
-
-> 可以复用 Waline 的 Neon 项目，但建议新建 database 或至少独立 schema，不要把 `blog_admin` 和 Waline 的 `public` 表混在一起。
 
 ### 1.4 你的 GitHub 数字 ID
 
@@ -93,15 +93,15 @@ GITHUB_CONTENT_TOKEN=...          # 细粒度 PAT
 GITHUB_REPO=Hissgle/Hissgle.github.io
 GITHUB_BRANCH=main
 ADMIN_GITHUB_ID=...               # 数字 ID
-DATABASE_URL=postgresql://...     # Neon pooled，sslmode=require
+DATABASE_URL=postgresql://...     # 已由 Neon 集成自动注入；手动部署才需要自己填
 SESSION_SECRET=...                # 32+ 字节随机串
-ADMIN_BASE_URL=https://myblog-admin.vercel.app
+ADMIN_BASE_URL=https://hissgle-github-io-9goh.vercel.app
 SITE_BASE_URL=https://hissgle.github.io
 PUBLISH_TIMEZONE=Asia/Shanghai
 VITE_SITE_BASE_URL=https://hissgle.github.io
 ```
 
-6. Deploy。打开 `https://myblog-admin.vercel.app/api/health`，确认 `ok: true` 且 `configured` 全为 true。
+6. Deploy。打开 `https://hissgle-github-io-9goh.vercel.app/api/health`，确认 `ok: true` 且 `configured` 全为 true。
 7. 打开管理端，用你的 GitHub 登录。若提示 403：
    - 检查 `ADMIN_GITHUB_ID` 是否是数字 ID；
    - 检查 OAuth App 的 callback 是否与部署域名完全一致；
@@ -136,14 +136,14 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
 `_config.butterfly.yml` 的 `inject.bottom` 里：
 
 ```yaml
-- '<script id="write-fab-script" src="/js/write-fab.js" data-admin-url="https://myblog-admin.vercel.app" defer></script>'
+- '<script id="write-fab-script" src="/js/write-fab.js" data-admin-url="https://hissgle-github-io-9goh.vercel.app" defer></script>'
 ```
 
 把 `data-admin-url` 换成实际的 Vercel 域名（结尾不要 `/`）。然后：
 
 ```bash
 pnpm run site
-git add _config.butterfly.yml source/css/write-fab.css source/js/write-fab.js admin docs
+git add .gitignore _config.butterfly.yml source/css/write-fab.css source/js/write-fab.js admin docs
 git commit -m "feat: add writing desk entry and admin"
 git push origin main
 ```
