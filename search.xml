@@ -32,6 +32,12 @@
       </tags>
   </entry>
   <entry>
+    <title>测试文章</title>
+    <url>/2026/10/21/ce-shi-wen-zhang/</url>
+    <content><![CDATA[<p>这篇文章仅用于测试</p>
+]]></content>
+  </entry>
+  <entry>
     <title>Starlight星空动效背景</title>
     <url>/2026/09/19/Starlight%E6%98%9F%E7%A9%BA%E5%8A%A8%E6%95%88%E8%83%8C%E6%99%AF/</url>
     <content><![CDATA[<h1 id="该网站的背景采用此动效"><a href="#该网站的背景采用此动效" class="headerlink" title="该网站的背景采用此动效"></a>该网站的背景采用此动效</h1><p><strong>此背景的源码全部采用原生JavaScript</strong><br>特性：</p>
@@ -99,11 +105,5 @@
       <tags>
         <tag>技术随笔</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>测试文章</title>
-    <url>/2026/10/21/ce-shi-wen-zhang/</url>
-    <content><![CDATA[<p>这篇文章仅用于测试</p>
-]]></content>
   </entry>
 </search>
