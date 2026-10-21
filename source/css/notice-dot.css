@@ -1,0 +1,58 @@
+/* 侧边栏「公告」标题前的红色喇叭 → 白色呼吸圆点
+ *
+ * 尺寸依据实机测量：fa-bullhorn 字形墨迹正好 16×16px（图标 font-size 18px），
+ * 因此圆点直径取 0.89em，字形大小随字号等比缩放。
+ * 位置：圆点左缘对齐原字形左缘，标签「公告」的位置不发生任何位移。
+ *
+ * 亮度：最亮为纯白，最暗为 --font-color —— 侧边栏其它卡片标题图标继承的正是
+ * 这个变量（深色主题下是 rgba(255,255,255,.7)，渲染出来 #b8bac2），
+ * 所以最暗一帧与它们的亮度完全一致。
+ */
+
+.card-announcement .item-headline i.fa-bullhorn {
+  position: relative;
+  /* 隐藏喇叭字形，但保留它的占位宽度，标题不会左移 */
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  /* 停掉 fa-shake 的持续晃动 */
+  animation: none !important;
+}
+
+.card-announcement .item-headline i.fa-bullhorn::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  /* 字形左侧有约 2px 的 bearing，补回来才能和原喇叭墨迹的左缘重合 */
+  left: 0.1em;
+  width: 0.89em;
+  height: 0.89em;
+  border-radius: 50%;
+  background-color: #fff;
+  transform: translateY(-50%);
+  animation: notice-dot-breath 2.6s ease-in-out infinite;
+  will-change: background-color, box-shadow;
+}
+
+@keyframes notice-dot-breath {
+  0%,
+  100% {
+    background-color: #fff;
+    box-shadow:
+      0 0 6px rgba(255, 255, 255, 0.5),
+      0 0 12px rgba(255, 255, 255, 0.18);
+  }
+
+  50% {
+    background-color: var(--font-color);
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+/* 系统开启「减少动态效果」时保持常亮，不做呼吸 */
+@media (prefers-reduced-motion: reduce) {
+  .card-announcement .item-headline i.fa-bullhorn::after {
+    animation: none;
+    background-color: #fff;
+    box-shadow: none;
+  }
+}

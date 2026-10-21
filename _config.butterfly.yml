@@ -120,6 +120,8 @@ inject:
     - <link rel="stylesheet" href="/css/click-ripple.css">
     # 右下角「写文章」入口（Twitter 风格圆形加号，样式在 write-fab.css）
     - <link rel="stylesheet" href="/css/write-fab.css">
+    # 侧边栏「公告」前的红色晃动喇叭 → 白色呼吸圆点（样式在 notice-dot.css）
+    - <link rel="stylesheet" href="/css/notice-dot.css">
     # 主题 subtitle.pug 的 pjaxSendOnce 销毁回调里写的是裸标识符 `typed`（上游笔误，
     # 应为 window.typed）。首屏打字机还没初始化就点卡片跳走时该标识符不存在，会抛
     # ReferenceError。这里预先把全局变量定义成 null 让回调安全短路；不改 themes/ 下的
