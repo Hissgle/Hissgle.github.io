@@ -19,21 +19,20 @@ cover:
 # 页面背景：淡渐变，让卡片浮在上面有层次
 background: 'linear-gradient(180deg, #eef3fb 0%, #f7f9fc 40%, #f2f6fa 100%)'
 
-# 首屏副标题。effect: true = 打字机（Typed.js 逐字打出，带闪烁光标）；false = 静态文本直接显示。
+# 首屏副标题。effect: true = 打字机（逐字打出，带闪烁光标）；false = 静态文本直接显示。
 # 依据：themes/butterfly/layout/includes/third-party/subtitle.pug 的分支是 if (!{effect}) → 走 Typed，
 # 上游官方 _config.yml 注释也是 Typewriter Effect: true。注意本条语义曾在这里被写反过。
 # source: 1 表示调一言 API（v1.hitokoto.cn，不是百度的文心一言），
 # 取不到时自动退回下面的 sub 文案，兜底文案同样走打字机。
+#
+# 打字机循环已由 /js/subtitle-loop.js 接管（下方 inject 里注入）：主题只负责按 source
+# 取一次内容，之后「打完一轮 → 自动再取一条新的 → 回删后接着打」由这个脚本驱动。
+# 因此上游的 typed_option（typeSpeed / backSpeed / backDelay / loop）不再生效，
+# 速度、停留时长等参数改 /js/subtitle-loop.js 顶部的 CFG；光标样式见 /css/subtitle-loop.css。
 subtitle:
   enable: true
   effect: true
   source: 1
-  typed_option:
-    typeSpeed: 60
-    backSpeed: 10
-    backDelay: 2200
-    loop: true
-    showCursor: true # 打字过程与暂停期间显示光标（typed.js 默认开，显式写出防版本默认值变化）
   sub:
     - 我已随暖春一同离去，但你会熟悉这片天空
 
@@ -122,6 +121,8 @@ inject:
     - <link rel="stylesheet" href="/css/write-fab.css">
     # 侧边栏「公告」前的红色晃动喇叭 → 白色呼吸圆点（样式在 notice-dot.css）
     - <link rel="stylesheet" href="/css/notice-dot.css">
+    # 首屏副标题打字机的光标（逻辑在下方 bottom 的 /js/subtitle-loop.js）
+    - <link rel="stylesheet" href="/css/subtitle-loop.css">
     # 主题 subtitle.pug 的 pjaxSendOnce 销毁回调里写的是裸标识符 `typed`（上游笔误，
     # 应为 window.typed）。首屏打字机还没初始化就点卡片跳走时该标识符不存在，会抛
     # ReferenceError。这里预先把全局变量定义成 null 让回调安全短路；不改 themes/ 下的
@@ -174,6 +175,10 @@ inject:
     - <script src="/js/header-fade.js"></script>
     - <script src="/js/gallery-fade.js"></script>
     - <script src="/js/search-ui.js"></script>
+
+    # 首屏副标题打字机：打完一轮自动再取一条一言接着打（接管主题的 processSubtitle）。
+    # 必须在主题的 subtitle 脚本之后执行，所以放在 bottom。参数在脚本顶部 CFG。
+    - <script src="/js/subtitle-loop.js"></script>
 
     # 鼠标点击处的透明水波纹涟漪，取代主题自带的爱心特效。样式见 /css/click-ripple.css。
     - <script src="/js/click-ripple.js"></script>

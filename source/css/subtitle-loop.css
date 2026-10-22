@@ -1,0 +1,29 @@
+/*!
+ * subtitle-loop.css — 首屏副标题打字机的光标（逻辑见 /js/subtitle-loop.js）
+ *
+ * 主题只在 Typed.js 生效时才自带光标（.typed-cursor），现在打字机由自定义脚本驱动，
+ * 光标用 #subtitle 的 ::after 画一根竖线。data-tw 是脚本接管时打上的标记，
+ * 万一脚本没接管（Typed 还在跑），这里不会多出第二个光标。
+ */
+#subtitle[data-tw]::after {
+  content: '';
+  display: inline-block;
+  width: 0.08em;
+  min-width: 2px;
+  height: 1em;
+  margin-left: 0.12em;
+  vertical-align: -0.12em;
+  background: currentColor;
+  animation: subtitle-cursor 1s steps(1, end) infinite;
+}
+
+@keyframes subtitle-cursor {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* 回删到空的时候别让容器塌陷，否则下方的社交图标会跳一下 */
+#site-subtitle {
+  min-height: 1.5em;
+}
