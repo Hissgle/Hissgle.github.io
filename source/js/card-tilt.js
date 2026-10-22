@@ -117,10 +117,7 @@
       lift: 0,
       vLift: 0,
       hover: false,
-      // 指针在卡片内的归一化位置（-1..1），供光影层定位高光与投影方向
-      nx: 0,
-      ny: 0,
-      last: { x: NaN, y: NaN, lift: NaN, nx: NaN, ny: NaN }
+      last: { x: NaN, y: NaN, lift: NaN }
     };
   }
 
@@ -145,8 +142,6 @@
 
     s.tx = -ny * MAX_TILT;
     s.ty = nx * MAX_TILT;
-    s.nx = nx;
-    s.ny = ny;
   }
 
   function write(s, force) {
@@ -155,21 +150,15 @@
       force ||
       !(Math.abs(l.x - s.x) <= EPS) ||
       !(Math.abs(l.y - s.y) <= EPS) ||
-      !(Math.abs(l.lift - s.lift) <= 0.001) ||
-      !(Math.abs(l.nx - s.nx) <= EPS) ||
-      !(Math.abs(l.ny - s.ny) <= EPS);
+      !(Math.abs(l.lift - s.lift) <= 0.001);
     if (dirty) {
       l.x = s.x;
       l.y = s.y;
       l.lift = s.lift;
-      l.nx = s.nx;
-      l.ny = s.ny;
       var st = s.el.style;
       st.setProperty('--ct-rx', s.x.toFixed(3) + 'deg');
       st.setProperty('--ct-ry', s.y.toFixed(3) + 'deg');
       st.setProperty('--ct-lift', s.lift.toFixed(4));
-      st.setProperty('--ct-nx', s.nx.toFixed(4));
-      st.setProperty('--ct-ny', s.ny.toFixed(4));
     }
   }
 
@@ -320,8 +309,6 @@
     el.style.removeProperty('--ct-rx');
     el.style.removeProperty('--ct-ry');
     el.style.removeProperty('--ct-lift');
-    el.style.removeProperty('--ct-nx');
-    el.style.removeProperty('--ct-ny');
   }
 
   function reset() {
