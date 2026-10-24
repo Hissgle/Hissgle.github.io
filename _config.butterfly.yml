@@ -121,6 +121,8 @@ inject:
     - <link rel="stylesheet" href="/css/write-fab.css">
     # 侧边栏「公告」前的红色晃动喇叭 → 白色呼吸圆点（样式在 notice-dot.css）
     - <link rel="stylesheet" href="/css/notice-dot.css">
+    # 首屏站名的小幅度湍流漂移（逻辑在下方 bottom 的 /js/title-drift.js）
+    - <link rel="stylesheet" href="/css/title-drift.css">
     # 首屏副标题打字机的光标（逻辑在下方 bottom 的 /js/subtitle-loop.js）
     - <link rel="stylesheet" href="/css/subtitle-loop.css">
     # 主题 subtitle.pug 的 pjaxSendOnce 销毁回调里写的是裸标识符 `typed`（上游笔误，
@@ -179,6 +181,9 @@ inject:
     # 首屏副标题打字机：打完一轮自动再取一条一言接着打（接管主题的 processSubtitle）。
     # 必须在主题的 subtitle 脚本之后执行，所以放在 bottom。参数在脚本顶部 CFG。
     - <script src="/js/subtitle-loop.js"></script>
+
+    # 首屏站名按字符连续随机漂移；幅度在脚本顶部 CFG，尊重系统减少动态效果设置。
+    - <script src="/js/title-drift.js"></script>
 
     # 鼠标点击处的透明水波纹涟漪，取代主题自带的爱心特效。样式见 /css/click-ripple.css。
     - <script src="/js/click-ripple.js"></script>

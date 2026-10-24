@@ -1,0 +1,14 @@
+/* 首屏站名：字符独立漂移，布局仍保留原始字距和尺寸。 */
+#site-title[data-drift] .title-drift-char {
+  display: inline-block;
+  white-space: pre;
+  transform-origin: 50% 65%;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #site-title .title-drift-char {
+    transform: none !important;
+    will-change: auto;
+  }
+}

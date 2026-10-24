@@ -9,9 +9,8 @@
   var EVADED = 'ct-evaded';
 
   var MAX_TILT = 14;
-  var SETTLE = 55;
-  var BOUNCE = 0.75;
-  var MAX_SPEED = 520;
+  var SETTLE = 46;
+  var BOUNCE = 0.62;
 
   var ZETA = 1 - BOUNCE * 0.62;
   var OMEGA = 2100 / SETTLE;
@@ -20,6 +19,7 @@
 
   var root = document.documentElement;
   var cards = [];
+  var activeCards = [];
   var raf = 0;
   var lastTime = 0;
 
@@ -106,6 +106,8 @@
   function makeState(el) {
     return {
       el: el,
+      left: 0,
+      top: 0,
       w: 0,
       h: 0,
       tx: 0,
@@ -117,26 +119,31 @@
       lift: 0,
       vLift: 0,
       hover: false,
+      active: false,
       last: { x: NaN, y: NaN, lift: NaN }
     };
   }
 
   function measure(s) {
-    var r = s.el.getBoundingClientRect();
-    s.w = r.width || 1;
-    s.h = r.height || 1;
+    /* offset* 不受卡片自身的倾斜/缩放影响，缓存文档坐标后无需在 mousemove 里读布局。 */
+    var el = s.el;
+    var node = el;
+    var left = 0;
+    var top = 0;
+    while (node) {
+      left += node.offsetLeft || 0;
+      top += node.offsetTop || 0;
+      node = node.offsetParent;
+    }
+    s.left = left;
+    s.top = top;
+    s.w = el.offsetWidth || 1;
+    s.h = el.offsetHeight || 1;
   }
 
   function aim(s, clientX, clientY) {
-    var r = s.el.getBoundingClientRect();
-    if (!r.width || !r.height) {
-      return;
-    }
-    s.w = r.width;
-    s.h = r.height;
-
-    var nx = ((clientX - r.left) / r.width) * 2 - 1;
-    var ny = ((clientY - r.top) / r.height) * 2 - 1;
+    var nx = ((clientX + window.pageXOffset - s.left) / s.w) * 2 - 1;
+    var ny = ((clientY + window.pageYOffset - s.top) / s.h) * 2 - 1;
     nx = Math.max(-1.15, Math.min(1.15, nx));
     ny = Math.max(-1.15, Math.min(1.15, ny));
 
@@ -155,37 +162,50 @@
       l.x = s.x;
       l.y = s.y;
       l.lift = s.lift;
-      var st = s.el.style;
-      st.setProperty('--ct-rx', s.x.toFixed(3) + 'deg');
-      st.setProperty('--ct-ry', s.y.toFixed(3) + 'deg');
-      st.setProperty('--ct-lift', s.lift.toFixed(4));
+      /* 每帧只写一个合成属性，避免多个 CSS 变量触发放大样式计算。 */
+      s.el.style.transform =
+        'translate3d(0, calc(' + s.lift.toFixed(4) + ' * var(--ct-lift-y, -10px)), 0) ' +
+        'scale(calc(1 + ' + s.lift.toFixed(4) + ' * var(--ct-zoom, 0.03))) ' +
+        'rotateX(' + s.x.toFixed(3) + 'deg) rotateY(' + s.y.toFixed(3) + 'deg)';
     }
   }
 
-  function step(s, dt) {
+  function springCoefficients(dt) {
+    /* 欠阻尼弹簧的解析解：不依赖固定帧率，低帧率下也不会积分发散。 */
+    var a = ZETA * OMEGA;
+    var wd = OMEGA * Math.sqrt(1 - ZETA * ZETA);
+    var e = Math.exp(-a * dt);
+    var sin = Math.sin(wd * dt);
+    var cos = Math.cos(wd * dt);
+    var es = e * sin;
+    return {
+      xx: e * cos + (a / wd) * es,
+      xv: es / wd,
+      vx: -(OMEGA * OMEGA / wd) * es,
+      vv: e * cos - (a / wd) * es
+    };
+  }
+
+  function step(s, c) {
     if (!s.hover) {
       s.tx = 0;
       s.ty = 0;
     }
 
-    var w2 = OMEGA * OMEGA;
-    var dz = 2 * ZETA * OMEGA;
-
-    function advance(x, v, target) {
-      v += (w2 * (target - x) - dz * v) * dt;
-      if (v > MAX_SPEED) { v = MAX_SPEED; }
-      if (v < -MAX_SPEED) { v = -MAX_SPEED; }
-      return [x + v * dt, v];
-    }
-
-    var rx = advance(s.x, s.vx, s.tx);
-    s.x = rx[0]; s.vx = rx[1];
-    var ry = advance(s.y, s.vy, s.ty);
-    s.y = ry[0]; s.vy = ry[1];
-
+    var dx = s.x - s.tx;
+    var dy = s.y - s.ty;
+    var vx = s.vx;
+    var vy = s.vy;
     var goal = s.hover ? 1 : 0;
-    var lf = advance(s.lift, s.vLift, goal);
-    s.lift = lf[0]; s.vLift = lf[1];
+    var dl = s.lift - goal;
+    var vl = s.vLift;
+
+    s.x = s.tx + c.xx * dx + c.xv * vx;
+    s.vx = c.vx * dx + c.vv * vx;
+    s.y = s.ty + c.xx * dy + c.xv * vy;
+    s.vy = c.vx * dy + c.vv * vy;
+    s.lift = goal + c.xx * dl + c.xv * vl;
+    s.vLift = c.vx * dl + c.vv * vl;
 
     var rest =
       Math.abs(s.tx - s.x) < 0.01 &&
@@ -216,11 +236,8 @@
     if (!(dt > 0)) {
       return 1 / 60;
     }
-    if (dt > 1 / 30) {
-      return 1 / 30;
-    }
-    if (dt < 1 / 240) {
-      return 1 / 240;
+    if (dt > 0.05) {
+      return 0.05;
     }
     return dt;
   }
@@ -228,15 +245,25 @@
   function loop(now) {
     raf = 0;
     var dt = clampDt(now || 0);
-    var alive = false;
-    for (var i = 0; i < cards.length; i++) {
-      if (step(cards[i], dt)) {
-        alive = true;
+    var c = springCoefficients(dt);
+    for (var i = activeCards.length - 1; i >= 0; i--) {
+      var s = activeCards[i];
+      if (!step(s, c)) {
+        s.active = false;
+        activeCards.splice(i, 1);
       }
     }
-    if (alive) {
+    if (activeCards.length) {
       raf = requestAnimationFrame(loop);
     }
+  }
+
+  function wake(s) {
+    if (!s.active) {
+      s.active = true;
+      activeCards.push(s);
+    }
+    kick();
   }
 
   function kick() {
@@ -247,32 +274,23 @@
   }
 
   function onEnter(s) {
-    s.hover = true;
-    s.el.classList.add(ACTIVE);
-    s.el.classList.add(EVADED);
-    kick();
+    if (!s.hover) {
+      s.hover = true;
+      s.el.classList.add(ACTIVE);
+      s.el.classList.add(EVADED);
+    }
+    wake(s);
   }
 
   function onMove(s, ev) {
-    var x = ev.clientX;
-    var y = ev.clientY;
-
-    var r = s.el.getBoundingClientRect();
-    if (x < r.left || x > r.right || y < r.top || y > r.bottom) {
-      return;
-    }
-
-    aim(s, x, y);
-    if (!s.hover) {
-      onEnter(s);
-    }
-    kick();
+    aim(s, ev.clientX, ev.clientY);
+    onEnter(s);
   }
 
   function onLeave(s) {
     s.hover = false;
     s.el.classList.remove(ACTIVE);
-    kick();
+    wake(s);
   }
 
   function bind(s) {
@@ -282,8 +300,9 @@
     }
     el.setAttribute(BOUND, '1');
 
-    el.addEventListener('mouseenter', function () {
+    el.addEventListener('mouseenter', function (ev) {
       measure(s);
+      aim(s, ev.clientX, ev.clientY);
       onEnter(s);
     });
     el.addEventListener('mousemove', function (ev) {
@@ -306,6 +325,7 @@
   function cleanup(el) {
     el.classList.remove(ACTIVE, READY, EVADED);
     el.removeAttribute(BOUND);
+    el.style.removeProperty('transform');
     el.style.removeProperty('--ct-rx');
     el.style.removeProperty('--ct-ry');
     el.style.removeProperty('--ct-lift');
@@ -317,10 +337,12 @@
       raf = 0;
     }
     cards.forEach(function (s) {
+      s.active = false;
       cleanup(s.el);
     });
     [].slice.call(document.querySelectorAll('.' + ACTIVE + ', .' + READY + ', .' + EVADED)).forEach(cleanup);
     cards = [];
+    activeCards = [];
     root.classList.remove('card-tilt-on');
   }
 
