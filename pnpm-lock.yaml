@@ -60,8 +60,8 @@ importers:
         specifier: ^1.0.5
         version: 1.0.5
       moment-timezone:
-        specifier: ^0.6.4
-        version: 0.6.4
+        specifier: ^0.6.6
+        version: 0.6.6
 
 packages:
 
@@ -2554,8 +2554,8 @@ packages:
   moment-timezone@0.5.48:
     resolution: {integrity: sha512-f22b8LV1gbTO2ms2j2z13MuPogNoh5UzxL3nzNAYKGraILnbGc9NEE6dyiiiLv46DGRb8A4kg8UKWLjPthxBHw==}
 
-  moment-timezone@0.6.4:
-    resolution: {integrity: sha512-JHUK8Mgheach4uMQmIV/pIfrv0ubPiDCPPqc7Mi604je1UblP6Gbm+FfV+Oh88KP03rZqGCZG3t0wmpfdlDv+w==}
+  moment-timezone@0.6.6:
+    resolution: {integrity: sha512-LF5AAYsMduXFW2ungr/D9JqNq9ykZyhWgYG6wFtdGZW5ZlBDTBgTUFqW8EC7Fa+Dvs3IMZxlWkSR09sW2D/+0w==}
 
   moment@2.31.0:
     resolution: {integrity: sha512-0acOTfMiWOheYS4eoWb80yYMb/JLvVv9SHbs2PehaDzfUG0Bw855SKyk0IKTnPGa5+U2bmi3W68l1+sGLX/pvw==}
@@ -6082,7 +6082,7 @@ snapshots:
       hexo-renderer-pug: 3.0.0
       hexo-renderer-stylus: 3.0.1(supports-color@5.5.0)
       hexo-util: 4.0.0
-      moment-timezone: 0.6.4
+      moment-timezone: 0.6.6
     transitivePeerDependencies:
       - supports-color
 
@@ -7046,7 +7046,7 @@ snapshots:
     dependencies:
       moment: 2.31.0
 
-  moment-timezone@0.6.4:
+  moment-timezone@0.6.6:
     dependencies:
       moment: 2.31.0
 
